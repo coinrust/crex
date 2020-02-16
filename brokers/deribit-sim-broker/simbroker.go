@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	PositionSizeLimit = 100000 // 持仓限制
+	PositionSizeLimit = 100000 // Position size limit
 )
 
 type MarginInfo struct {
@@ -22,16 +22,16 @@ type MarginInfo struct {
 	LiquidationPriceShort float64
 }
 
-// DiribitSimBroker 实现deribit模拟交易所，为了支持回测
+// DiribitSimBroker the deribit broker for backtest
 type DiribitSimBroker struct {
 	data          *data.Data
-	makerFeeRate  float64 // -0.00025	// Maker 费率
-	takerFeeRate  float64 // 0.00075	// Taker 费率
+	makerFeeRate  float64 // -0.00025	// Maker fee rate
+	takerFeeRate  float64 // 0.00075	// Taker fee rate
 	balance       float64
-	orders        map[uint64]*Order    // 所有委托 key: OrderID value: Order
-	openOrders    map[uint64]*Order    // 活跃委托
-	historyOrders map[uint64]*Order    // 历史委托
-	positions     map[string]*Position // 持仓 key: symbol
+	orders        map[uint64]*Order    // All orders key: OrderID value: Order
+	openOrders    map[uint64]*Order    // Open orders
+	historyOrders map[uint64]*Order    // History orders
+	positions     map[string]*Position // Position key: symbol
 }
 
 func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
@@ -342,7 +342,7 @@ func NewBroker(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate
 	return &DiribitSimBroker{
 		data:          data,
 		balance:       cash,
-		makerFeeRate:  makerFeeRate, // -0.00025	// Maker 费率
+		makerFeeRate:  makerFeeRate, // -0.00025 // Maker 费率
 		takerFeeRate:  takerFeeRate, // 0.00075	// Taker 费率
 		orders:        make(map[uint64]*Order),
 		openOrders:    make(map[uint64]*Order),

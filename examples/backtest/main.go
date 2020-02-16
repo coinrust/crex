@@ -5,6 +5,7 @@ import (
 	"github.com/coinrust/gotrader/backtest"
 	"github.com/coinrust/gotrader/brokers/deribit-sim-broker"
 	"github.com/coinrust/gotrader/data"
+	. "github.com/coinrust/gotrader/models"
 )
 
 type BasicStrategy struct {
@@ -16,7 +17,19 @@ func (s *BasicStrategy) OnInit() {
 }
 
 func (s *BasicStrategy) OnTick() {
+	currency := "BTC"
+	symbol := "BTC-PERPETUAL"
 
+	s.Brokers[0].GetAccountSummary(currency)
+	s.Brokers[1].GetAccountSummary(currency)
+
+	s.Brokers[0].GetOrderBook(symbol, 10)
+	s.Brokers[1].GetOrderBook(symbol, 10)
+
+	s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false)
+
+	s.Brokers[0].GetOpenOrders(symbol)
+	s.Brokers[0].GetPosition(symbol)
 }
 
 func (s *BasicStrategy) OnDeinit() {
