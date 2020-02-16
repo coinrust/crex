@@ -27,9 +27,9 @@ Feel free to donate:
 
 | METHOD  | ADDRESS                                     |
 |-------- |-------------------------------------------- |
-| BTC     | 1DVgmv6jkUiGrnuEv1swdGRyhQsZjX9MT3          |
-| ETH     | 0x2fe7bd8a41e91e9284aada0055dbb15ecececf02  |
-| USDT    | 18obCEVmbT6MHXDcPoFwnUuCmkttLbK5Xo          |
+| BTC     | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
+| ETH     | 0xa74eade7ea08a8c48d7de4d582fac145afc86e3d  |
+| USDT    | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
 
 ### LICENSE
 MIT [©coinrust](https://github.com/coinrust)
