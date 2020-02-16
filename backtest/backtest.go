@@ -9,15 +9,12 @@ import (
 type Backtest struct {
 	data     *data.Data
 	strategy Strategy
-	//cash     []float64
-	brokers []Broker
-	logs    LogItems
+	brokers  []Broker
+	logs     LogItems
 }
 
-// NewBacktest 创建回测
-// data: 数据
-// cash: 初始资金,多个账号
-//func NewBacktest(data *data.Data, strategy Strategy, cash []float64, makerFeeRate float64, takerFeeRate float64) *Backtest {
+// NewBacktest Create backtest
+// data: The data
 func NewBacktest(data *data.Data, strategy Strategy, brokers []Broker) *Backtest {
 	b := &Backtest{
 		data:     data,
@@ -29,11 +26,11 @@ func NewBacktest(data *data.Data, strategy Strategy, brokers []Broker) *Backtest
 	return b
 }
 
-// Run 运行回测
+// Run Run backtest
 func (b *Backtest) Run() {
 	b.data.Reset()
 
-	// 初始化
+	// Init
 	b.strategy.OnInit()
 
 	nBrokers := len(b.brokers)
@@ -48,7 +45,7 @@ func (b *Backtest) Run() {
 		}
 	}
 
-	// 完成
+	// Deinit
 	b.strategy.OnDeinit()
 }
 
@@ -73,7 +70,7 @@ func (b *Backtest) addItemStats(nBrokers int) {
 	b.logs = append(b.logs, item)
 }
 
-// ComputeStats 计算回测的统计信息
+// ComputeStats Calculating Backtest Statistics
 func (b *Backtest) ComputeStats() (result *Stats) {
 	if len(b.logs) == 0 {
 		return
@@ -99,7 +96,7 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 	return
 }
 
-// Plot 输出回测结果
+// Plot Output backtest results
 func (b *Backtest) Plot() {
 
 }

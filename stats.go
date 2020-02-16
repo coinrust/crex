@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Stats 回测的统计信息
+// Stats Backtesting Statistics
 type Stats struct {
 	Start           time.Time     `json:"start"`
 	End             time.Time     `json:"end"`
