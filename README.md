@@ -4,8 +4,10 @@ Cryptocurrency Trading Bot (Experimental).
 Note: This is still in active development.
 
 ### Backtesting
+See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
 ### Live trading
+See [@live](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
 
 ### Main Features
 * Event driven.
@@ -17,7 +19,7 @@ Note: This is still in active development.
 | BitMEX        | No                | No                |
 | Deribit       | Yes               | Yes               |
 
-### TODO:
+### TODO
 * Support backtesting & live trading for BitMEX.
 * Paper trading.
 
