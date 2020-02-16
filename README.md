@@ -16,8 +16,8 @@ See [@live](https://github.com/coinrust/gotrader/blob/master/examples/live/main.
 ### Supported Exchanges
 | Exchange Name | Backtesting       | Live trading      |
 | ------------- |------------------ | ----------------- |
-| BitMEX        | No                | No                |
-| Deribit       | Yes               | Yes               |
+| [BitMEX](https://www.bitmex.com/)        | No                | No                |
+| [Deribit](https://www.deribit.com/reg-7357.93)       | Yes               | Yes               |
 
 ### TODO
 * Support backtesting & live trading for BitMEX.
