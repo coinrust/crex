@@ -10,10 +10,11 @@ type LogStats struct {
 }
 
 type LogItem struct {
-	Time  time.Time  `json:"time"`
-	Ask   float64    `json:"ask"`
-	Bid   float64    `json:"bid"`
-	Stats []LogStats `json:"stats"`
+	Time    time.Time  `json:"time"`
+	RawTime time.Time  `json:"raw_time"`
+	Ask     float64    `json:"ask"`
+	Bid     float64    `json:"bid"`
+	Stats   []LogStats `json:"stats"`
 }
 
 func (i *LogItem) Price() float64 {

@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	. "github.com/coinrust/gotrader"
 	"github.com/coinrust/gotrader/backtest"
 	"github.com/coinrust/gotrader/brokers/deribit-sim-broker"
 	"github.com/coinrust/gotrader/data"
-	. "github.com/coinrust/gotrader/models"
 )
 
 type BasicStrategy struct {
@@ -26,7 +26,7 @@ func (s *BasicStrategy) OnTick() {
 	s.Brokers[0].GetOrderBook(symbol, 10)
 	s.Brokers[1].GetOrderBook(symbol, 10)
 
-	s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false)
+	//s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false)
 
 	s.Brokers[0].GetOpenOrders(symbol)
 	s.Brokers[0].GetPosition(symbol)
@@ -48,6 +48,12 @@ func main() {
 		s,
 		brokers)
 	bt.Run()
+
+	logs := bt.GetLogs()
+	for _, v := range logs {
+		fmt.Printf("Time: %v Price: %v Equity: %v\n", v.Time, v.Price(), v.TotalEquity())
+	}
+
 	bt.ComputeStats().PrintResult()
 	//bt.Plot()
 }

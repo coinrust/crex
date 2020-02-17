@@ -4,6 +4,7 @@ import (
 	. "github.com/coinrust/gotrader"
 	data "github.com/coinrust/gotrader/data"
 	"log"
+	"time"
 )
 
 type Backtest struct {
@@ -33,14 +34,12 @@ func (b *Backtest) Run() {
 	// Init
 	b.strategy.OnInit()
 
-	nBrokers := len(b.brokers)
-
 	for {
 		b.strategy.OnTick()
 
 		b.runEventLoopOnce()
 
-		b.addItemStats(nBrokers)
+		b.addItemStats()
 
 		if !b.data.Next() {
 			break
@@ -57,15 +56,45 @@ func (b *Backtest) runEventLoopOnce() {
 	}
 }
 
-func (b *Backtest) addItemStats(nBrokers int) {
+func (b *Backtest) addItemStats() {
 	tick := b.data.GetTick()
-	item := &LogItem{
-		Time:  tick.Timestamp,
-		Ask:   tick.Ask,
-		Bid:   tick.Bid,
-		Stats: nil,
+	tm := tick.Timestamp
+	update := false
+	timestamp := time.Date(tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute()+1, 0, 0, time.UTC)
+	var lastItem *LogItem
+
+	if len(b.logs) > 0 {
+		lastItem = b.logs[len(b.logs)-1]
+		if timestamp.Unix() == lastItem.Time.Unix() {
+			update = true
+			return
+		}
 	}
-	for i := 0; i < nBrokers; i++ {
+	var item *LogItem
+	if update {
+		item = lastItem
+		item.RawTime = tick.Timestamp
+		item.Ask = tick.Ask
+		item.Bid = tick.Bid
+		item.Stats = nil
+		b.fetchItemStats(item)
+	} else {
+		item = &LogItem{
+			Time:    timestamp,
+			RawTime: tick.Timestamp,
+			Ask:     tick.Ask,
+			Bid:     tick.Bid,
+			Stats:   nil,
+		}
+		b.fetchItemStats(item)
+		b.logs = append(b.logs, item)
+		//log.Printf("%v / %v", tick.Timestamp, timestamp)
+	}
+}
+
+func (b *Backtest) fetchItemStats(item *LogItem) {
+	n := len(b.brokers)
+	for i := 0; i < n; i++ {
 		accountSummary, err := b.brokers[i].GetAccountSummary("BTC")
 		if err != nil {
 			log.Fatal(err)
@@ -75,11 +104,16 @@ func (b *Backtest) addItemStats(nBrokers int) {
 			Equity:  accountSummary.Equity,
 		})
 	}
-	b.logs = append(b.logs, item)
+}
+
+func (b *Backtest) GetLogs() LogItems {
+	return b.logs
 }
 
 // ComputeStats Calculating Backtest Statistics
 func (b *Backtest) ComputeStats() (result *Stats) {
+	result = &Stats{}
+
 	if len(b.logs) == 0 {
 		return
 	}
@@ -88,7 +122,6 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 
 	n := len(logs)
 
-	result = &Stats{}
 	result.Start = logs[0].Time
 	result.End = logs[n-1].Time
 	result.Duration = result.End.Sub(result.Start)
