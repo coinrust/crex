@@ -211,6 +211,10 @@ func (b *DiribitBroker) orderStatus(order *models.Order) OrderStatus {
 	}
 }
 
+func (b *DiribitBroker) RunEventLoopOnce() (err error) {
+	return
+}
+
 func NewBroker(addr string, apiKey string, secretKey string) *DiribitBroker {
 	cfg := &deribit.Configuration{
 		Addr:          addr,

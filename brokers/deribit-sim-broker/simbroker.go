@@ -89,7 +89,7 @@ func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderT
 		Status:       OrderStatusNew,
 	}
 
-	err = b.matchOrder(order)
+	err = b.matchOrder(order, true)
 	if err != nil {
 		return
 	}
@@ -105,12 +105,12 @@ func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderT
 }
 
 // 撮合成交
-func (b *DiribitSimBroker) matchOrder(order *Order) (err error) {
+func (b *DiribitSimBroker) matchOrder(order *Order, immediate bool) (err error) {
 	switch order.Type {
 	case OrderTypeMarket:
 		err = b.matchMarketOrder(order)
 	case OrderTypeLimit:
-		err = b.matchLimitOrder(order)
+		err = b.matchLimitOrder(order, immediate)
 	}
 	return
 }
@@ -160,13 +160,13 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 		price := tick.Ask
 		size := order.Amount
 
-		// 交易费
+		// trade fee
 		fee := size / price * b.takerFeeRate
 
-		// 更新Balance
+		// Update balance
 		b.addBalance(-fee)
 
-		// 更新Position
+		// Update position
 		b.updatePosition(order.Symbol, size, price)
 	} else if order.Direction == Sell {
 		maxAmount = margin * 100 * tick.Bid
@@ -178,35 +178,74 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 		price := tick.Bid
 		size := order.Amount
 
-		// 交易费
+		// trade fee
 		fee := size / price * b.takerFeeRate
 
-		// 更新Balance
+		// Update balance
 		b.addBalance(-fee)
 
-		// 更新Position
+		// Update position
 		b.updatePosition(order.Symbol, -size, price)
 	}
 	return
 }
 
-func (b *DiribitSimBroker) matchLimitOrder(order *Order) (err error) {
+func (b *DiribitSimBroker) matchLimitOrder(order *Order, immediate bool) (err error) {
 	if !order.IsOpen() {
 		return
 	}
 
-	// 限价单
 	tick := b.data.GetTick()
-	if order.Direction == Buy { // 买单
+	if order.Direction == Buy { // Bid order
 		if order.Price >= tick.Ask {
-			// TODO: 成交
+			if immediate && order.PostOnly {
+				order.Status = OrderStatusRejected
+				return
+			}
+
+			// match trade
+			size := order.Amount
+			var fee float64
+
+			// trade fee
+			if immediate {
+				fee = size / order.Price * b.takerFeeRate
+			} else {
+				fee = size / order.Price * b.makerFeeRate
+			}
+
+			// Update balance
+			b.addBalance(-fee)
+
+			// Update position
+			b.updatePosition(order.Symbol, size, order.Price)
 		}
-	} else { // 卖单
+	} else { // Ask order
 		if order.Price <= tick.Bid {
-			// TODO: 成交
+			if immediate && order.PostOnly {
+				order.Status = OrderStatusRejected
+				return
+			}
+
+			// match trade
+			size := order.Amount
+			var fee float64
+
+			// trade fee
+			if immediate {
+				fee = size / order.Price * b.takerFeeRate
+			} else {
+				fee = size / order.Price * b.makerFeeRate
+			}
+
+			// Update balance
+			b.addBalance(-fee)
+
+			// Update position
+			b.updatePosition(order.Symbol, -size, order.Price)
 		}
 	}
-	return errors.New("暂不支持限价单")
+	return
 }
 
 // 更新持仓
@@ -335,6 +374,13 @@ func (b *DiribitSimBroker) GetPosition(symbol string) (result Position, err erro
 		return
 	}
 	result = *position
+	return
+}
+
+func (b *DiribitSimBroker) RunEventLoopOnce() (err error) {
+	for _, order := range b.openOrders {
+		b.matchOrder(order, false)
+	}
 	return
 }
 

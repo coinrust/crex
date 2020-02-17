@@ -12,4 +12,5 @@ type Broker interface {
 	GetOpenOrders(symbol string) (result []Order, err error)
 	GetOrder(symbol string, id uint64) (result Order, err error)
 	GetPosition(symbol string) (result Position, err error)
+	RunEventLoopOnce() (err error) // Run sim match for backtest only
 }

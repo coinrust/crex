@@ -38,6 +38,8 @@ func (b *Backtest) Run() {
 	for {
 		b.strategy.OnTick()
 
+		b.runEventLoopOnce()
+
 		b.addItemStats(nBrokers)
 
 		if !b.data.Next() {
@@ -47,6 +49,12 @@ func (b *Backtest) Run() {
 
 	// Deinit
 	b.strategy.OnDeinit()
+}
+
+func (b *Backtest) runEventLoopOnce() {
+	for _, broker := range b.brokers {
+		broker.RunEventLoopOnce()
+	}
 }
 
 func (b *Backtest) addItemStats(nBrokers int) {
