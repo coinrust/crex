@@ -376,6 +376,7 @@ func (b *DiribitSimBroker) CancelOrder(symbol string, id string) (result Order, 
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
+			result = *order
 			delete(b.openOrders, id)
 		default:
 			err = errors.New("error")
