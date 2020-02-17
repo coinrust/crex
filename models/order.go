@@ -2,7 +2,7 @@ package models
 
 // Order 委托
 type Order struct {
-	ID           uint64      // ID
+	ID           string      // ID
 	Symbol       string      // 标
 	Price        float64     // 价格
 	Amount       float64     // 委托数量

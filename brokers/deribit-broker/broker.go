@@ -1,11 +1,9 @@
 package deribit_broker
 
 import (
-	"fmt"
 	. "github.com/coinrust/gotrader/models"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
-	"strconv"
 	"time"
 )
 
@@ -123,15 +121,32 @@ func (b *DiribitBroker) GetOpenOrders(symbol string) (result []Order, err error)
 	return
 }
 
-func (b *DiribitBroker) GetOrder(symbol string, id uint64) (result Order, err error) {
+func (b *DiribitBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	var ret models.Order
 	ret, err = b.client.GetOrderState(&models.GetOrderStateParams{
-		OrderID: fmt.Sprintf("%v", id),
+		OrderID: id,
 	})
 	if err != nil {
 		return
 	}
 	result = b.convertOrder(&ret)
+	return
+}
+
+func (b *DiribitBroker) CancelOrder(symbol string, id string) (result Order, err error) {
+	var order models.Order
+	order, err = b.client.Cancel(&models.CancelParams{OrderID: id})
+	if err != nil {
+		return
+	}
+	result = b.convertOrder(&order)
+	return
+}
+
+func (b *DiribitBroker) CancelAllOrders(symbol string) (err error) {
+	_, err = b.client.CancelAllByInstrument(&models.CancelAllByInstrumentParams{
+		InstrumentName: symbol,
+	})
 	return
 }
 
@@ -148,8 +163,7 @@ func (b *DiribitBroker) GetPosition(symbol string) (result Position, err error) 
 }
 
 func (b *DiribitBroker) convertOrder(order *models.Order) (result Order) {
-	id, _ := strconv.ParseInt(order.OrderID, 10, 64)
-	result.ID = uint64(id)
+	result.ID = order.OrderID
 	result.Symbol = order.InstrumentName
 	result.Price = order.Price.ToFloat64()
 	result.Amount = order.Amount
@@ -170,7 +184,6 @@ func (b *DiribitBroker) convertDirection(direction string) Direction {
 	case models.DirectionSell:
 		return Sell
 	default:
-		//log.Fatal(fmt.Sprintf("direction wrong [%v]", direction))
 		return Buy
 	}
 }

@@ -28,9 +28,9 @@ type DiribitSimBroker struct {
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
 	balance       float64
-	orders        map[uint64]*Order    // All orders key: OrderID value: Order
-	openOrders    map[uint64]*Order    // Open orders
-	historyOrders map[uint64]*Order    // History orders
+	orders        map[string]*Order    // All orders key: OrderID value: Order
+	openOrders    map[string]*Order    // Open orders
+	historyOrders map[string]*Order    // History orders
 	positions     map[string]*Position // Position key: symbol
 }
 
@@ -73,8 +73,8 @@ func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderB
 
 func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	amount float64, postOnly bool, reduceOnly bool) (result Order, err error) {
-	id, _ := util2.NextID()
-
+	_id, _ := util2.NextID()
+	id := fmt.Sprintf("%v", _id)
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
@@ -357,13 +357,55 @@ func (b *DiribitSimBroker) GetOpenOrders(symbol string) (result []Order, err err
 	return
 }
 
-func (b *DiribitSimBroker) GetOrder(symbol string, id uint64) (result Order, err error) {
+func (b *DiribitSimBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
 	result = *order
+	return
+}
+
+func (b *DiribitSimBroker) CancelOrder(symbol string, id string) (result Order, err error) {
+	if order, ok := b.orders[id]; ok {
+		if !order.IsOpen() {
+			err = errors.New("status error")
+			return
+		}
+		switch order.Status {
+		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
+			order.Status = OrderStatusCancelled
+			delete(b.openOrders, id)
+		default:
+			err = errors.New("error")
+		}
+	} else {
+		err = errors.New("not found")
+	}
+	return
+}
+
+func (b *DiribitSimBroker) CancelAllOrders(symbol string) (err error) {
+	var idsToBeRemoved []string
+
+	for _, order := range b.openOrders {
+		if !order.IsOpen() {
+			log.Printf("Order error: %#v", order)
+			continue
+		}
+		switch order.Status {
+		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
+			order.Status = OrderStatusCancelled
+			idsToBeRemoved = append(idsToBeRemoved, order.ID)
+		default:
+			err = errors.New("error")
+		}
+	}
+
+	for _, id := range idsToBeRemoved {
+		delete(b.openOrders, id)
+	}
 	return
 }
 
@@ -390,9 +432,9 @@ func NewBroker(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate
 		balance:       cash,
 		makerFeeRate:  makerFeeRate, // -0.00025 // Maker 费率
 		takerFeeRate:  takerFeeRate, // 0.00075	// Taker 费率
-		orders:        make(map[uint64]*Order),
-		openOrders:    make(map[uint64]*Order),
-		historyOrders: make(map[uint64]*Order),
+		orders:        make(map[string]*Order),
+		openOrders:    make(map[string]*Order),
+		historyOrders: make(map[string]*Order),
 		positions:     make(map[string]*Position),
 	}
 }

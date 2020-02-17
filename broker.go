@@ -10,7 +10,9 @@ type Broker interface {
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, amount float64,
 		postOnly bool, reduceOnly bool) (result Order, err error)
 	GetOpenOrders(symbol string) (result []Order, err error)
-	GetOrder(symbol string, id uint64) (result Order, err error)
+	GetOrder(symbol string, id string) (result Order, err error)
+	CancelAllOrders(symbol string) (err error)
+	CancelOrder(symbol string, id string) (result Order, err error)
 	GetPosition(symbol string) (result Position, err error)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
 }
