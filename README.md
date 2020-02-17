@@ -1,6 +1,6 @@
 ### GoTrader
 A real-time quantitative trading/backtesting platform in Golang.
- 
+
 ### Backtesting
 See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
