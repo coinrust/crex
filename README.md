@@ -1,8 +1,6 @@
 ### GoTrader
 A real-time quantitative trading/backtesting platform in Golang.
  
-Note: This is still in active development.
-
 ### Backtesting
 See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
@@ -10,14 +8,15 @@ See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backte
 See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
 
 ### Main Features
-* Event driven.
-* Supported backtesting & live trading.
+* Ease of use.
+* Tick-level backtesting.
+* Backtesting and live-trading functionality.
 
 ### Supported Exchanges
-| Exchange Name                                  | Backtesting       | Live trading      |
-| ---------------------------------------------- |------------------ | ----------------- |
-| [BitMEX](https://www.bitmex.com/)              | No                | No                |
-| [Deribit](https://www.deribit.com/reg-7357.93) | Yes               | Yes               |
+| Exchange Name                                    | Backtesting       | Live trading      |
+| ------------------------------------------------ |------------------ | ----------------- |
+| [BitMEX](https://www.bitmex.com/register/o0Duru) | No                | No                |
+| [Deribit](https://www.deribit.com/reg-7357.93)   | Yes               | Yes               |
 
 ### TODO
 * Support backtesting & live trading for BitMEX.
