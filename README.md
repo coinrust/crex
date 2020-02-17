@@ -1,5 +1,5 @@
 ### GoTrader
-Cryptocurrency Trading Bot (Experimental).
+A real-time quantitative trading/backtesting platform in Golang.
  
 Note: This is still in active development.
 
@@ -7,17 +7,17 @@ Note: This is still in active development.
 See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
 ### Live trading
-See [@live](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
+See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
 
 ### Main Features
 * Event driven.
 * Supported backtesting & live trading.
 
 ### Supported Exchanges
-| Exchange Name | Backtesting       | Live trading      |
-| ------------- |------------------ | ----------------- |
-| [BitMEX](https://www.bitmex.com/)        | No                | No                |
-| [Deribit](https://www.deribit.com/reg-7357.93)       | Yes               | Yes               |
+| Exchange Name                                  | Backtesting       | Live trading      |
+| ---------------------------------------------- |------------------ | ----------------- |
+| [BitMEX](https://www.bitmex.com/)              | No                | No                |
+| [Deribit](https://www.deribit.com/reg-7357.93) | Yes               | Yes               |
 
 ### TODO
 * Support backtesting & live trading for BitMEX.
