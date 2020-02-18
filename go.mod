@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/frankrap/bitmex-api v0.0.0-20200214075706-b1926307d51c
+	github.com/frankrap/bybit-api v0.0.0-20200218113408-aa86d21e78d1
 	github.com/frankrap/deribit-api v0.0.0-20200211002849-4210ce6a675a
 	github.com/go-echarts/go-echarts v0.0.0-20190915064101-cbb3b43ade5d
 	github.com/gobuffalo/packr v1.30.1 // indirect
