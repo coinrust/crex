@@ -13,13 +13,15 @@ See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/li
 * Backtesting and live-trading functionality.
 
 ### Supported Exchanges
-| Exchange Name                                    | Backtesting       | Live trading      |
-| ------------------------------------------------ |------------------ | ----------------- |
-| [BitMEX](https://www.bitmex.com/register/o0Duru) | No                | Yes               |
-| [Deribit](https://www.deribit.com/reg-7357.93)   | Yes               | Yes               |
+| Exchange Name                                         | Backtesting       | Live trading      |
+| ----------------------------------------------------- |------------------ | ----------------- |
+| [BitMEX](https://www.bitmex.com/register/o0Duru)      | No                | Yes               |
+| [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               |
+| [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | No                |
 
 ### TODO
 * Support backtesting for BitMEX.
+* Support backtesting & live-trading for Bybit.
 * Paper trading.
 
 ### Donate
