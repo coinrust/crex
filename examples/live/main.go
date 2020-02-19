@@ -2,8 +2,7 @@ package main
 
 import (
 	. "github.com/coinrust/gotrader"
-	deribit_broker "github.com/coinrust/gotrader/brokers/deribit-broker"
-	"github.com/frankrap/deribit-api"
+	"github.com/coinrust/gotrader/brokers"
 	"log"
 	"time"
 )
@@ -41,7 +40,7 @@ func (s *BasicStrategy) OnDeinit() {
 func main() {
 	apiKey := "AsJTU16U"
 	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
-	broker := deribit_broker.NewBroker(deribit.TestBaseURL, apiKey, secretKey)
+	broker := brokers.NewBroker(brokers.Deribit, apiKey, secretKey, true)
 	s := &BasicStrategy{}
 	s.Setup(broker)
 
