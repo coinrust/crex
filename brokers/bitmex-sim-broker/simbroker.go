@@ -1,4 +1,4 @@
-package deribit_sim_broker
+package bitmex_sim_broker
 
 import (
 	"errors"
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	PositionSizeLimit = 1000000 // Position size limit
+	OrderSizeLimit = 10000000 // Order size limit
 )
 
 type MarginInfo struct {
@@ -22,8 +22,8 @@ type MarginInfo struct {
 	LiquidationPriceShort float64
 }
 
-// DiribitSimBroker the deribit broker for backtest
-type DiribitSimBroker struct {
+// BitMEXSimBroker the bitmex broker for backtest
+type BitMEXSimBroker struct {
 	data          *data.Data
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
@@ -34,13 +34,11 @@ type DiribitSimBroker struct {
 	positions     map[string]*Position // Position key: symbol
 }
 
-func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *BitMEXSimBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	result.Balance = b.balance
 	var symbol string
-	if currency == "BTC" {
-		symbol = "BTC-PERPETUAL"
-	} else if currency == "ETH" {
-		symbol = "ETH-PERPETUAL"
+	if currency == "XBT" || currency == "BTC" {
+		symbol = "XBTUSD"
 	}
 	position := b.getPosition(symbol)
 	var price float64
@@ -57,7 +55,7 @@ func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSum
 	return
 }
 
-func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	tick := b.data.GetTick()
 	result.Time = tick.Timestamp
 	result.Asks = []Item{{
@@ -71,7 +69,7 @@ func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderB
 	return
 }
 
-func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+func (b *BitMEXSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	amount float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	_id, _ := util2.NextID()
 	id := fmt.Sprintf("%v", _id)
@@ -105,7 +103,7 @@ func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderT
 }
 
 // 撮合成交
-func (b *DiribitSimBroker) matchOrder(order *Order, immediate bool) (err error) {
+func (b *BitMEXSimBroker) matchOrder(order *Order, immediate bool) (err error) {
 	switch order.Type {
 	case OrderTypeMarket:
 		err = b.matchMarketOrder(order)
@@ -115,27 +113,21 @@ func (b *DiribitSimBroker) matchOrder(order *Order, immediate bool) (err error) 
 	return
 }
 
-func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
+func (b *BitMEXSimBroker) matchMarketOrder(order *Order) (err error) {
 	if !order.IsOpen() {
 		return
 	}
 
 	// 检查委托:
-	// Rejected, maximum size of future position is $1,000,000
-	// 开仓总量不能大于 1000000
-	// Invalid size - not multiple of contract size ($10)
-	// 数量必须是10的整数倍
+	// Rejected, maximum size of order is $1,000,000
+	// 委托量不能大于 1000000
 
-	if int(order.Amount)%10 != 0 {
-		err = errors.New("Invalid size - not multiple of contract size ($10)")
-		return
-	}
+	//最大委托价格	1,000,000
+	//最大委托数量	10,000,000
+	//最小合约数量	1
 
-	position := b.getPosition(order.Symbol)
-
-	if int(position.Size+order.Amount) > PositionSizeLimit ||
-		int(position.Size-order.Amount) < -PositionSizeLimit {
-		err = errors.New("Rejected, maximum size of future position is $1,000,000")
+	if order.Amount > OrderSizeLimit {
+		err = errors.New("Rejected, maximum size of order is 1,000,000")
 		return
 	}
 
@@ -190,7 +182,7 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 	return
 }
 
-func (b *DiribitSimBroker) matchLimitOrder(order *Order, immediate bool) (err error) {
+func (b *BitMEXSimBroker) matchLimitOrder(order *Order, immediate bool) (err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -249,7 +241,7 @@ func (b *DiribitSimBroker) matchLimitOrder(order *Order, immediate bool) (err er
 }
 
 // 更新持仓
-func (b *DiribitSimBroker) updatePosition(symbol string, size float64, price float64) {
+func (b *BitMEXSimBroker) updatePosition(symbol string, size float64, price float64) {
 	position := b.getPosition(symbol)
 	if position == nil {
 		log.Fatalf("position error symbol=%v", symbol)
@@ -263,7 +255,7 @@ func (b *DiribitSimBroker) updatePosition(symbol string, size float64, price flo
 }
 
 // 增加持仓
-func (b *DiribitSimBroker) addPosition(position *Position, size float64, price float64) (err error) {
+func (b *BitMEXSimBroker) addPosition(position *Position, size float64, price float64) (err error) {
 	if position.Size < 0 && size > 0 || position.Size > 0 && size < 0 {
 		err = errors.New("方向错误")
 		return
@@ -288,7 +280,7 @@ func (b *DiribitSimBroker) addPosition(position *Position, size float64, price f
 }
 
 // 平仓，超过数量，则开立新仓
-func (b *DiribitSimBroker) closePosition(position *Position, size float64, price float64) (err error) {
+func (b *BitMEXSimBroker) closePosition(position *Position, size float64, price float64) (err error) {
 	if position.Size == 0 {
 		err = errors.New("当前无持仓")
 		return
@@ -322,17 +314,17 @@ func (b *DiribitSimBroker) closePosition(position *Position, size float64, price
 }
 
 // 增加Balance
-func (b *DiribitSimBroker) addBalance(value float64) {
+func (b *BitMEXSimBroker) addBalance(value float64) {
 	b.balance += value
 }
 
 // 增加P/L
-func (b *DiribitSimBroker) addPnl(pnl float64) {
+func (b *BitMEXSimBroker) addPnl(pnl float64) {
 	b.balance += pnl
 }
 
 // 获取持仓
-func (b *DiribitSimBroker) getPosition(symbol string) *Position {
+func (b *BitMEXSimBroker) getPosition(symbol string) *Position {
 	if position, ok := b.positions[symbol]; ok {
 		return position
 	} else {
@@ -348,7 +340,7 @@ func (b *DiribitSimBroker) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *DiribitSimBroker) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *BitMEXSimBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
 			result = append(result, *v)
@@ -357,7 +349,7 @@ func (b *DiribitSimBroker) GetOpenOrders(symbol string) (result []Order, err err
 	return
 }
 
-func (b *DiribitSimBroker) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEXSimBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
@@ -367,7 +359,7 @@ func (b *DiribitSimBroker) GetOrder(symbol string, id string) (result Order, err
 	return
 }
 
-func (b *DiribitSimBroker) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEXSimBroker) CancelOrder(symbol string, id string) (result Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -387,7 +379,7 @@ func (b *DiribitSimBroker) CancelOrder(symbol string, id string) (result Order, 
 	return
 }
 
-func (b *DiribitSimBroker) CancelAllOrders(symbol string) (err error) {
+func (b *BitMEXSimBroker) CancelAllOrders(symbol string) (err error) {
 	var idsToBeRemoved []string
 
 	for _, order := range b.openOrders {
@@ -410,7 +402,7 @@ func (b *DiribitSimBroker) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *DiribitSimBroker) GetPosition(symbol string) (result Position, err error) {
+func (b *BitMEXSimBroker) GetPosition(symbol string) (result Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
@@ -420,15 +412,15 @@ func (b *DiribitSimBroker) GetPosition(symbol string) (result Position, err erro
 	return
 }
 
-func (b *DiribitSimBroker) RunEventLoopOnce() (err error) {
+func (b *BitMEXSimBroker) RunEventLoopOnce() (err error) {
 	for _, order := range b.openOrders {
 		b.matchOrder(order, false)
 	}
 	return
 }
 
-func NewBroker(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *DiribitSimBroker {
-	return &DiribitSimBroker{
+func NewBroker(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *BitMEXSimBroker {
+	return &BitMEXSimBroker{
 		data:          data,
 		balance:       cash,
 		makerFeeRate:  makerFeeRate, // -0.00025 // Maker 费率

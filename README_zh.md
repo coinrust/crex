@@ -3,27 +3,27 @@
 [README](README.md) | [中文文档](README_zh.md)
 
 ### GoTrader
-A real-time quantitative trading/backtesting platform in Golang.
+GoTrader 是一个用Golang语言开发的量化平台。支持tick级别数字币期货平台的回测和实盘。
 
-### Backtesting
-See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
+### 回测
+示例 [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
-### Live trading
-See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
+### 实盘
+示例 [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
 
-### Main Features
-* Ease of use.
-* Tick-level backtesting.
-* Backtesting and live-trading functionality.
+### 主要特性
+* 使用简单
+* Tick级别回测
+* 支持实盘
 
-### Supported Exchanges
-| Exchange Name                                         | Backtesting       | Live trading      | Broker            |
+### 支持交易所
+| 交易所                                                 | 回测               | 实盘              | Broker            |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
 | [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-broker) |
 | [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-broker) |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bybit-broker) |
 
-### Example
+### 示例
 ```golang
 package main
 
@@ -80,16 +80,15 @@ func main() {
 ```
 
 ### TODO
-* Support backtesting for BitMEX.
-* Support backtesting for Bybit.
+* 支持 Bybit 平台的回测.
 * Paper trading.
 
-### QQ group
-Coinrust QQ group: 932289088
+### QQ群
+Coinrust QQ群: 932289088
 
-### Donate
+### 捐赠
 
-Feel free to donate:
+欢迎支持项目，金额随意:
 
 | METHOD  | ADDRESS                                     |
 |-------- |-------------------------------------------- |

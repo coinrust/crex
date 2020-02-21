@@ -1,7 +1,7 @@
 package brokers
 
 const (
-	BitMEX = "BitMEX"
+	BitMEX  = "BitMEX"
 	Deribit = "Deribit"
-	Bybit = "Bybit"
+	Bybit   = "Bybit"
 )
