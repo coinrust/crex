@@ -80,7 +80,6 @@ func main() {
 ```
 
 ### TODO
-* Support backtesting for BitMEX.
 * Support backtesting for Bybit.
 * Paper trading.
 
