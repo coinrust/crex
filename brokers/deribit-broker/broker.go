@@ -12,6 +12,30 @@ type DiribitBroker struct {
 	client *deribit.Client
 }
 
+func (b *DiribitBroker) Subscribe(event string, param string, listener interface{}) {
+	//b.client.Subscribe([]string{
+	//	"announcements",
+	//	"book.BTC-PERPETUAL.100.1.100ms",
+	//	"book.BTC-PERPETUAL.100ms",
+	//	"deribit_price_index.btc_usd",
+	//	"deribit_price_ranking.btc_usd",
+	//	"estimated_expiration_price.btc_usd",
+	//	"markprice.options.btc_usd",
+	//	"perpetual.BTC-PERPETUAL.raw",
+	//	"quote.BTC-PERPETUAL",
+	//	"ticker.BTC-PERPETUAL.raw",
+	//	"user.changes.BTC-PERPETUAL.raw",
+	//	"user.changes.future.BTC.raw",
+	//	"user.orders.BTC-PERPETUAL.raw",
+	//	"user.orders.future.BTC.100ms",
+	//	"user.portfolio.btc",
+	//	"user.trades.BTC-PERPETUAL.raw",
+	//	"user.trades.future.BTC.100ms",
+	//})
+	b.client.Subscribe([]string{event})
+	b.client.On(event, listener)
+}
+
 func (b *DiribitBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	params := &models.GetAccountSummaryParams{
 		Currency: currency,

@@ -5,6 +5,7 @@ import (
 )
 
 type Broker interface {
+	Subscribe(event string, param string, listener interface{})
 	GetAccountSummary(currency string) (result AccountSummary, err error)
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, amount float64,
