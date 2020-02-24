@@ -3,6 +3,7 @@ module github.com/coinrust/gotrader
 go 1.13
 
 require (
+	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v0.0.0-20200214075706-b1926307d51c
 	github.com/frankrap/bybit-api v0.0.0-20200218113408-aa86d21e78d1
 	github.com/frankrap/deribit-api v0.0.0-20200211002849-4210ce6a675a

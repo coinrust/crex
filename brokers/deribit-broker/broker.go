@@ -1,6 +1,7 @@
 package deribit_broker
 
 import (
+	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/gotrader/models"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
@@ -9,7 +10,9 @@ import (
 
 // DiribitBroker the deribit broker
 type DiribitBroker struct {
-	client *deribit.Client
+	client           *deribit.Client
+	orderBookManager *OrderBookManager
+	emitter          *emission.Emitter
 }
 
 func (b *DiribitBroker) Subscribe(event string, param string, listener interface{}) {
@@ -32,8 +35,20 @@ func (b *DiribitBroker) Subscribe(event string, param string, listener interface
 	//	"user.trades.BTC-PERPETUAL.raw",
 	//	"user.trades.future.BTC.100ms",
 	//})
-	b.client.Subscribe([]string{event})
-	b.client.On(event, listener)
+	if event == "orderbook" {
+		b.emitter.On(event, listener)
+		b.client.On(param, b.handleOrderBook)
+		b.client.Subscribe([]string{param})
+	}
+}
+
+func (b *DiribitBroker) handleOrderBook(m *models.OrderBookNotification) {
+	b.orderBookManager.Update(m)
+	ob, ok := b.orderBookManager.GetOrderBook(m.InstrumentName)
+	if !ok {
+		return
+	}
+	b.emitter.Emit("orderbook", &ob)
 }
 
 func (b *DiribitBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
@@ -261,6 +276,8 @@ func NewBroker(addr string, apiKey string, secretKey string) *DiribitBroker {
 	}
 	client := deribit.New(cfg)
 	return &DiribitBroker{
-		client: client,
+		client:           client,
+		orderBookManager: NewOrderBookManager(),
+		emitter:          emission.NewEmitter(),
 	}
 }

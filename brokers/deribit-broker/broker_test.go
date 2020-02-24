@@ -1,8 +1,8 @@
 package deribit_broker
 
 import (
+	. "github.com/coinrust/gotrader/models"
 	"github.com/frankrap/deribit-api"
-	"github.com/frankrap/deribit-api/models"
 	"log"
 	"testing"
 	"time"
@@ -20,9 +20,9 @@ func TestDiribitBroker_Subscribe(t *testing.T) {
 	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
 	b := NewBroker(deribit.TestBaseURL, apiKey, secretKey)
 	//event := "book.ETH-PERPETUAL.100.1.100ms"
-	event := "book.BTC-PERPETUAL.100ms"
-	b.Subscribe(event, "", func(e *models.OrderBookNotification) {
-		log.Printf("event ---: ")
+	param := "book.BTC-PERPETUAL.100ms"
+	b.Subscribe("orderbook", param, func(e *OrderBook) {
+		log.Printf("OrderBook: %#v", *e)
 	})
 
 	for {

@@ -10,9 +10,10 @@ type Item struct {
 }
 
 type OrderBook struct {
-	Time time.Time
-	Asks []Item
-	Bids []Item
+	Symbol string
+	Time   time.Time
+	Asks   []Item
+	Bids   []Item
 }
 
 // Ask 卖一
