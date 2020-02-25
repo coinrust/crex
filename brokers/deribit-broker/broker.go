@@ -94,7 +94,7 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 }
 
 func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	amount float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var _orderType string
 	if orderType == OrderTypeLimit {
 		_orderType = models.OrderTypeLimit
@@ -105,7 +105,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 		var ret models.BuyResponse
 		ret, err = b.client.Buy(&models.BuyParams{
 			InstrumentName: symbol,
-			Amount:         amount,
+			Amount:         size,
 			Type:           _orderType,
 			//Label:          "",
 			Price: price,
@@ -125,7 +125,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 		var ret models.SellResponse
 		ret, err = b.client.Sell(&models.SellParams{
 			InstrumentName: symbol,
-			Amount:         amount,
+			Amount:         size,
 			Type:           _orderType,
 			//Label:          "",
 			Price: price,
@@ -189,6 +189,30 @@ func (b *DiribitBroker) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
+func (b *DiribitBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+	params := &models.EditParams{
+		OrderID:   "",
+		Amount:    0,
+		Price:     0,
+		PostOnly:  false,
+		Advanced:  "",
+		StopPrice: 0,
+	}
+	if price > 0 {
+		params.Price = price
+	}
+	if size > 0 {
+		params.Amount = size
+	}
+	var resp models.EditResponse
+	resp, err = b.client.Edit(params)
+	if err != nil {
+		return
+	}
+	result = b.convertOrder(&resp.Order)
+	return
+}
+
 func (b *DiribitBroker) GetPosition(symbol string) (result Position, err error) {
 	var ret models.Position
 	ret, err = b.client.GetPosition(&models.GetPositionParams{InstrumentName: symbol})
@@ -205,7 +229,7 @@ func (b *DiribitBroker) convertOrder(order *models.Order) (result Order) {
 	result.ID = order.OrderID
 	result.Symbol = order.InstrumentName
 	result.Price = order.Price.ToFloat64()
-	result.Amount = order.Amount
+	result.Size = order.Amount
 	result.Direction = b.convertDirection(order.Direction)
 	result.Type = b.convertOrderType(order.OrderType)
 	result.AvgPrice = order.AveragePrice

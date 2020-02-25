@@ -74,14 +74,14 @@ func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBo
 }
 
 func (b *BitMEXSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	amount float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	_id, _ := util2.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
 		Price:        price,
-		Amount:       amount,
+		Size:         size,
 		AvgPrice:     0,
 		FilledAmount: 0,
 		Direction:    direction,
@@ -130,7 +130,7 @@ func (b *BitMEXSimBroker) matchMarketOrder(order *Order) (err error) {
 	//最大委托数量	10,000,000
 	//最小合约数量	1
 
-	if order.Amount > OrderSizeLimit {
+	if order.Size > OrderSizeLimit {
 		err = errors.New("Rejected, maximum size of order is 1,000,000")
 		return
 	}
@@ -143,18 +143,18 @@ func (b *BitMEXSimBroker) matchMarketOrder(order *Order) (err error) {
 	// leverage := sizeCurrency / margin
 	// 需要满足: sizeCurrency <= margin * 100
 	// 可开仓数量: <= margin * 100 * price(ask/bid)
-	var maxAmount float64
+	var maxSize float64
 
 	// 市价成交
 	if order.Direction == Buy {
-		maxAmount = margin * 100 * tick.Ask
-		if order.Amount > maxAmount {
-			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxAmount))
+		maxSize = margin * 100 * tick.Ask
+		if order.Size > maxSize {
+			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
 		price := tick.Ask
-		size := order.Amount
+		size := order.Size
 
 		// trade fee
 		fee := size / price * b.takerFeeRate
@@ -165,14 +165,14 @@ func (b *BitMEXSimBroker) matchMarketOrder(order *Order) (err error) {
 		// Update position
 		b.updatePosition(order.Symbol, size, price)
 	} else if order.Direction == Sell {
-		maxAmount = margin * 100 * tick.Bid
-		if order.Amount > maxAmount {
-			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxAmount))
+		maxSize = margin * 100 * tick.Bid
+		if order.Size > maxSize {
+			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
 		price := tick.Bid
-		size := order.Amount
+		size := order.Size
 
 		// trade fee
 		fee := size / price * b.takerFeeRate
@@ -200,7 +200,7 @@ func (b *BitMEXSimBroker) matchLimitOrder(order *Order, immediate bool) (err err
 			}
 
 			// match trade
-			size := order.Amount
+			size := order.Size
 			var fee float64
 
 			// trade fee
@@ -224,7 +224,7 @@ func (b *BitMEXSimBroker) matchLimitOrder(order *Order, immediate bool) (err err
 			}
 
 			// match trade
-			size := order.Amount
+			size := order.Size
 			var fee float64
 
 			// trade fee
@@ -403,6 +403,10 @@ func (b *BitMEXSimBroker) CancelAllOrders(symbol string) (err error) {
 	for _, id := range idsToBeRemoved {
 		delete(b.openOrders, id)
 	}
+	return
+}
+
+func (b *BitMEXSimBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
 	return
 }
 
