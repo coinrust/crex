@@ -94,12 +94,18 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 }
 
 func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var _orderType string
 	if orderType == OrderTypeLimit {
 		_orderType = models.OrderTypeLimit
+		stopPx = 0
 	} else if orderType == OrderTypeMarket {
 		_orderType = models.OrderTypeMarket
+		stopPx = 0
+	} else if orderType == OrderTypeStopLimit {
+		_orderType = models.OrderTypeStopLimit
+	} else if orderType == OrderTypeStopMarket {
+		_orderType = models.OrderTypeStopMarket
 	}
 	if direction == Buy {
 		var ret models.BuyResponse
@@ -113,7 +119,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 			//MaxShow:        nil,
 			PostOnly:   postOnly,
 			ReduceOnly: reduceOnly,
-			//StopPrice:      0,
+			StopPrice:  stopPx,
 			//Trigger:        "",
 			//Advanced:       "",
 		})
@@ -133,7 +139,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 			//MaxShow:        nil,
 			PostOnly:   postOnly,
 			ReduceOnly: reduceOnly,
-			//StopPrice:      0,
+			StopPrice:  stopPx,
 			//Trigger:        "",
 			//Advanced:       "",
 		})
@@ -281,7 +287,7 @@ func (b *DiribitBroker) orderStatus(order *models.Order) OrderStatus {
 	case models.OrderStateCancelled:
 		return OrderStatusCancelled
 	case models.OrderStateUntriggered:
-		return OrderStatusCreated
+		return OrderStatusUntriggered
 	default:
 		return OrderStatusCreated
 	}

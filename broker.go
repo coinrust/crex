@@ -15,7 +15,7 @@ type Broker interface {
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)
 
 	// 下单
-	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, size float64,
+	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, stopPx float64, size float64,
 		postOnly bool, reduceOnly bool) (result Order, err error)
 
 	// 获取活跃委托单列表

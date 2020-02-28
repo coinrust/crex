@@ -1,6 +1,7 @@
 package bybit_broker
 
 import (
+	"errors"
 	. "github.com/coinrust/gotrader/models"
 	"github.com/frankrap/bybit-api/rest"
 	"strings"
@@ -54,6 +55,18 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 }
 
 func (b *BybitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {
+		return b.placeOrder(symbol, direction, orderType, price, size, postOnly, reduceOnly)
+	} else if orderType == OrderTypeStopLimit || orderType == OrderTypeStopMarket {
+		return b.placeStopOrder(symbol, direction, orderType, price, stopPx, size, postOnly, reduceOnly)
+	} else {
+		err = errors.New("error")
+		return
+	}
+}
+
+func (b *BybitBroker) placeOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var side string
 	var _orderType string
@@ -76,7 +89,58 @@ func (b *BybitBroker) PlaceOrder(symbol string, direction Direction, orderType O
 		timeInForce = "GoodTillCancel"
 	}
 	var order rest.Order
-	order, err = b.client.CreateOrder(side, _orderType, price, int(size), timeInForce, reduceOnly, symbol)
+	order, err = b.client.CreateOrder(
+		side,
+		_orderType,
+		price,
+		int(size),
+		timeInForce,
+		reduceOnly,
+		symbol,
+	)
+	if err != nil {
+		return
+	}
+	result = b.convertOrder(&order)
+	return
+}
+
+func (b *BybitBroker) placeStopOrder(symbol string, direction Direction, orderType OrderType, price float64,
+	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	var side string
+	var _orderType string
+	var timeInForce string
+
+	if direction == Buy {
+		side = "Buy"
+	} else if direction == Sell {
+		side = "Sell"
+	}
+	if orderType == OrderTypeStopLimit {
+		_orderType = "Limit"
+	} else if orderType == OrderTypeStopMarket {
+		_orderType = "Market"
+	}
+
+	if postOnly {
+		timeInForce = "PostOnly"
+	} else {
+		timeInForce = "GoodTillCancel"
+	}
+	basePrice := stopPx // 触发价
+	var order rest.Order
+	order, err = b.client.CreateStopOrder(
+		side,
+		_orderType,
+		price,
+		basePrice,
+		0,
+		int(size),
+		"",
+		timeInForce,
+		reduceOnly,
+		symbol,
+	)
 	if err != nil {
 		return
 	}
@@ -198,6 +262,10 @@ func (b *BybitBroker) orderStatus(order *rest.Order) OrderStatus {
 		return OrderStatusCancelled
 	case "Rejected":
 		return OrderStatusRejected
+	case "Untriggered":
+		return OrderStatusUntriggered
+	case "Triggered":
+		return OrderStatusTriggered
 	default:
 		return OrderStatusCreated
 	}
