@@ -76,7 +76,7 @@ func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderB
 }
 
 func (b *DiribitSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	_id, _ := util2.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{

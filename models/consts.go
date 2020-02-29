@@ -12,8 +12,10 @@ const (
 type OrderType int
 
 const (
-	OrderTypeMarket OrderType = iota // 市价单
-	OrderTypeLimit                   // 限价单
+	OrderTypeMarket     OrderType = iota // 市价单
+	OrderTypeLimit                       // 限价单
+	OrderTypeStopMarket                  // 市价止损单
+	OrderTypeStopLimit                   // 限价止损单
 )
 
 // OrderStatus 委托状态
@@ -26,4 +28,6 @@ const (
 	OrderStatusPartiallyFilled                    // 委托部分成交
 	OrderStatusFilled                             // 委托完全成交
 	OrderStatusCancelled                          // 委托被取消
+	OrderStatusUntriggered                        // 等待触发条件委托单
+	OrderStatusTriggered                          // 已触发条件单
 )
