@@ -1,4 +1,4 @@
-package models
+package gotrader
 
 type AccountSummary struct {
 	Balance float64

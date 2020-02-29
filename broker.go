@@ -1,9 +1,5 @@
 package gotrader
 
-import (
-	. "github.com/coinrust/gotrader/models"
-)
-
 type Broker interface {
 	// 订阅事件
 	Subscribe(event string, param string, listener interface{})

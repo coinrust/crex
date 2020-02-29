@@ -2,7 +2,7 @@ package deribit_broker
 
 import (
 	"github.com/chuckpreslar/emission"
-	. "github.com/coinrust/gotrader/models"
+	. "github.com/coinrust/gotrader"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
 	"time"
@@ -96,6 +96,7 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var _orderType string
+	var trigger string
 	if orderType == OrderTypeLimit {
 		_orderType = models.OrderTypeLimit
 		stopPx = 0
@@ -104,8 +105,10 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 		stopPx = 0
 	} else if orderType == OrderTypeStopLimit {
 		_orderType = models.OrderTypeStopLimit
+		trigger = models.TriggerTypeLastPrice
 	} else if orderType == OrderTypeStopMarket {
 		_orderType = models.OrderTypeStopMarket
+		trigger = models.TriggerTypeLastPrice
 	}
 	if direction == Buy {
 		var ret models.BuyResponse
@@ -120,7 +123,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 			PostOnly:   postOnly,
 			ReduceOnly: reduceOnly,
 			StopPrice:  stopPx,
-			//Trigger:        "",
+			Trigger:    trigger,
 			//Advanced:       "",
 		})
 		if err != nil {
@@ -140,7 +143,7 @@ func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType
 			PostOnly:   postOnly,
 			ReduceOnly: reduceOnly,
 			StopPrice:  stopPx,
-			//Trigger:        "",
+			Trigger:    trigger,
 			//Advanced:       "",
 		})
 		if err != nil {

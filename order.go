@@ -1,4 +1,4 @@
-package models
+package gotrader
 
 // Order 委托
 type Order struct {

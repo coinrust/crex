@@ -2,7 +2,7 @@ package data
 
 import (
 	"bufio"
-	"github.com/coinrust/gotrader/models"
+	. "github.com/coinrust/gotrader"
 	"io"
 	"log"
 	"os"
@@ -18,7 +18,7 @@ type CsvDataLoader struct {
 	hasMoreData bool
 }
 
-func (l *CsvDataLoader) ReadData() (result []*models.Tick) {
+func (l *CsvDataLoader) ReadData() (result []*OrderBook) {
 	if !l.hasMoreData {
 		return nil
 	}
@@ -72,14 +72,18 @@ func (l *CsvDataLoader) close() {
 	l.hasMoreData = false
 }
 
-func (l *CsvDataLoader) readLine(line string) (result *models.Tick, ok bool) {
+func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 	ss := strings.Split(line, ",")
-	if len(ss) != 41 {
+	n := len(ss)
+	if n < 5 {
 		//log.Printf("End [line: %v]", line)
 		return
 	}
+	if (n-1)%4 != 0 {
+		return
+	}
 
-	// 或略标题行
+	// 忽略标题行
 	if ss[0] == "t" {
 		ok = true
 		return
@@ -91,19 +95,33 @@ func (l *CsvDataLoader) readLine(line string) (result *models.Tick, ok bool) {
 	}
 	timestamp := time.Unix(0, t*1e6)
 
-	ask, _ := strconv.ParseFloat(ss[1], 64)
-	askAmount, _ := strconv.ParseFloat(ss[2], 64)
-	bid, _ := strconv.ParseFloat(ss[1+20], 64)
-	bidAmount, _ := strconv.ParseFloat(ss[2+20], 64)
+	nDepth := (n - 1) / 4
 
-	// log.Printf("Ask,AskAmount,Bid,BidAmount=%v/%v/%v/%v", ask, askAmount, bid, bidAmount)
+	var asks []Item
+	var bids []Item
 
-	result = &models.Tick{
-		Timestamp: timestamp,
-		Bid:       bid,
-		Ask:       ask,
-		BidVolume: int64(bidAmount),
-		AskVolume: int64(askAmount),
+	bidOffset := nDepth * 2
+
+	for i := 0; i < nDepth; i++ {
+		ask, _ := strconv.ParseFloat(ss[1+i], 64)
+		askAmount, _ := strconv.ParseFloat(ss[2+i], 64)
+		bid, _ := strconv.ParseFloat(ss[1+i+bidOffset], 64)
+		bidAmount, _ := strconv.ParseFloat(ss[2+i+bidOffset], 64)
+		asks = append(asks, Item{
+			Price:  ask,
+			Amount: askAmount,
+		})
+		bids = append(bids, Item{
+			Price:  bid,
+			Amount: bidAmount,
+		})
+	}
+
+	result = &OrderBook{
+		Time:   timestamp,
+		Symbol: "",
+		Asks:   asks,
+		Bids:   bids,
 	}
 	ok = true
 	return

@@ -57,8 +57,8 @@ func (b *Backtest) runEventLoopOnce() {
 }
 
 func (b *Backtest) addItemStats() {
-	tick := b.data.GetTick()
-	tm := tick.Timestamp
+	ob := b.data.GetOrderBook()
+	tm := ob.Time
 	update := false
 	timestamp := time.Date(tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute()+1, 0, 0, time.UTC)
 	var lastItem *LogItem
@@ -73,17 +73,17 @@ func (b *Backtest) addItemStats() {
 	var item *LogItem
 	if update {
 		item = lastItem
-		item.RawTime = tick.Timestamp
-		item.Ask = tick.Ask
-		item.Bid = tick.Bid
+		item.RawTime = ob.Time
+		item.Ask = ob.AskPrice()
+		item.Bid = ob.BidPrice()
 		item.Stats = nil
 		b.fetchItemStats(item)
 	} else {
 		item = &LogItem{
 			Time:    timestamp,
-			RawTime: tick.Timestamp,
-			Ask:     tick.Ask,
-			Bid:     tick.Bid,
+			RawTime: ob.Time,
+			Ask:     ob.AskPrice(),
+			Bid:     ob.BidPrice(),
 			Stats:   nil,
 		}
 		b.fetchItemStats(item)

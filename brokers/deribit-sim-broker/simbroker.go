@@ -3,8 +3,8 @@ package deribit_sim_broker
 import (
 	"errors"
 	"fmt"
+	. "github.com/coinrust/gotrader"
 	"github.com/coinrust/gotrader/data"
-	. "github.com/coinrust/gotrader/models"
 	"github.com/coinrust/gotrader/util2"
 	"log"
 	"math"
@@ -48,12 +48,12 @@ func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSum
 	}
 	position := b.getPosition(symbol)
 	var price float64
-	tick := b.data.GetTick()
+	ob := b.data.GetOrderBook()
 	side := position.Side()
 	if side == Buy {
-		price = tick.Ask
+		price = ob.AskPrice()
 	} else if side == Sell {
-		price = tick.Bid
+		price = ob.BidPrice()
 	}
 	pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price)
 	result.Pnl = pnl
@@ -62,16 +62,7 @@ func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSum
 }
 
 func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
-	tick := b.data.GetTick()
-	result.Time = tick.Timestamp
-	result.Asks = []Item{{
-		Price:  tick.Ask,
-		Amount: float64(tick.AskVolume),
-	}}
-	result.Bids = []Item{{
-		Price:  tick.Bid,
-		Amount: float64(tick.BidVolume),
-	}}
+	result = *b.data.GetOrderBook()
 	return
 }
 
@@ -143,7 +134,7 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 		return
 	}
 
-	tick := b.data.GetTick()
+	ob := b.data.GetOrderBook()
 
 	// 判断开仓数量
 	margin := b.balance
@@ -155,13 +146,13 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 
 	// 市价成交
 	if order.Direction == Buy {
-		maxSize = margin * 100 * tick.Ask
+		maxSize = margin * 100 * ob.AskPrice()
 		if order.Size > maxSize {
 			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
-		price := tick.Ask
+		price := ob.AskPrice()
 		size := order.Size
 
 		// trade fee
@@ -173,13 +164,13 @@ func (b *DiribitSimBroker) matchMarketOrder(order *Order) (err error) {
 		// Update position
 		b.updatePosition(order.Symbol, size, price)
 	} else if order.Direction == Sell {
-		maxSize = margin * 100 * tick.Bid
+		maxSize = margin * 100 * ob.BidPrice()
 		if order.Size > maxSize {
 			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
-		price := tick.Bid
+		price := ob.BidPrice()
 		size := order.Size
 
 		// trade fee
@@ -199,9 +190,9 @@ func (b *DiribitSimBroker) matchLimitOrder(order *Order, immediate bool) (err er
 		return
 	}
 
-	tick := b.data.GetTick()
+	ob := b.data.GetOrderBook()
 	if order.Direction == Buy { // Bid order
-		if order.Price >= tick.Ask {
+		if order.Price >= ob.AskPrice() {
 			if immediate && order.PostOnly {
 				order.Status = OrderStatusRejected
 				return
@@ -225,7 +216,7 @@ func (b *DiribitSimBroker) matchLimitOrder(order *Order, immediate bool) (err er
 			b.updatePosition(order.Symbol, size, order.Price)
 		}
 	} else { // Ask order
-		if order.Price <= tick.Bid {
+		if order.Price <= ob.BidPrice() {
 			if immediate && order.PostOnly {
 				order.Status = OrderStatusRejected
 				return

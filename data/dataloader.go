@@ -1,8 +1,10 @@
 package data
 
-import "github.com/coinrust/gotrader/models"
+import (
+	. "github.com/coinrust/gotrader"
+)
 
 type DataLoader interface {
-	ReadData() []*models.Tick
+	ReadData() []*OrderBook
 	HasMoreData() bool
 }

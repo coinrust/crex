@@ -1,4 +1,4 @@
-package models
+package gotrader
 
 type Bar struct {
 	Event

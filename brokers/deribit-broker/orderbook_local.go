@@ -1,7 +1,7 @@
 package deribit_broker
 
 import (
-	. "github.com/coinrust/gotrader/models"
+	. "github.com/coinrust/gotrader"
 	"github.com/frankrap/deribit-api/models"
 	"sort"
 	"strconv"

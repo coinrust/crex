@@ -1,7 +1,7 @@
 package bitmex_broker
 
 import (
-	"github.com/coinrust/gotrader/models"
+	. "github.com/coinrust/gotrader"
 	"github.com/frankrap/bitmex-api"
 	"testing"
 )
@@ -26,7 +26,7 @@ func TestBitMEXBroker_GetOrderBook(t *testing.T) {
 
 func TestBitMEXBroker_PlaceOrder(t *testing.T) {
 	b := newBrokerForTest()
-	order, err := b.PlaceOrder("XBTUSD", models.Buy, models.OrderTypeLimit, 8000, 10, true, false)
+	order, err := b.PlaceOrder("XBTUSD", Buy, OrderTypeLimit, 8000, 0, 10, true, false)
 	if err != nil {
 		t.Error(err)
 		return

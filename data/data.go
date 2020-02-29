@@ -1,11 +1,13 @@
 package data
 
-import "github.com/coinrust/gotrader/models"
+import (
+	. "github.com/coinrust/gotrader"
+)
 
 type Data struct {
 	index      int
 	maxIndex   int
-	data       []*models.Tick
+	data       []*OrderBook
 	dataLoader DataLoader
 }
 
@@ -27,7 +29,7 @@ func (d *Data) Reset() {
 	d.maxIndex = len(d.data) - 1
 }
 
-func (d *Data) GetTick() *models.Tick {
+func (d *Data) GetOrderBook() *OrderBook {
 	return d.data[d.index]
 }
 

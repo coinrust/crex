@@ -1,4 +1,4 @@
-package models
+package gotrader
 
 // Direction 委托/持仓方向
 type Direction int
@@ -7,6 +7,17 @@ const (
 	Buy  Direction = iota // 做多
 	Sell                  // 做空
 )
+
+func (d Direction) String() string {
+	switch d {
+	case Buy:
+		return "Buy"
+	case Sell:
+		return "Sell"
+	default:
+		return "None"
+	}
+}
 
 // OrderType 委托类型
 type OrderType int
@@ -17,6 +28,21 @@ const (
 	OrderTypeStopMarket                  // 市价止损单
 	OrderTypeStopLimit                   // 限价止损单
 )
+
+func (t OrderType) String() string {
+	switch t {
+	case OrderTypeMarket:
+		return "Market"
+	case OrderTypeLimit:
+		return "Limit"
+	case OrderTypeStopMarket:
+		return "StopMarket"
+	case OrderTypeStopLimit:
+		return "StopLimit"
+	default:
+		return "None"
+	}
+}
 
 // OrderStatus 委托状态
 type OrderStatus int
@@ -31,3 +57,26 @@ const (
 	OrderStatusUntriggered                        // 等待触发条件委托单
 	OrderStatusTriggered                          // 已触发条件单
 )
+
+func (s OrderStatus) String() string {
+	switch s {
+	case OrderStatusCreated:
+		return "Created"
+	case OrderStatusRejected:
+		return "Rejected"
+	case OrderStatusNew:
+		return "New"
+	case OrderStatusPartiallyFilled:
+		return "PartiallyFilled"
+	case OrderStatusFilled:
+		return "Filled"
+	case OrderStatusCancelled:
+		return "Cancelled"
+	case OrderStatusUntriggered:
+		return "Untriggered"
+	case OrderStatusTriggered:
+		return "Triggered"
+	default:
+		return "None"
+	}
+}
