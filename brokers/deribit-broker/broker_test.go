@@ -52,3 +52,19 @@ func TestDiribitBroker_PlaceStopOrder(t *testing.T) {
 	t.Logf("%#v", order)
 	t.Logf("Status: %v", order.Status.String())
 }
+
+func TestDiribitBroker_GetOpenOrders(t *testing.T) {
+	b := newBroker()
+	orders, err := b.GetOpenOrders("BTC-PERPETUAL")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range orders {
+		t.Logf("%#v Type: %v Status: %v",
+			v,
+			v.Type.String(),
+			v.Status.String(),
+		)
+	}
+}

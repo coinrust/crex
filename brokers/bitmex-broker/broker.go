@@ -150,6 +150,7 @@ func (b *BitMEXBroker) convertOrder(order *swagger.Order) (result Order) {
 	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
+	result.StopPx = order.StopPx
 	result.Size = float64(order.OrderQty)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrdType)
@@ -183,9 +184,9 @@ func (b *BitMEXBroker) convertOrderType(orderType string) OrderType {
 	case bitmex.ORD_TYPE_MARKET:
 		return OrderTypeMarket
 	case bitmex.ORD_TYPE_STOP_LIMIT:
-		return OrderTypeLimit
+		return OrderTypeStopLimit
 	case bitmex.ORD_TYPE_STOP:
-		return OrderTypeMarket
+		return OrderTypeStopMarket
 	default:
 		return OrderTypeLimit
 	}

@@ -211,6 +211,7 @@ func (b *BybitBroker) convertOrder(order *rest.Order) (result Order) {
 	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
+	result.StopPx = 0
 	result.Size = order.Qty
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrderType)

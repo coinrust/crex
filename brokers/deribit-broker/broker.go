@@ -238,6 +238,7 @@ func (b *DiribitBroker) convertOrder(order *models.Order) (result Order) {
 	result.ID = order.OrderID
 	result.Symbol = order.InstrumentName
 	result.Price = order.Price.ToFloat64()
+	result.StopPx = order.StopPrice
 	result.Size = order.Amount
 	result.Direction = b.convertDirection(order.Direction)
 	result.Type = b.convertOrderType(order.OrderType)
@@ -267,9 +268,9 @@ func (b *DiribitBroker) convertOrderType(orderType string) OrderType {
 	case models.OrderTypeMarket:
 		return OrderTypeMarket
 	case models.OrderTypeStopLimit:
-		return OrderTypeLimit
+		return OrderTypeStopLimit
 	case models.OrderTypeStopMarket:
-		return OrderTypeMarket
+		return OrderTypeStopMarket
 	default:
 		return OrderTypeLimit
 	}

@@ -5,6 +5,7 @@ type Order struct {
 	ID           string      // ID
 	Symbol       string      // 标
 	Price        float64     // 价格
+	StopPx       float64     // 触发价
 	Size         float64     // 委托数量
 	AvgPrice     float64     // 平均成交价
 	FilledAmount float64     // 成交数量
