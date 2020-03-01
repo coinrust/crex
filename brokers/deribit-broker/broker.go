@@ -1,6 +1,7 @@
 package deribit_broker
 
 import (
+	"errors"
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/gotrader"
 	"github.com/frankrap/deribit-api"
@@ -200,19 +201,23 @@ func (b *DiribitBroker) CancelAllOrders(symbol string) (err error) {
 
 func (b *DiribitBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
 	params := &models.EditParams{
-		OrderID:   "",
+		OrderID:   id,
 		Amount:    0,
 		Price:     0,
 		PostOnly:  false,
 		Advanced:  "",
 		StopPrice: 0,
 	}
-	if price > 0 {
-		params.Price = price
+	if price <= 0 {
+		err = errors.New("price is required")
+		return
 	}
-	if size > 0 {
-		params.Amount = size
+	if size <= 0 {
+		err = errors.New("size is required")
+		return
 	}
+	params.Price = price
+	params.Amount = size
 	var resp models.EditResponse
 	resp, err = b.client.Edit(params)
 	if err != nil {
