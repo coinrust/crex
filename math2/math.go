@@ -29,6 +29,6 @@ func ToFixedE5P(x float64, precision int) float64 {
 		return ToFixedE5(x)
 	}
 	p := math.Pow(10, float64(precision))
-	y := float64(ToFixedE5(x*p)) / p
+	y := ToFixedE5(x*p) / p
 	return y
 }
