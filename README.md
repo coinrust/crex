@@ -96,7 +96,7 @@ func main() {
 	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
 	broker := brokers.NewBroker(brokers.Deribit, apiKey, secretKey, true)
 	s := &BasicStrategy{}
-	s.Setup(broker)
+	s.Setup(TradeModeLiveTrading, broker)
 
 	// run loop
 	for {
