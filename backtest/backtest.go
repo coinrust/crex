@@ -22,7 +22,7 @@ func NewBacktest(data *data.Data, strategy Strategy, brokers []Broker) *Backtest
 		strategy: strategy,
 	}
 	b.brokers = brokers
-	strategy.Setup(b.brokers...)
+	strategy.Setup(TradeModeBacktest, b.brokers...)
 	b.logs = LogItems{}
 	return b
 }

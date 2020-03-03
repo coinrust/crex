@@ -1,5 +1,27 @@
 package gotrader
 
+// TradeMode 策略模式
+type TradeMode int
+
+const (
+	TradeModeBacktest TradeMode = iota
+	TradeModePaperTrading
+	TradeModeLiveTrading
+)
+
+func (t TradeMode) String() string {
+	switch t {
+	case TradeModeBacktest:
+		return "Backtest"
+	case TradeModePaperTrading:
+		return "PaperTrading"
+	case TradeModeLiveTrading:
+		return "LiveTrading"
+	default:
+		return "None"
+	}
+}
+
 // Direction 委托/持仓方向
 type Direction int
 

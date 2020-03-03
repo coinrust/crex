@@ -20,3 +20,15 @@ func ToFixedE5(x float64) float64 {
 	}
 	return t
 }
+
+// ToFixedE5P 类似四舍五入法
+// XBT: precision=0 0,0.5,1.0,1.5...
+// ETH: precision=1 0.05,0.10,0.15...
+func ToFixedE5P(x float64, precision int) float64 {
+	if precision == 0 {
+		return ToFixedE5(x)
+	}
+	p := math.Pow(10, float64(precision))
+	y := float64(ToFixedE5(x*p)) / p
+	return y
+}
