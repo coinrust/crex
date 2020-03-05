@@ -150,9 +150,10 @@ func (b *BybitBroker) placeStopOrder(symbol string, direction Direction, orderTy
 
 func (b *BybitBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	limit := 10
+	orderStatus := "Created,New,PartiallyFilled,PendingCancel"
 	for page := 1; page <= 5; page++ {
 		var orders []rest.Order
-		orders, err = b.client.GetOrders("", "", page, limit, "", symbol)
+		orders, err = b.client.GetOrders("", "", page, limit, orderStatus, symbol)
 		if err != nil {
 			return
 		}
@@ -188,10 +189,18 @@ func (b *BybitBroker) CancelOrder(symbol string, id string) (result Order, err e
 }
 
 func (b *BybitBroker) CancelAllOrders(symbol string) (err error) {
+	_, err = b.client.CancelAllOrder(symbol)
 	return
 }
 
 func (b *BybitBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+	var order rest.Order
+	order, err = b.client.ReplaceOrder(symbol, id, int(size), price)
+	if err != nil {
+		return
+	}
+
+	result = b.convertOrder(&order)
 	return
 }
 
