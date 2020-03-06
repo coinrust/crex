@@ -75,6 +75,7 @@ const (
 	OrderStatusNew                                // 委托待成交
 	OrderStatusPartiallyFilled                    // 委托部分成交
 	OrderStatusFilled                             // 委托完全成交
+	OrderStatusCancelPending                      // 委托取消
 	OrderStatusCancelled                          // 委托被取消
 	OrderStatusUntriggered                        // 等待触发条件委托单
 	OrderStatusTriggered                          // 已触发条件单
@@ -92,6 +93,8 @@ func (s OrderStatus) String() string {
 		return "PartiallyFilled"
 	case OrderStatusFilled:
 		return "Filled"
+	case OrderStatusCancelPending:
+		return "CancelPending"
 	case OrderStatusCancelled:
 		return "Cancelled"
 	case OrderStatusUntriggered:

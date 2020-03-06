@@ -246,8 +246,9 @@ func (b *BybitBroker) convertOrderV2(order *rest.OrderV2) (result Order) {
 	result.Size = order.Qty
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrderType)
-	if order.CumExecQty > 0 && order.CumExecValue > 0 {
-		result.AvgPrice = float64(order.CumExecQty) / order.CumExecValue
+	cumExecValue, err := order.CumExecValue.Float64()
+	if err == nil && order.CumExecQty > 0 && cumExecValue > 0 {
+		result.AvgPrice = float64(order.CumExecQty) / cumExecValue
 	}
 	result.FilledAmount = float64(order.CumExecQty)
 	if strings.Contains(order.TimeInForce, "PostOnly") {
@@ -290,6 +291,8 @@ func (b *BybitBroker) orderStatus(orderStatus string) OrderStatus {
 		return OrderStatusPartiallyFilled
 	case "Filled":
 		return OrderStatusFilled
+	case "PendingCancel":
+		return OrderStatusCancelPending
 	case "Cancelled":
 		return OrderStatusCancelled
 	case "Rejected":
