@@ -3,7 +3,7 @@
 [README](README.md) | [English README](README_en.md)
 
 ### GoTrader
-GoTrader 是一个用Golang语言开发的量化平台。支持tick级别数字币期货平台的回测和实盘。
+GoTrader 是一个用Golang语言开发的量化交易库。支持tick级别数字币期货平台的回测和实盘。
 
 ### 标准 CSV 数据格式
 * 列定界符: , (逗号)

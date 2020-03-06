@@ -3,7 +3,7 @@
 [README](README.md) | [English README](README_en.md)
 
 ### GoTrader
-A real-time quantitative trading/backtesting platform in Golang.
+A real-time quantitative trading/backtesting library in Golang.
 
 ### Standard CSV data types formats
 * columns delimiter: , (comma)
