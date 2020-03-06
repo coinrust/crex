@@ -181,12 +181,12 @@ func (b *BybitBroker) GetOrder(symbol string, id string) (result Order, err erro
 }
 
 func (b *BybitBroker) CancelOrder(symbol string, id string) (result Order, err error) {
-	var order rest.Order
-	order, err = b.client.CancelOrder(id, symbol)
+	var order rest.OrderV2
+	order, err = b.client.CancelOrderV2(id, "", symbol)
 	if err != nil {
 		return
 	}
-	result = b.convertOrder(&order)
+	result = b.convertOrderV2(&order)
 	return
 }
 
