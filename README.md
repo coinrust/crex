@@ -1,25 +1,25 @@
 # GoTrader
 
-[README](README.md) | [中文文档](README_zh.md)
+[README](README.md) | [English README](README_en.md)
 
 ### GoTrader
-A real-time quantitative trading/backtesting platform in Golang.
+GoTrader 是一个用Golang语言开发的量化平台。支持tick级别数字币期货平台的回测和实盘。
 
-### Standard CSV data types formats
-* columns delimiter: , (comma)
-* new line marker: \n (LF)
-* date time format: Unix time (ms)
+### 标准 CSV 数据格式
+* 列定界符: , (逗号)
+* 换行标记: \n (LF)
+* 日期时间格式: Unix 时间戳 (ms)
 
-### Data format
-| column name      | description                      |
+### 时间格式
+| 列名              | 描述                             |
 | ---------------- |--------------------------------- |
-| t                | Unix time (ms)                   |
-| asks[0-X].price  | asks prices in ascending order   |
-| asks[0-X].amount | asks amounts in ascending order  |
-| bids[0-X].price  | bids prices in descending order  |
-| bids[0-X].amount | bids amounts in descending order |
+| t                | Unix 时间戳 (ms)                  |
+| asks[0-X].price  | 卖单价(升序)                      |
+| asks[0-X].amount | 卖单量                            |
+| bids[0-X].price  | 买单价(降序)                      |
+| bids[0-X].amount | 买单量                            |
 
-### Sample data rows preview
+### 样本数据示例
 ```csv
 t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2].amount,asks[3].price,asks[3].amount,asks[4].price,asks[4].amount,asks[5].price,asks[5].amount,asks[6].price,asks[6].amount,asks[7].price,asks[7].amount,asks[8].price,asks[8].amount,asks[9].price,asks[9].amount,bids[0].price,bids[0].amount,bids[1].price,bids[1].amount,bids[2].price,bids[2].amount,bids[3].price,bids[3].amount,bids[4].price,bids[4].amount,bids[5].price,bids[5].amount,bids[6].price,bids[6].amount,bids[7].price,bids[7].amount,bids[8].price,bids[8].amount,bids[9].price,bids[9].amount
 1569888000143,8304.5,7010,8305,60,8305.5,1220,8306,80,8307,200,8307.5,1650,8308,68260,8308.5,120000,8309,38400,8309.5,8400,8304,185750,8303.5,52200,8303,20600,8302.5,4500,8302,2000,8301.5,18200,8301,18000,8300.5,90,8300,71320,8299.5,310
@@ -32,25 +32,25 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 1569888000527,8304.5,10270,8305,60,8305.5,1220,8306,80,8307,200,8307.5,20370,8308,68260,8308.5,120000,8309,38400,8309.5,8400,8304,185010,8303.5,52200,8303,20600,8302.5,4500,8302,2000,8301.5,18200,8301,18000,8300.5,5090,8300,71320,8299.5,310
 ```
 
-### Backtesting
-See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
+### 回测
+示例 [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
 
-### Live trading
-See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
+### 实盘
+示例 [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
 
-### Main Features
-* Ease of use.
-* Tick-level backtesting.
-* Backtesting and live-trading functionality.
+### 主要特性
+* 使用简单
+* Tick级别回测
+* 支持实盘
 
-### Supported Exchanges
-| Exchange Name                                         | Backtesting       | Live trading      | Broker            |
+### 支持交易所
+| 交易所                                                 | 回测               | 实盘              | Broker            |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
 | [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-broker) |
 | [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-broker) |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bybit-broker) |
 
-### Example
+### 示例
 ```golang
 package main
 
@@ -107,15 +107,15 @@ func main() {
 ```
 
 ### TODO
-* Support backtesting for Bybit.
+* 支持 Bybit 平台的回测.
 * Paper trading.
 
-### QQ group
-Coinrust QQ group: 932289088
+### QQ群
+Coinrust QQ群: 932289088
 
-### Donate
+### 捐赠
 
-Feel free to donate:
+欢迎支持项目，金额随意:
 
 | METHOD  | ADDRESS                                     |
 |-------- |-------------------------------------------- |
