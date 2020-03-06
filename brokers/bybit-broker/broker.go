@@ -4,6 +4,7 @@ import (
 	"errors"
 	. "github.com/coinrust/gotrader"
 	"github.com/frankrap/bybit-api/rest"
+	"log"
 	"strings"
 )
 
@@ -154,6 +155,7 @@ func (b *BybitBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	for page := 1; page <= 5; page++ {
 		var orders []rest.Order
 		orders, err = b.client.GetOrders("", "", page, limit, orderStatus, symbol)
+		log.Printf("page=%v %#v", page, orders)
 		if err != nil {
 			return
 		}
@@ -169,12 +171,12 @@ func (b *BybitBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 }
 
 func (b *BybitBroker) GetOrder(symbol string, id string) (result Order, err error) {
-	var ret rest.Order
-	ret, err = b.client.GetOrderByID(id, symbol)
+	var ret rest.OrderV2
+	ret, err = b.client.GetOrderByID(id, "", symbol)
 	if err != nil {
 		return
 	}
-	result = b.convertOrder(&ret)
+	result = b.convertOrderV2(&ret)
 	return
 }
 
@@ -232,7 +234,27 @@ func (b *BybitBroker) convertOrder(order *rest.Order) (result Order) {
 		result.PostOnly = true
 	}
 	result.ReduceOnly = false
-	result.Status = b.orderStatus(order)
+	result.Status = b.orderStatus(order.OrderStatus)
+	return
+}
+
+func (b *BybitBroker) convertOrderV2(order *rest.OrderV2) (result Order) {
+	result.ID = order.OrderID
+	result.Symbol = order.Symbol
+	result.Price, _ = order.Price.Float64()
+	result.StopPx = 0
+	result.Size = order.Qty
+	result.Direction = b.convertDirection(order.Side)
+	result.Type = b.convertOrderType(order.OrderType)
+	if order.CumExecQty > 0 && order.CumExecValue > 0 {
+		result.AvgPrice = float64(order.CumExecQty) / order.CumExecValue
+	}
+	result.FilledAmount = float64(order.CumExecQty)
+	if strings.Contains(order.TimeInForce, "PostOnly") {
+		result.PostOnly = true
+	}
+	result.ReduceOnly = false
+	result.Status = b.orderStatus(order.OrderStatus)
 	return
 }
 
@@ -258,8 +280,8 @@ func (b *BybitBroker) convertOrderType(orderType string) OrderType {
 	}
 }
 
-func (b *BybitBroker) orderStatus(order *rest.Order) OrderStatus {
-	switch order.OrderStatus {
+func (b *BybitBroker) orderStatus(orderStatus string) OrderStatus {
+	switch orderStatus {
 	case "Created":
 		return OrderStatusCreated
 	case "New":
