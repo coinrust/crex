@@ -312,6 +312,13 @@ func (b *BybitBroker) RunEventLoopOnce() (err error) {
 
 func NewBroker(addr string, apiKey string, secretKey string) *BybitBroker {
 	client := rest.New(addr, apiKey, secretKey)
+	for i := 0; i < 3; i++ {
+		err := client.SetCorrectServerTime()
+		if err != nil {
+			log.Printf("%v", err)
+			continue
+		}
+	}
 	return &BybitBroker{
 		client: client,
 	}
