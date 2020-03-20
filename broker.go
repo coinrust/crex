@@ -10,6 +10,12 @@ type Broker interface {
 	// 获取订单薄(OrderBook)
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)
 
+	// 设置合约类型
+	SetContractType(contractType string) (err error)
+
+	// 设置杠杆大小
+	SetLeverRate(value float64) (err error)
+
 	// 下单
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, stopPx float64, size float64,
 		postOnly bool, reduceOnly bool) (result Order, err error)
