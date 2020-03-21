@@ -55,6 +55,14 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	return
 }
 
+func (b *BybitBroker) SetContractType(contractType string) (err error) {
+	return
+}
+
+func (b *BybitBroker) SetLeverRate(value float64) (err error) {
+	return
+}
+
 func (b *BybitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {

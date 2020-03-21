@@ -6,6 +6,7 @@ import (
 	bitmex_broker "github.com/coinrust/gotrader/brokers/bitmex-broker"
 	bybit_broker "github.com/coinrust/gotrader/brokers/bybit-broker"
 	deribit_broker "github.com/coinrust/gotrader/brokers/deribit-broker"
+	hbdm_broker "github.com/coinrust/gotrader/brokers/hbdm-broker"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/deribit-api"
 )
@@ -34,6 +35,13 @@ func NewBroker(brokerName string, apiKey string, secret string, testnet bool) Br
 			addr = "https://api.bybit.com/"
 		}
 		return bybit_broker.NewBroker(addr, apiKey, secret)
+	case HBDM:
+		if testnet {
+			addr = "https://api.btcgateway.pro"
+		} else {
+			addr = "https://api.hbdm.com"
+		}
+		return hbdm_broker.NewBroker(addr, apiKey, secret)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

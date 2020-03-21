@@ -4,4 +4,5 @@ const (
 	BitMEX  = "BitMEX"
 	Deribit = "Deribit"
 	Bybit   = "Bybit"
+	HBDM    = "HBDM"
 )

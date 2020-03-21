@@ -46,9 +46,11 @@ See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/li
 ### Supported Exchanges
 | Exchange Name                                         | Backtesting       | Live trading      | Broker            |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
-| [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-broker) |
+| ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
+| [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-broker) |
 | [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-broker) |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bybit-broker) |
+| [Huobi DM](https://www.huobi.vc/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/huobi-broker) |
 
 ### Example
 ```golang

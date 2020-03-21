@@ -50,6 +50,14 @@ func (b *BitMEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook,
 	return
 }
 
+func (b *BitMEXBroker) SetContractType(contractType string) (err error) {
+	return
+}
+
+func (b *BitMEXBroker) SetLeverRate(value float64) (err error) {
+	return
+}
+
 func (b *BitMEXBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var side string

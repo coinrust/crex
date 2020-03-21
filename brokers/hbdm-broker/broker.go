@@ -1,4 +1,4 @@
-package huobi_broker
+package hbdm_broker
 
 import (
 	"fmt"

@@ -94,6 +94,14 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 	return
 }
 
+func (b *DiribitBroker) SetContractType(contractType string) (err error) {
+	return
+}
+
+func (b *DiribitBroker) SetLeverRate(value float64) (err error) {
+	return
+}
+
 func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var _orderType string

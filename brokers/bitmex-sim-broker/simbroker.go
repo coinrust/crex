@@ -64,6 +64,14 @@ func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBo
 	return
 }
 
+func (b *BitMEXSimBroker) SetContractType(contractType string) (err error) {
+	return
+}
+
+func (b *BitMEXSimBroker) SetLeverRate(value float64) (err error) {
+	return
+}
+
 func (b *BitMEXSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	_id, _ := util2.NextID()
