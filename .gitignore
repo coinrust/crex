@@ -22,5 +22,4 @@
 # vendor/
 .idea/
 
-go.sum
 *.html
