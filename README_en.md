@@ -113,7 +113,7 @@ func main() {
 * Paper trading.
 
 ### QQ group
-Coinrust QQ group: 932289088
+QQ group: 932289088
 
 ### Donate
 

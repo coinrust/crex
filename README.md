@@ -112,7 +112,7 @@ func main() {
 * Paper trading.
 
 ### QQ群
-Coinrust QQ群: 932289088
+QQ群: 932289088
 
 ### 捐赠
 
