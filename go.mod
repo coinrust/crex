@@ -8,7 +8,7 @@ require (
 	github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944
 	github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797
 	github.com/frankrap/huobi-api v0.0.0-20200322001841-f013851fc396
-	github.com/frankrap/okex-api v0.0.0-20200323031812-627bd66257a5
+	github.com/frankrap/okex-api v0.0.0-20200323143507-14013c23fb04
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/viper v1.6.2
 	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
