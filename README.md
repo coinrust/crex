@@ -50,6 +50,7 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 | [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-broker) |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bybit-broker) |
 | [Huobi DM](https://www.huobi.vc/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/huobi-broker) |
+| [OKEXFutures](https://www.okex.me/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/okex-broker) |
 
 ### 示例
 ```golang
@@ -93,9 +94,9 @@ func (s *BasicStrategy) OnDeinit() {
 }
 
 func main() {
-	apiKey := "AsJTU16U"
-	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
-	broker := brokers.NewBroker(brokers.Deribit, apiKey, secretKey, true)
+	accessKey := "[AccessKey]"
+	secretKey := "[SecretKey]"
+	broker := brokers.NewBroker(brokers.Deribit, accessKey, secretKey, true, map[string]string{})
 	s := &BasicStrategy{}
 	s.Setup(TradeModeLiveTrading, broker)
 
@@ -108,7 +109,6 @@ func main() {
 ```
 
 ### TODO
-* 支持 Bybit 平台的回测.
 * Paper trading.
 
 ### QQ群
@@ -122,7 +122,6 @@ QQ群: 932289088
 |-------- |-------------------------------------------- |
 | BTC     | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
 | ETH     | 0xa74eade7ea08a8c48d7de4d582fac145afc86e3d  |
-| USDT    | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
 
 ### LICENSE
 MIT [©coinrust](https://github.com/coinrust)

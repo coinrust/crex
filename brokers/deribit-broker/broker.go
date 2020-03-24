@@ -314,10 +314,10 @@ func (b *DiribitBroker) RunEventLoopOnce() (err error) {
 	return
 }
 
-func NewBroker(addr string, apiKey string, secretKey string) *DiribitBroker {
+func NewBroker(addr string, accessKey string, secretKey string) *DiribitBroker {
 	cfg := &deribit.Configuration{
 		Addr:          addr,
-		ApiKey:        apiKey,
+		ApiKey:        accessKey,
 		SecretKey:     secretKey,
 		AutoReconnect: true,
 	}

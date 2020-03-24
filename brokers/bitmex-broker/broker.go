@@ -222,8 +222,8 @@ func (b *BitMEXBroker) RunEventLoopOnce() (err error) {
 	return
 }
 
-func NewBroker(addr string, apiKey string, secretKey string) *BitMEXBroker {
-	client := bitmex.New(addr, apiKey, secretKey)
+func NewBroker(addr string, accessKey string, secretKey string) *BitMEXBroker {
+	client := bitmex.New(addr, accessKey, secretKey)
 	return &BitMEXBroker{
 		client: client,
 	}
