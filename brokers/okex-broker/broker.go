@@ -71,6 +71,10 @@ func (b *OKEXBroker) SetContractType(contractType string) (err error) {
 	return
 }
 
+func (b *OKEXBroker) GetContractType() (symbol string, err error) {
+	return
+}
+
 // 设置杠杆大小
 func (b *OKEXBroker) SetLeverRate(value float64) (err error) {
 	b.leverRate = int(value)

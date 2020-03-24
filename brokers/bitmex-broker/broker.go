@@ -54,6 +54,10 @@ func (b *BitMEXBroker) SetContractType(contractType string) (err error) {
 	return
 }
 
+func (b *BitMEXBroker) GetContractType() (symbol string, err error) {
+	return
+}
+
 func (b *BitMEXBroker) SetLeverRate(value float64) (err error) {
 	return
 }

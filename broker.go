@@ -13,6 +13,9 @@ type Broker interface {
 	// 设置合约类型
 	SetContractType(contractType string) (err error)
 
+	// 获取当前设置的合约ID
+	GetContractType() (symbol string, err error)
+
 	// 设置杠杆大小
 	SetLeverRate(value float64) (err error)
 

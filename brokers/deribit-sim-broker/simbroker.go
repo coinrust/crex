@@ -70,6 +70,10 @@ func (b *DiribitSimBroker) SetContractType(contractType string) (err error) {
 	return
 }
 
+func (b *DiribitSimBroker) GetContractType() (symbol string, err error) {
+	return
+}
+
 func (b *DiribitSimBroker) SetLeverRate(value float64) (err error) {
 	return
 }

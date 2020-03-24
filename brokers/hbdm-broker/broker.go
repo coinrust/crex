@@ -80,6 +80,10 @@ func (b *HuobiBroker) SetContractType(contractType string) (err error) {
 	return
 }
 
+func (b *HuobiBroker) GetContractType() (symbol string, err error) {
+	return
+}
+
 // 设置杠杆大小
 func (b *HuobiBroker) SetLeverRate(value float64) (err error) {
 	b.leverRate = int(value)
