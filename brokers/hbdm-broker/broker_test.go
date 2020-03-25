@@ -31,6 +31,17 @@ func TestHBDMBroker_GetAccountSummary(t *testing.T) {
 	t.Logf("%#v", accountSummary)
 }
 
+func TestHBDMBroker_GetOrderBook(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC", "W1")
+	ob, err := b.GetOrderBook("BTC200327", 1)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", ob)
+}
+
 func TestHBDMBroker_GetContractID(t *testing.T) {
 	b := newTestBroker()
 	b.SetContractType("BTC", ContractTypeW1)

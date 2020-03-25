@@ -17,6 +17,7 @@ type HBDMBroker struct {
 	pair          string // 交易对 BTC/ETH/...
 	_contractType string // 合约类型
 	contractType  string // 合约类型(HBDM)
+	symbol        string // 合约Symbol(HBDM) BTC_CQ
 	leverRate     int    // 杠杆倍数
 }
 
@@ -51,7 +52,7 @@ func (b *HBDMBroker) GetAccountSummary(currency string) (result AccountSummary, 
 func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	var ret hbdm.MarketDepthResult
 
-	ret, err = b.client.GetMarketDepth(b.contractType, "step0")
+	ret, err = b.client.GetMarketDepth(b.symbol, "step0")
 	if err != nil {
 		return
 	}
@@ -82,16 +83,21 @@ func (b *HBDMBroker) SetContractType(pair string, contractType string) (err erro
 	b.pair = pair
 	b._contractType = contractType
 	var contractAlias string
+	var symbol string
 	switch contractType {
 	case ContractTypeNone:
 	case ContractTypeW1:
 		contractAlias = "this_week"
+		symbol = pair + "_CW"
 	case ContractTypeW2:
 		contractAlias = "next_week"
+		symbol = pair + "_NW"
 	case ContractTypeQ1:
 		contractAlias = "quarter"
+		symbol = pair + "_CQ"
 	}
 	b.contractType = contractAlias
+	b.symbol = symbol
 	return
 }
 
