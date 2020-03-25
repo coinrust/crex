@@ -3,7 +3,7 @@
 [README](README.md) | [English README](README_en.md)
 
 ### CREX
-A real-time quantitative trading/backtesting library in Golang.
+A real-time quantitative trading library in Golang.
 
 ### Standard CSV data types formats
 * columns delimiter: , (comma)
