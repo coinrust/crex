@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	. "github.com/coinrust/gotrader"
-	"github.com/coinrust/gotrader/backtest"
-	"github.com/coinrust/gotrader/brokers/deribit-sim-broker"
-	"github.com/coinrust/gotrader/data"
+	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/backtest"
+	"github.com/coinrust/crex/brokers/deribit-sim-broker"
+	"github.com/coinrust/crex/data"
 )
 
 type BasicStrategy struct {

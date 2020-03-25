@@ -1,4 +1,4 @@
-package gotrader
+package crex
 
 import "log"
 

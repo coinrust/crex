@@ -2,7 +2,7 @@ package hbdm_broker
 
 import (
 	"fmt"
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/huobi-api/hbdm"
 	"strconv"
 	"strings"

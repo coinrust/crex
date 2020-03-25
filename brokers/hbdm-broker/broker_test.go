@@ -1,7 +1,7 @@
 package hbdm_broker
 
 import (
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/spf13/viper"
 	"log"
 	"testing"

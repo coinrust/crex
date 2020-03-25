@@ -1,7 +1,7 @@
 package deribit_broker
 
 import (
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/deribit-api/models"
 	"sync"
 )

@@ -1,4 +1,4 @@
-package gotrader
+package crex
 
 type Broker interface {
 	// 订阅事件

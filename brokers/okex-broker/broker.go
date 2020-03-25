@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/okex-api"
 )
 

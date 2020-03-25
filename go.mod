@@ -1,4 +1,4 @@
-module github.com/coinrust/gotrader
+module github.com/coinrust/crex
 
 go 1.13
 

@@ -3,7 +3,7 @@ package deribit_broker
 import (
 	"errors"
 	"github.com/chuckpreslar/emission"
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
 	"time"

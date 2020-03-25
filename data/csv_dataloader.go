@@ -2,7 +2,7 @@ package data
 
 import (
 	"bufio"
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"io"
 	"log"
 	"os"

@@ -1,7 +1,7 @@
 package bitmex_broker
 
 import (
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/bitmex-api/swagger"
 	"strings"

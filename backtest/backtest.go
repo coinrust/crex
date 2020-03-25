@@ -1,8 +1,8 @@
 package backtest
 
 import (
-	. "github.com/coinrust/gotrader"
-	data "github.com/coinrust/gotrader/data"
+	. "github.com/coinrust/crex"
+	data "github.com/coinrust/crex/data"
 	"log"
 	"time"
 )

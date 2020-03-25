@@ -2,12 +2,12 @@ package brokers
 
 import (
 	"fmt"
-	. "github.com/coinrust/gotrader"
-	bitmex_broker "github.com/coinrust/gotrader/brokers/bitmex-broker"
-	bybit_broker "github.com/coinrust/gotrader/brokers/bybit-broker"
-	deribit_broker "github.com/coinrust/gotrader/brokers/deribit-broker"
-	hbdm_broker "github.com/coinrust/gotrader/brokers/hbdm-broker"
-	okex_broker "github.com/coinrust/gotrader/brokers/okex-broker"
+	. "github.com/coinrust/crex"
+	bitmex_broker "github.com/coinrust/crex/brokers/bitmex-broker"
+	bybit_broker "github.com/coinrust/crex/brokers/bybit-broker"
+	deribit_broker "github.com/coinrust/crex/brokers/deribit-broker"
+	hbdm_broker "github.com/coinrust/crex/brokers/hbdm-broker"
+	okex_broker "github.com/coinrust/crex/brokers/okex-broker"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/deribit-api"
 	"log"

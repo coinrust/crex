@@ -1,4 +1,4 @@
-package gotrader
+package crex
 
 // TradeMode 策略模式
 type TradeMode int

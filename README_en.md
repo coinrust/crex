@@ -1,8 +1,8 @@
-# GoTrader
+# CREX
 
 [README](README.md) | [English README](README_en.md)
 
-### GoTrader
+### CREX
 A real-time quantitative trading/backtesting library in Golang.
 
 ### Standard CSV data types formats
@@ -33,10 +33,10 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 ```
 
 ### Backtesting
-See [@backtest](https://github.com/coinrust/gotrader/blob/master/examples/backtest/main.go)
+See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/main.go)
 
 ### Live trading
-See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/live/main.go)
+See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/main.go)
 
 ### Main Features
 * Ease of use.
@@ -47,19 +47,19 @@ See [@live trading](https://github.com/coinrust/gotrader/blob/master/examples/li
 | Exchange Name                                         | Backtesting       | Live trading      | Broker            |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
-| [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bitmex-broker) |
-| [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/gotrader/tree/master/brokers/deribit-broker) |
-| [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/bybit-broker) |
-| [Huobi DM](https://www.huobi.vc/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/huobi-broker) |
-| [OKEXFutures](https://www.okex.me/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/gotrader/tree/master/brokers/okex-broker) |
+| [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Sim](https://github.com/coinrust/crex/tree/master/brokers/bitmex-sim-broker) / [Live](https://github.com/coinrust/crex/tree/master/brokers/bitmex-broker) |
+| [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/crex/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/crex/tree/master/brokers/deribit-broker) |
+| [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/bybit-broker) |
+| [Huobi DM](https://www.huobi.vc/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/huobi-broker) |
+| [OKEXFutures](https://www.okex.me/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/okex-broker) |
 
 ### Example
 ```golang
 package main
 
 import (
-	. "github.com/coinrust/gotrader"
-	"github.com/coinrust/gotrader/brokers"
+	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/brokers"
 	"log"
 	"time"
 )

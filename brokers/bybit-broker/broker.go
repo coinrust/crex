@@ -2,7 +2,7 @@ package bybit_broker
 
 import (
 	"errors"
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/frankrap/bybit-api/rest"
 	"log"
 	"strings"

@@ -1,7 +1,7 @@
 package data
 
 import (
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 )
 
 type DataLoader interface {

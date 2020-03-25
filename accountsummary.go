@@ -1,4 +1,4 @@
-package gotrader
+package crex
 
 type AccountSummary struct {
 	Balance float64

@@ -1,7 +1,7 @@
 package deribit_sim_broker
 
 import (
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"testing"
 )
 

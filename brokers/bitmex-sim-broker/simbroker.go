@@ -3,9 +3,9 @@ package bitmex_sim_broker
 import (
 	"errors"
 	"fmt"
-	. "github.com/coinrust/gotrader"
-	"github.com/coinrust/gotrader/data"
-	"github.com/coinrust/gotrader/util2"
+	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/util2"
 	"log"
 	"math"
 	"time"

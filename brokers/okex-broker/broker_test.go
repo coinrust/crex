@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/coinrust/gotrader"
+	. "github.com/coinrust/crex"
 	"github.com/spf13/viper"
 )
 
