@@ -52,7 +52,11 @@ func (b *HBDMBroker) GetAccountSummary(currency string) (result AccountSummary, 
 func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	var ret hbdm.MarketDepthResult
 
-	ret, err = b.client.GetMarketDepth(b.symbol, "step0")
+	var _type = "step0" // 使用step0时，不合并深度获取150档数据
+	if depth <= 20 {
+		_type = "step6" // 使用step6时，不合并深度获取20档数据
+	}
+	ret, err = b.client.GetMarketDepth(b.symbol, _type)
 	if err != nil {
 		return
 	}
