@@ -21,7 +21,7 @@ func newTestBroker() Broker {
 	return NewBroker(baseURL, accessKey, secretKey)
 }
 
-func TestHuobiBroker_GetAccountSummary(t *testing.T) {
+func TestHBDMBroker_GetAccountSummary(t *testing.T) {
 	b := newTestBroker()
 	accountSummary, err := b.GetAccountSummary("BTC")
 	if err != nil {
@@ -29,4 +29,15 @@ func TestHuobiBroker_GetAccountSummary(t *testing.T) {
 		return
 	}
 	t.Logf("%#v", accountSummary)
+}
+
+func TestHBDMBroker_GetContractID(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", symbol)
 }

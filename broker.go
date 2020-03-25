@@ -11,10 +11,12 @@ type Broker interface {
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)
 
 	// 设置合约类型
-	SetContractType(contractType string) (err error)
+	// pair: 交易对，如: BTC-USD(OKEX) BTC(HBDM)
+	// contractType: W1,W2,Q1,Q2
+	SetContractType(pair string, contractType string) (err error)
 
 	// 获取当前设置的合约ID
-	GetContractType() (symbol string, err error)
+	GetContractID() (symbol string, err error)
 
 	// 设置杠杆大小
 	SetLeverRate(value float64) (err error)

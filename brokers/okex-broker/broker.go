@@ -11,9 +11,11 @@ import (
 
 // OKEXBroker the OKEX broker
 type OKEXBroker struct {
-	client       *okex.Client
-	contractType string // 合约类型
-	leverRate    int    // 杠杆倍数
+	client        *okex.Client
+	pair          string // contract pair 合约交易对
+	contractType  string // contract type 合约类型
+	contractAlias string // okex contract type 合约类型
+	leverRate     int    // lever rate 杠杆倍数
 }
 
 func (b *OKEXBroker) Subscribe(event string, param string, listener interface{}) {
@@ -66,13 +68,42 @@ func (b *OKEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook, e
 }
 
 // 设置合约类型
-func (b *OKEXBroker) SetContractType(contractType string) (err error) {
+// pair: BTC-USD
+// contractType: W1,W2,Q1,Q2,...
+func (b *OKEXBroker) SetContractType(pair string, contractType string) (err error) {
+	b.pair = pair
 	b.contractType = contractType
+	var contractAlias string
+	switch contractType {
+	case ContractTypeNone:
+	case ContractTypeW1:
+		contractAlias = "this_week"
+	case ContractTypeW2:
+		contractAlias = "next_week"
+	case ContractTypeQ1:
+		contractAlias = "quarter"
+	case ContractTypeQ2:
+		contractAlias = "bi_quarter"
+	}
+	b.contractAlias = contractAlias
 	return
 }
 
-func (b *OKEXBroker) GetContractType() (symbol string, err error) {
-	return
+func (b *OKEXBroker) GetContractID() (symbol string, err error) {
+	var ret []okex.FuturesInstrumentsResult
+	ret, err = b.client.GetFuturesInstruments()
+	if err != nil {
+		return
+	}
+	for _, v := range ret {
+		//log.Printf("%v %v %#v", v.Alias, v.InstrumentId, v)
+		if v.Underlying == b.pair &&
+			v.Alias == b.contractAlias {
+			symbol = v.InstrumentId
+			return
+		}
+	}
+	return "", fmt.Errorf("not found")
 }
 
 // 设置杠杆大小
@@ -134,7 +165,7 @@ func (b *OKEXBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 
 func (b *OKEXBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
-	// 7:已完成（撤单成功+完全成交）
+	// 7: 已完成（撤单成功+完全成交）
 	var ret okex.FuturesGetOrdersResult
 	ret, err = b.client.GetFuturesOrders(symbol, 6, "", "", 100)
 	if err != nil {
@@ -206,11 +237,11 @@ func (b *OKEXBroker) GetPosition(symbol string) (result Position, err error) {
 				if v.LongQty > 0 {
 					result.Size = v.LongQty
 					result.AvgPrice = v.LongAvgCost
-					result.OpenI = createAt
+					result.OpenTime = createAt
 				} else if v.ShortQty > 0 {
 					result.Size = -v.ShortQty
 					result.AvgPrice = v.ShortAvgCost
-					result.OpenI = createAt
+					result.OpenTime = createAt
 				}
 				break
 			}
@@ -225,11 +256,11 @@ func (b *OKEXBroker) GetPosition(symbol string) (result Position, err error) {
 				if v.LongQty > 0 {
 					result.Size = v.LongQty
 					result.AvgPrice = v.LongAvgCost
-					result.OpenI = createAt
+					result.OpenTime = createAt
 				} else if v.ShortQty > 0 {
 					result.Size = -v.ShortQty
 					result.AvgPrice = v.ShortAvgCost
-					result.OpenI = createAt
+					result.OpenTime = createAt
 				}
 				break
 			}

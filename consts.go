@@ -105,3 +105,13 @@ func (s OrderStatus) String() string {
 		return "None"
 	}
 }
+
+// ContractType 合约类型
+const (
+	ContractTypeNone = ""   // Non-delivery contract 非交割合约
+	ContractTypeW1   = "W1" // week 当周合约
+	ContractTypeW2   = "W2" // two week 次周合约
+	ContractTypeM1   = "M1" // month 月合约
+	ContractTypeQ1   = "Q1" // quarter 季度合约
+	ContractTypeQ2   = "Q2" // two quarter 次季度合约
+)

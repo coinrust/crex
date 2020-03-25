@@ -55,11 +55,11 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	return
 }
 
-func (b *BybitBroker) SetContractType(contractType string) (err error) {
+func (b *BybitBroker) SetContractType(pair string, contractType string) (err error) {
 	return
 }
 
-func (b *BybitBroker) GetContractType() (symbol string, err error) {
+func (b *BybitBroker) GetContractID() (symbol string, err error) {
 	return
 }
 

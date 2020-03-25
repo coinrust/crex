@@ -11,18 +11,20 @@ import (
 
 const StatusOK = "ok"
 
-// HuobiBroker the Huobi broker
-type HuobiBroker struct {
-	client       *hbdm.Client
-	contractType string // 合约类型
-	leverRate    int    // 杠杆倍数
+// HBDMBroker the Huobi DM broker
+type HBDMBroker struct {
+	client        *hbdm.Client
+	pair          string // 交易对 BTC/ETH/...
+	_contractType string // 合约类型
+	contractType  string // 合约类型(HBDM)
+	leverRate     int    // 杠杆倍数
 }
 
-func (b *HuobiBroker) Subscribe(event string, param string, listener interface{}) {
+func (b *HBDMBroker) Subscribe(event string, param string, listener interface{}) {
 
 }
 
-func (b *HuobiBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *HBDMBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var account hbdm.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)
 	if err != nil {
@@ -46,7 +48,7 @@ func (b *HuobiBroker) GetAccountSummary(currency string) (result AccountSummary,
 	return
 }
 
-func (b *HuobiBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	var ret hbdm.MarketDepthResult
 
 	ret, err = b.client.GetMarketDepth(b.contractType, "step0")
@@ -74,23 +76,49 @@ func (b *HuobiBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 }
 
 // 设置合约类型
-// 如"BTC_CW"表示BTC当周合约，"BTC_NW"表示BTC次周合约，"BTC_CQ"表示BTC季度合约
-func (b *HuobiBroker) SetContractType(contractType string) (err error) {
-	b.contractType = contractType
+// pair: BTC/ETH/...
+func (b *HBDMBroker) SetContractType(pair string, contractType string) (err error) {
+	// // 如"BTC_CW"表示BTC当周合约，"BTC_NW"表示BTC次周合约，"BTC_CQ"表示BTC季度合约
+	b.pair = pair
+	b._contractType = contractType
+	var contractAlias string
+	switch contractType {
+	case ContractTypeNone:
+	case ContractTypeW1:
+		contractAlias = "this_week"
+	case ContractTypeW2:
+		contractAlias = "next_week"
+	case ContractTypeQ1:
+		contractAlias = "quarter"
+	}
+	b.contractType = contractAlias
 	return
 }
 
-func (b *HuobiBroker) GetContractType() (symbol string, err error) {
-	return
+func (b *HBDMBroker) GetContractID() (symbol string, err error) {
+	var ret hbdm.ContractInfoResult
+	ret, err = b.client.GetContractInfo(b.pair, b.contractType, "")
+	if err != nil {
+		return
+	}
+	for _, v := range ret.Data {
+		// log.Printf("%#v", v)
+		if v.Symbol == b.pair &&
+			v.ContractType == b.contractType {
+			symbol = v.ContractCode
+			return
+		}
+	}
+	return "", fmt.Errorf("not found")
 }
 
 // 设置杠杆大小
-func (b *HuobiBroker) SetLeverRate(value float64) (err error) {
+func (b *HBDMBroker) SetLeverRate(value float64) (err error) {
 	b.leverRate = int(value)
 	return
 }
 
-func (b *HuobiBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var orderResult hbdm.OrderResult
 	var _direction string
@@ -154,7 +182,7 @@ func (b *HuobiBroker) PlaceOrder(symbol string, direction Direction, orderType O
 	return
 }
 
-func (b *HuobiBroker) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *HBDMBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	var ret hbdm.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
 		symbol,
@@ -174,7 +202,7 @@ func (b *HuobiBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *HuobiBroker) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *HBDMBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	var ret hbdm.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.OrderInfo(symbol, _id, 0)
@@ -193,7 +221,7 @@ func (b *HuobiBroker) GetOrder(symbol string, id string) (result Order, err erro
 	return
 }
 
-func (b *HuobiBroker) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *HBDMBroker) CancelOrder(symbol string, id string) (result Order, err error) {
 	var ret hbdm.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.Cancel(symbol, _id, 0)
@@ -209,15 +237,15 @@ func (b *HuobiBroker) CancelOrder(symbol string, id string) (result Order, err e
 	return
 }
 
-func (b *HuobiBroker) CancelAllOrders(symbol string) (err error) {
+func (b *HBDMBroker) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *HuobiBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *HBDMBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
 	return
 }
 
-func (b *HuobiBroker) GetPosition(symbol string) (result Position, err error) {
+func (b *HBDMBroker) GetPosition(symbol string) (result Position, err error) {
 	result.Symbol = symbol
 
 	var ret hbdm.PositionInfoResult
@@ -235,19 +263,18 @@ func (b *HuobiBroker) GetPosition(symbol string) (result Position, err error) {
 		return
 	}
 
-	//position := ret.Data[0]
-
-	//if position > 0 {
-	//	result.Size = position.BuyAmount
-	//	result.AvgPrice = position.BuyPriceAvg
-	//} else if position.SellAmount > 0 {
-	//	result.Size = -position.SellAmount
-	//	result.AvgPrice = position.SellPriceAvg
-	//}
+	position := ret.Data[0]
+	if position.Direction == "buy" {
+		result.Size = position.Volume
+	} else if position.Direction == "sell" {
+		result.Size = -position.Volume
+	}
+	result.AvgPrice = position.CostHold
+	result.OpenPrice = position.CostOpen
 	return
 }
 
-func (b *HuobiBroker) convertOrder(symbol string, order *hbdm.Order) (result Order) {
+func (b *HBDMBroker) convertOrder(symbol string, order *hbdm.Order) (result Order) {
 	result.ID = order.OrderIDStr
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -267,7 +294,7 @@ func (b *HuobiBroker) convertOrder(symbol string, order *hbdm.Order) (result Ord
 	return
 }
 
-func (b *HuobiBroker) orderDirection(order *hbdm.Order) Direction {
+func (b *HBDMBroker) orderDirection(order *hbdm.Order) Direction {
 	if order.Direction == "buy" {
 		return Buy
 	} else if order.Direction == "sell" {
@@ -276,7 +303,7 @@ func (b *HuobiBroker) orderDirection(order *hbdm.Order) Direction {
 	return Buy
 }
 
-func (b *HuobiBroker) orderType(order *hbdm.Order) OrderType {
+func (b *HBDMBroker) orderType(order *hbdm.Order) OrderType {
 	/*
 		order_price_type 订单报价类型	订单报价类型 订单报价类型 "limit":限价 "opponent":对手价 "post_only":只做maker单,post only下单只受用户持仓数量限制,optimal_5：最优5档、optimal_10：最优10档、optimal_20：最优20档，ioc:IOC订单，fok：FOK订单
 	*/
@@ -293,7 +320,7 @@ func (b *HuobiBroker) orderType(order *hbdm.Order) OrderType {
 	return OrderTypeLimit
 }
 
-func (b *HuobiBroker) orderStatus(order *hbdm.Order) OrderStatus {
+func (b *HBDMBroker) orderStatus(order *hbdm.Order) OrderStatus {
 	/*
 		订单状态	(1准备提交 2准备提交 3已提交 4部分成交 5部分成交已撤单
 		6全部成交 7已撤单 11撤单中)
@@ -316,11 +343,11 @@ func (b *HuobiBroker) orderStatus(order *hbdm.Order) OrderStatus {
 	}
 }
 
-func (b *HuobiBroker) RunEventLoopOnce() (err error) {
+func (b *HBDMBroker) RunEventLoopOnce() (err error) {
 	return
 }
 
-func NewBroker(addr string, accessKey string, secretKey string) *HuobiBroker {
+func NewBroker(addr string, accessKey string, secretKey string) *HBDMBroker {
 	//baseURL := "https://api.hbdm.com"
 	apiParams := &hbdm.ApiParameter{
 		Debug:              false,
@@ -331,7 +358,7 @@ func NewBroker(addr string, accessKey string, secretKey string) *HuobiBroker {
 		PrivateKeyPrime256: "",
 	}
 	client := hbdm.NewClient(apiParams)
-	return &HuobiBroker{
+	return &HBDMBroker{
 		client: client,
 	}
 }

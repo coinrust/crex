@@ -50,11 +50,11 @@ func (b *BitMEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook,
 	return
 }
 
-func (b *BitMEXBroker) SetContractType(contractType string) (err error) {
+func (b *BitMEXBroker) SetContractType(pair string, contractType string) (err error) {
 	return
 }
 
-func (b *BitMEXBroker) GetContractType() (symbol string, err error) {
+func (b *BitMEXBroker) GetContractID() (symbol string, err error) {
 	return
 }
 

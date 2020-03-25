@@ -5,7 +5,7 @@ import "time"
 // Position 持仓
 type Position struct {
 	Symbol    string    `json:"symbol"`     // 标
-	OpenI     time.Time `json:"open_i"`     // 开仓时间
+	OpenTime  time.Time `json:"open_time"`  // 开仓时间
 	OpenPrice float64   `json:"open_price"` // 开仓价
 	Size      float64   `json:"size"`       // 仓位大小
 	AvgPrice  float64   `json:"avg_price"`  // 平均价

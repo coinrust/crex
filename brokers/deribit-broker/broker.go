@@ -94,11 +94,11 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 	return
 }
 
-func (b *DiribitBroker) SetContractType(contractType string) (err error) {
+func (b *DiribitBroker) SetContractType(pair string, contractType string) (err error) {
 	return
 }
 
-func (b *DiribitBroker) GetContractType() (symbol string, err error) {
+func (b *DiribitBroker) GetContractID() (symbol string, err error) {
 	return
 }
 

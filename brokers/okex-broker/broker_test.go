@@ -59,6 +59,17 @@ func TestGetOrderBook(t *testing.T) {
 	//t.Logf("Time: %v", ob.Time)
 }
 
+func TestOKEXBroker_GetContractID(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC-USD", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", symbol)
+}
+
 func TestOKEXBroker_PlaceOrder(t *testing.T) {
 	b := newTestBroker()
 	symbol := "BTC-USD-200327"
