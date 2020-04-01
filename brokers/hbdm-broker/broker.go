@@ -166,8 +166,7 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		_direction,
 		offset,
 		b.leverRate,
-		orderPriceType,
-	)
+		orderPriceType)
 	if err != nil {
 		return
 	}
@@ -179,7 +178,7 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 	}
 	var order hbdm.OrderInfoResult
 	order, err = b.client.OrderInfo(
-		symbol,
+		b.pair,
 		orderResult.Data.OrderID,
 		0,
 	)
@@ -203,9 +202,9 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 func (b *HBDMBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	var ret hbdm.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
-		symbol,
-		0,
-		0,
+		b.pair,
+		1,
+		50,
 	)
 	if err != nil {
 		return
@@ -225,7 +224,7 @@ func (b *HBDMBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 func (b *HBDMBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	var ret hbdm.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
-	ret, err = b.client.OrderInfo(symbol, _id, 0)
+	ret, err = b.client.OrderInfo(b.pair, _id, 0)
 	if err != nil {
 		return
 	}
@@ -246,7 +245,7 @@ func (b *HBDMBroker) GetOrder(symbol string, id string) (result Order, err error
 func (b *HBDMBroker) CancelOrder(symbol string, id string) (result Order, err error) {
 	var ret hbdm.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
-	ret, err = b.client.Cancel(symbol, _id, 0)
+	ret, err = b.client.Cancel(b.pair, _id, 0)
 	if err != nil {
 		return
 	}
@@ -273,7 +272,7 @@ func (b *HBDMBroker) GetPosition(symbol string) (result Position, err error) {
 	result.Symbol = symbol
 
 	var ret hbdm.PositionInfoResult
-	ret, err = b.client.GetPositionInfo(symbol)
+	ret, err = b.client.GetPositionInfo(b.pair)
 	if err != nil {
 		return
 	}

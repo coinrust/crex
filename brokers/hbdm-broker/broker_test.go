@@ -52,3 +52,39 @@ func TestHBDMBroker_GetContractID(t *testing.T) {
 	}
 	t.Logf("%v", symbol)
 }
+
+func TestHBDMBroker_GetOpenOrders(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	orders, err := b.GetOpenOrders(symbol)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range orders {
+		t.Logf("%#v", v)
+	}
+}
+
+func TestHBDMBroker_GetOrder(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	order, err := b.GetOrder(symbol, "694901372910391296")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
+}
