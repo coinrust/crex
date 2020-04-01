@@ -157,9 +157,9 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		orderPriceType += ",post_only"
 	}
 	orderResult, err = b.client.Order(
-		symbol,
-		b.contractType,
 		"",
+		"",
+		symbol,
 		0,
 		price,
 		size,
