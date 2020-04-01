@@ -33,7 +33,9 @@ func (b *HBDMBroker) GetAccountSummary(currency string) (result AccountSummary, 
 	}
 
 	if account.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			account.ErrCode,
+			account.ErrMsg)
 		return
 	}
 
@@ -61,7 +63,9 @@ func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, e
 		return
 	}
 	if ret.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
 		return
 	}
 	for _, v := range ret.Tick.Asks {
@@ -168,7 +172,9 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		return
 	}
 	if orderResult.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			orderResult.ErrCode,
+			orderResult.ErrMsg)
 		return
 	}
 	var order hbdm.OrderInfoResult
@@ -181,11 +187,13 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		return
 	}
 	if order.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			orderResult.ErrCode,
+			orderResult.ErrMsg)
 		return
 	}
 	if len(order.Data) != 1 {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("missing data")
 		return
 	}
 	result = b.convertOrder(symbol, &order.Data[0])
@@ -203,7 +211,9 @@ func (b *HBDMBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 		return
 	}
 	if ret.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
 		return
 	}
 	for _, v := range ret.Data.Orders {
@@ -220,7 +230,9 @@ func (b *HBDMBroker) GetOrder(symbol string, id string) (result Order, err error
 		return
 	}
 	if ret.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
 		return
 	}
 	if len(ret.Data) != 1 {
@@ -239,7 +251,9 @@ func (b *HBDMBroker) CancelOrder(symbol string, id string) (result Order, err er
 		return
 	}
 	if ret.Status != StatusOK {
-		err = fmt.Errorf("err")
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
 		return
 	}
 	orderID := ret.Data.Successes
@@ -265,7 +279,9 @@ func (b *HBDMBroker) GetPosition(symbol string) (result Position, err error) {
 	}
 
 	if ret.Status != StatusOK {
-		err = fmt.Errorf("error")
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
 		return
 	}
 
