@@ -3,11 +3,11 @@ package brokers
 import (
 	"fmt"
 	. "github.com/coinrust/crex"
-	bitmex_broker "github.com/coinrust/crex/brokers/bitmex-broker"
-	bybit_broker "github.com/coinrust/crex/brokers/bybit-broker"
-	deribit_broker "github.com/coinrust/crex/brokers/deribit-broker"
-	hbdm_broker "github.com/coinrust/crex/brokers/hbdm-broker"
-	okex_broker "github.com/coinrust/crex/brokers/okex-broker"
+	bitmexbroker "github.com/coinrust/crex/brokers/bitmex-broker"
+	bybitbroker "github.com/coinrust/crex/brokers/bybit-broker"
+	deribitbroker "github.com/coinrust/crex/brokers/deribit-broker"
+	hbdmbroker "github.com/coinrust/crex/brokers/hbdm-broker"
+	okexfuturesbroker "github.com/coinrust/crex/brokers/okex-futures-broker"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/deribit-api"
 	"log"
@@ -22,28 +22,28 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		} else {
 			addr = bitmex.HostReal
 		}
-		return bitmex_broker.NewBroker(addr, accessKey, secret)
+		return bitmexbroker.NewBroker(addr, accessKey, secret)
 	case Deribit:
 		if testnet {
 			addr = deribit.TestBaseURL
 		} else {
 			addr = deribit.RealBaseURL
 		}
-		return deribit_broker.NewBroker(addr, accessKey, secret)
+		return deribitbroker.NewBroker(addr, accessKey, secret)
 	case Bybit:
 		if testnet {
 			addr = "https://api-testnet.bybit.com/"
 		} else {
 			addr = "https://api.bybit.com/"
 		}
-		return bybit_broker.NewBroker(addr, accessKey, secret)
+		return bybitbroker.NewBroker(addr, accessKey, secret)
 	case HBDM:
 		if testnet {
 			addr = "https://api.btcgateway.pro"
 		} else {
 			addr = "https://api.hbdm.com"
 		}
-		return hbdm_broker.NewBroker(addr, accessKey, secret)
+		return hbdmbroker.NewBroker(addr, accessKey, secret)
 	case OKEXFutures:
 		if testnet {
 			addr = "https://www.okex.me"
@@ -59,7 +59,7 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_broker.NewBroker(addr, accessKey, secret, passphrase)
+		return okexfuturesbroker.NewBroker(addr, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

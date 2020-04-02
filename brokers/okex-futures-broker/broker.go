@@ -1,4 +1,4 @@
-package okex_broker
+package okex_futures_broker
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 	"github.com/frankrap/okex-api"
 )
 
-// OKEXBroker the OKEX broker
-type OKEXBroker struct {
+// OKEXFuturesBroker the OKEX futures broker
+type OKEXFuturesBroker struct {
 	client        *okex.Client
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
@@ -18,11 +18,11 @@ type OKEXBroker struct {
 	leverRate     int    // lever rate 杠杆倍数
 }
 
-func (b *OKEXBroker) Subscribe(event string, param string, listener interface{}) {
+func (b *OKEXFuturesBroker) Subscribe(event string, param string, listener interface{}) {
 
 }
 
-func (b *OKEXBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *OKEXFuturesBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var account okex.FuturesCurrencyAccount
 	account, err = b.client.GetFuturesAccountsByCurrency(currency)
 	if err != nil {
@@ -36,7 +36,7 @@ func (b *OKEXBroker) GetAccountSummary(currency string) (result AccountSummary, 
 	return
 }
 
-func (b *OKEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *OKEXFuturesBroker) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	params := map[string]string{}
 	params["size"] = fmt.Sprintf("%v", depth) // "10"
 	//params["depth"] = fmt.Sprintf("%v", 0.01) // BTC: "0.1"
@@ -70,7 +70,7 @@ func (b *OKEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook, e
 // 设置合约类型
 // pair: BTC-USD
 // contractType: W1,W2,Q1,Q2,...
-func (b *OKEXBroker) SetContractType(pair string, contractType string) (err error) {
+func (b *OKEXFuturesBroker) SetContractType(pair string, contractType string) (err error) {
 	b.pair = pair
 	b.contractType = contractType
 	var contractAlias string
@@ -89,7 +89,7 @@ func (b *OKEXBroker) SetContractType(pair string, contractType string) (err erro
 	return
 }
 
-func (b *OKEXBroker) GetContractID() (symbol string, err error) {
+func (b *OKEXFuturesBroker) GetContractID() (symbol string, err error) {
 	var ret []okex.FuturesInstrumentsResult
 	ret, err = b.client.GetFuturesInstruments()
 	if err != nil {
@@ -107,12 +107,12 @@ func (b *OKEXBroker) GetContractID() (symbol string, err error) {
 }
 
 // 设置杠杆大小
-func (b *OKEXBroker) SetLeverRate(value float64) (err error) {
+func (b *OKEXFuturesBroker) SetLeverRate(value float64) (err error) {
 	b.leverRate = int(value)
 	return
 }
 
-func (b *OKEXBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+func (b *OKEXFuturesBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var pType int
 	if direction == Buy {
@@ -163,7 +163,7 @@ func (b *OKEXBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 	return
 }
 
-func (b *OKEXBroker) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *OKEXFuturesBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
 	var ret okex.FuturesGetOrdersResult
@@ -177,7 +177,7 @@ func (b *OKEXBroker) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *OKEXBroker) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *OKEXFuturesBroker) GetOrder(symbol string, id string) (result Order, err error) {
 	var ret okex.FuturesGetOrderResult
 	ret, err = b.client.GetFuturesOrder(symbol, id)
 	if err != nil {
@@ -187,7 +187,7 @@ func (b *OKEXBroker) GetOrder(symbol string, id string) (result Order, err error
 	return
 }
 
-func (b *OKEXBroker) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *OKEXFuturesBroker) CancelOrder(symbol string, id string) (result Order, err error) {
 	var ret okex.FuturesCancelInstrumentOrderResult
 	var resp []byte
 	resp, ret, err = b.client.CancelFuturesInstrumentOrder(symbol, id)
@@ -206,15 +206,15 @@ func (b *OKEXBroker) CancelOrder(symbol string, id string) (result Order, err er
 	return
 }
 
-func (b *OKEXBroker) CancelAllOrders(symbol string) (err error) {
+func (b *OKEXFuturesBroker) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *OKEXBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *OKEXFuturesBroker) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
 	return
 }
 
-func (b *OKEXBroker) GetPosition(symbol string) (result Position, err error) {
+func (b *OKEXFuturesBroker) GetPosition(symbol string) (result Position, err error) {
 	var ret okex.FuturesPosition
 	ret, err = b.client.GetFuturesInstrumentPosition(symbol)
 	if err != nil {
@@ -269,7 +269,7 @@ func (b *OKEXBroker) GetPosition(symbol string) (result Position, err error) {
 	return
 }
 
-func (b *OKEXBroker) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result Order) {
+func (b *OKEXFuturesBroker) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result Order) {
 	result.ID = order.OrderId
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -289,7 +289,7 @@ func (b *OKEXBroker) convertOrder(symbol string, order *okex.FuturesGetOrderResu
 	return
 }
 
-func (b *OKEXBroker) orderDirection(order *okex.FuturesGetOrderResult) Direction {
+func (b *OKEXFuturesBroker) orderDirection(order *okex.FuturesGetOrderResult) Direction {
 	// 订单类型
 	//1:开多
 	//2:开空
@@ -303,11 +303,11 @@ func (b *OKEXBroker) orderDirection(order *okex.FuturesGetOrderResult) Direction
 	return Buy
 }
 
-func (b *OKEXBroker) orderType(order *okex.FuturesGetOrderResult) OrderType {
+func (b *OKEXFuturesBroker) orderType(order *okex.FuturesGetOrderResult) OrderType {
 	return OrderTypeLimit
 }
 
-func (b *OKEXBroker) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus {
+func (b *OKEXFuturesBroker) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus {
 	/*
 		订单状态
 		-2：失败
@@ -338,12 +338,12 @@ func (b *OKEXBroker) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus 
 	}
 }
 
-func (b *OKEXBroker) RunEventLoopOnce() (err error) {
+func (b *OKEXFuturesBroker) RunEventLoopOnce() (err error) {
 	return
 }
 
 // addr: https://www.okex.com/
-func NewBroker(addr string, accessKey string, secretKey string, passphrase string) *OKEXBroker {
+func NewBroker(addr string, accessKey string, secretKey string, passphrase string) *OKEXFuturesBroker {
 	config := okex.Config{
 		Endpoint:      addr,
 		WSEndpoint:    "",
@@ -356,7 +356,7 @@ func NewBroker(addr string, accessKey string, secretKey string, passphrase strin
 		ProxyURL:      "",
 	}
 	client := okex.NewClient(config)
-	return &OKEXBroker{
+	return &OKEXFuturesBroker{
 		client: client,
 	}
 }

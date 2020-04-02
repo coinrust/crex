@@ -1,4 +1,4 @@
-package okex_broker
+package okex_futures_broker
 
 import (
 	"log"
