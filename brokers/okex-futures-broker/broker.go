@@ -129,11 +129,13 @@ func (b *OKEXFuturesBroker) PlaceOrder(symbol string, direction Direction, order
 		}
 	}
 	var _orderType int
-	if reduceOnly {
+	var matchPrice int
+	if postOnly {
 		_orderType = 1
 	}
-	var matchPrice int
 	if orderType == OrderTypeMarket {
+		price = 0
+		_orderType = 4
 		matchPrice = 1
 	}
 	var newOrderParams okex.FuturesNewOrderParams

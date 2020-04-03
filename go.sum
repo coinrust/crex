@@ -105,6 +105,8 @@ github.com/frankrap/huobi-api v0.0.0-20200322001841-f013851fc396 h1:PCSetqqyIS7S
 github.com/frankrap/huobi-api v0.0.0-20200322001841-f013851fc396/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
 github.com/frankrap/okex-api v0.0.0-20200324025205-4b3fe2deebd3 h1:hA0eoREcKFl0giOvZzbC852qu73sIqgkS9mlP0wVTjs=
 github.com/frankrap/okex-api v0.0.0-20200324025205-4b3fe2deebd3/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
+github.com/frankrap/okex-api v0.0.0-20200403022040-48202f46958d h1:dJdh8KmGYOMZ1fLly7YKzChDc/QBUOrRVqqy7ld7kZc=
+github.com/frankrap/okex-api v0.0.0-20200403022040-48202f46958d/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsouza/go-dockerclient v1.4.4/go.mod h1:PrwszSL5fbmsESocROrOGq/NULMXRw+bajY0ltzD6MA=
