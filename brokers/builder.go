@@ -8,6 +8,7 @@ import (
 	deribitbroker "github.com/coinrust/crex/brokers/deribit-broker"
 	hbdmbroker "github.com/coinrust/crex/brokers/hbdm-broker"
 	okexfuturesbroker "github.com/coinrust/crex/brokers/okex-futures-broker"
+	okexswapbroker "github.com/coinrust/crex/brokers/okex-swap-broker"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/deribit-api"
 	"log"
@@ -46,7 +47,7 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		return hbdmbroker.NewBroker(addr, accessKey, secret)
 	case OKEXFutures:
 		if testnet {
-			addr = "https://www.okex.me"
+			addr = "https://testnet.okex.me"
 		} else {
 			addr = "https://www.okex.com"
 		}
@@ -60,6 +61,22 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 			log.Fatalf("passphrase missing")
 		}
 		return okexfuturesbroker.NewBroker(addr, accessKey, secret, passphrase)
+	case OKEXSwap:
+		if testnet {
+			addr = "https://testnet.okex.me"
+		} else {
+			addr = "https://www.okex.com"
+		}
+		if params == nil {
+			log.Fatalf("passphrase missing")
+		}
+		var passphrase string
+		if v, ok := params["passphrase"]; ok {
+			passphrase = v
+		} else {
+			log.Fatalf("passphrase missing")
+		}
+		return okexswapbroker.NewBroker(addr, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

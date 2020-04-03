@@ -6,4 +6,5 @@ const (
 	Bybit       = "Bybit"
 	HBDM        = "HBDM"
 	OKEXFutures = "OKEXFutures"
+	OKEXSwap    = "OKEXSwap"
 )
