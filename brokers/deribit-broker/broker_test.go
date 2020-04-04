@@ -35,8 +35,7 @@ func TestDiribitBroker_Subscribe(t *testing.T) {
 
 func TestDiribitBroker_PlaceStopOrder(t *testing.T) {
 	b := newBroker()
-	order, err := b.PlaceOrder(
-		"BTC-PERPETUAL",
+	order, err := b.PlaceOrder("BTC-PERPETUAL",
 		Buy,
 		OrderTypeStopMarket,
 		0,
@@ -44,7 +43,7 @@ func TestDiribitBroker_PlaceStopOrder(t *testing.T) {
 		10,
 		false,
 		false,
-	)
+		nil)
 	if err != nil {
 		t.Error(err)
 		return

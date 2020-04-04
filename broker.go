@@ -23,7 +23,7 @@ type Broker interface {
 
 	// 下单
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, stopPx float64, size float64,
-		postOnly bool, reduceOnly bool) (result Order, err error)
+		postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error)
 
 	// 获取活跃委托单列表
 	GetOpenOrders(symbol string) (result []Order, err error)

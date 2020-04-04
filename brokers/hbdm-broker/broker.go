@@ -132,8 +132,32 @@ func (b *HBDMBroker) SetLeverRate(value float64) (err error) {
 	return
 }
 
+// PlaceOrder 下单
+// params:
+// order_price_type: 订单报价类型
+// "limit": 限价
+// "opponent": 对手价
+// "post_only": 只做maker单,post only下单只受用户持仓数量限制
+// optimal_5：最优5档
+// optimal_10：最优10档
+// optimal_20：最优20档
+// ioc: IOC订单
+// fok：FOK订单
+// "opponent_ioc"： 对手价-IOC下单
+// "optimal_5_ioc"：最优5档-IOC下单
+// "optimal_10_ioc"：最优10档-IOC下单
+// "optimal_20_ioc"：最优20档-IOC下单
+// "opponent_fok"： 对手价-FOK下单
+// "optimal_5_fok"：最优5档-FOK下单
+// "optimal_10_fok"：最优10档-FOK下单
+// "optimal_20_fok"：最优20档-FOK下单
+// -----------------------------------------------------
+// 对手价下单price价格参数不用传，对手价下单价格是买一和卖一价
+// optimal_5：最优5档、optimal_10：最优10档、optimal_20：最优20档下单price价格参数不用传
+// "limit":限价，"post_only":只做maker单 需要传价格
+// "fok"：全部成交或立即取消，"ioc":立即成交并取消剩余。
 func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
 	var orderResult hbdm.OrderResult
 	var _direction string
 	var offset string
@@ -154,7 +178,12 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		orderPriceType = "optimal_5"
 	}
 	if postOnly {
-		orderPriceType += ",post_only"
+		orderPriceType = "post_only"
+	}
+	if params != nil {
+		if v, ok := params["order_price_type"]; ok {
+			orderPriceType = v.(string)
+		}
 	}
 	orderResult, err = b.client.Order(
 		"",
@@ -309,7 +338,7 @@ func (b *HBDMBroker) convertOrder(symbol string, order *hbdm.Order) (result Orde
 	result.Type = b.orderType(order)
 	result.AvgPrice = order.TradeAvgPrice
 	result.FilledAmount = order.TradeVolume
-	if strings.Contains(order.OrderPriceType.String(), "post_only") {
+	if strings.Contains(order.OrderPriceType(), "post_only") {
 		result.PostOnly = true
 	}
 	if order.Offset == "close" {
@@ -333,7 +362,7 @@ func (b *HBDMBroker) orderType(order *hbdm.Order) OrderType {
 		order_price_type 订单报价类型	订单报价类型 订单报价类型 "limit":限价 "opponent":对手价 "post_only":只做maker单,post only下单只受用户持仓数量限制,optimal_5：最优5档、optimal_10：最优10档、optimal_20：最优20档，ioc:IOC订单，fok：FOK订单
 	*/
 
-	opt := order.OrderPriceType.String()
+	opt := order.OrderPriceType()
 	if strings.Contains(opt, "limit") {
 		return OrderTypeLimit
 	} else if strings.Contains(opt, "opponent") ||

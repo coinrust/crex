@@ -113,7 +113,7 @@ func (b *OKEXFuturesBroker) SetLeverRate(value float64) (err error) {
 }
 
 func (b *OKEXFuturesBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
 	var pType int
 	if direction == Buy {
 		if reduceOnly {
@@ -136,13 +136,12 @@ func (b *OKEXFuturesBroker) PlaceOrder(symbol string, direction Direction, order
 	if orderType == OrderTypeMarket {
 		price = 0
 		_orderType = 4
-		matchPrice = 1
 	}
 	var newOrderParams okex.FuturesNewOrderParams
 	newOrderParams.InstrumentId = symbol                      // "BTC-USD-190705"
 	newOrderParams.Leverage = fmt.Sprintf("%v", b.leverRate)  // "10"
 	newOrderParams.Type = fmt.Sprintf("%v", pType)            // "1"       // 1:开多2:开空3:平多4:平空
-	newOrderParams.OrderType = fmt.Sprintf("%v", _orderType)  // "0"  // 参数填数字，0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
+	newOrderParams.OrderType = fmt.Sprintf("%v", _orderType)  // "0"  // 参数填数字，0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC） 4: 市价委托
 	newOrderParams.Price = fmt.Sprintf("%v", price)           // "3000.0" // 每张合约的价格
 	newOrderParams.Size = fmt.Sprintf("%v", size)             // "1"       // 买入或卖出合约的数量（以张计数）
 	newOrderParams.MatchPrice = fmt.Sprintf("%v", matchPrice) // "0" // 是否以对手价下单(0:不是 1:是)，默认为0，当取值为1时。price字段无效，当以对手价下单，order_type只能选择0:普通委托

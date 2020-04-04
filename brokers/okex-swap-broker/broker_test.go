@@ -63,7 +63,8 @@ func TestOKEXBroker_PlaceOrder(t *testing.T) {
 		0,
 		1,
 		true,
-		false)
+		false,
+		nil)
 	if err != nil {
 		t.Error(err)
 		return

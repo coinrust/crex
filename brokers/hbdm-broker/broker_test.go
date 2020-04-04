@@ -62,6 +62,8 @@ func TestHBDMBroker_GetOpenOrders(t *testing.T) {
 		return
 	}
 
+	t.Logf("symbol: %v", symbol)
+
 	orders, err := b.GetOpenOrders(symbol)
 	if err != nil {
 		t.Error(err)
@@ -82,6 +84,34 @@ func TestHBDMBroker_GetOrder(t *testing.T) {
 	}
 
 	order, err := b.GetOrder(symbol, "694901372910391296")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
+}
+
+func TestHBDMBroker_PlaceOrder(t *testing.T) {
+	b := newTestBroker()
+	b.SetLeverRate(10)
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	order, err := b.PlaceOrder(
+		symbol,
+		Buy,
+		OrderTypeLimit,
+		3000,
+		0,
+		1,
+		false,
+		false,
+		nil,
+	)
 	if err != nil {
 		t.Error(err)
 		return

@@ -107,7 +107,7 @@ func (b *DiribitBroker) SetLeverRate(value float64) (err error) {
 }
 
 func (b *DiribitBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
 	var _orderType string
 	var trigger string
 	if orderType == OrderTypeLimit {
