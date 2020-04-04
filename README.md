@@ -84,7 +84,7 @@ func (s *BasicStrategy) OnTick() {
 
 	s.Brokers[0].GetOrderBook(symbol, 10)
 
-	//s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false)
+	//s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false, nil)
 
 	s.Brokers[0].GetOpenOrders(symbol)
 	s.Brokers[0].GetPosition(symbol)
