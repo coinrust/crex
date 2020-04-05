@@ -5,7 +5,7 @@ import (
 	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/data"
-	"github.com/coinrust/crex/util2"
+	"github.com/coinrust/crex/util"
 	"log"
 	"math"
 	"time"
@@ -78,7 +78,7 @@ func (b *BitMEXSimBroker) SetLeverRate(value float64) (err error) {
 
 func (b *BitMEXSimBroker) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
-	_id, _ := util2.NextID()
+	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
 		ID:           id,

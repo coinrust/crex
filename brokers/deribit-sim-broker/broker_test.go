@@ -1,7 +1,7 @@
 package deribit_sim_broker
 
 import (
-	"github.com/coinrust/crex/math2"
+	"github.com/coinrust/crex/math"
 	"testing"
 )
 
@@ -44,7 +44,7 @@ func TestUpdateBalance(t *testing.T) {
 	fee := amount * (1.0 / price) * feeRate
 	// 0.00000073
 	t.Logf("fee: %.10f", fee)
-	fee2 := math2.ToFixed(fee, 8)
+	fee2 := math.ToFixed(fee, 8)
 	t.Logf("fee2: %.8f", fee2)
 	if fee2 != 0.00000073 {
 		t.Error("fee2 error")
