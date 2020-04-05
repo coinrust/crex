@@ -1,9 +1,21 @@
+<p align="center">
+  <a href="https://github.com/golang/go">
+    <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/coinrust/crex">
+  </a>
+
+  <a href="https://github.com/coinrust/crex/master/LICENSE">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+  <a href="https://www.travis-ci.com/coinrust/crex">
+    <img src="https://www.travis-ci.com/coinrust/crex.svg?branch=master" alt="build status">
+  </a>
+</p>
+
 # CREX
 
-[README](README.md) | [English README](README_en.md)
+[中文](README.md) | [English](README_en.md)
 
-### CREX
-A real-time quantitative trading library in Golang.
+**CREX** A real-time quantitative trading library in Golang.
 
 ### Backtesting
 See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/main.go)
@@ -114,7 +126,7 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 * Paper trading.
 
 ### QQ group
-QQ group: 932289088
+QQ group: [932289088](https://jq.qq.com/?_wv=1027&k=5rg0FEK)
 
 ### Donate
 

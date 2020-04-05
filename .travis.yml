@@ -1,0 +1,37 @@
+language: go
+go:
+  - 1.13
+
+sudo: false
+os:
+  - linux
+
+before_script:
+  - cd examples/backtest
+install:
+  - eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=master bash)"
+
+script:
+  - env GO111MODULE=on go build
+
+# before_deploy:
+#   - GOARCH=amd64 GOOS=linux   go build -o crex-linux-amd64
+#   - GOARCH=amd64 GOOS=windows go build -o crex-windows-amd64.exe
+#   - zip -r crex-linux-amd64.zip crex-linux-amd64
+#   - unix2dos config.toml README.md
+#   - zip -r crex-windows-amd64.zip crex-windows-amd64
+
+# deploy:
+#   provider: releases
+#   skip_cleanup: true
+#   local_dir: dist
+#   github_token: $GITHUB_TOKEN
+#   keep_history: true
+#   file:
+#   - crex-linux-amd64.zip
+#   - crex-windows-386.zip
+#   on:
+#     tags: true
+#     all_branches: true
+#     go: 1.13
+

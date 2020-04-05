@@ -1,22 +1,34 @@
+<p align="center">
+  <a href="https://github.com/golang/go">
+    <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/coinrust/crex">
+  </a>
+
+  <a href="https://github.com/coinrust/crex/master/LICENSE">
+    <img src="https://img.shields.io/github/license/mashape/apistatus.svg" alt="license">
+  </a>
+  <a href="https://www.travis-ci.com/coinrust/crex">
+    <img src="https://www.travis-ci.com/coinrust/crex.svg?branch=master" alt="build status">
+  </a>
+</p>
+
 # CREX
 
-[README](README.md) | [English README](README_en.md)
+[中文](README.md) | [English](README_en.md)
 
-### CREX
-CREX 是一个用Golang语言开发的量化交易库。支持tick级别数字币期货平台的回测和实盘。
+**CREX** 是一个用Golang语言开发的量化交易库。支持`tick`级别数字币期货平台的回测和实盘。实盘与回测无缝切换，无需更改代码。
 
-### 回测
+## 回测
 示例 [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/main.go)
 
-### 实盘
+## 实盘
 示例 [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/main.go)
 
-### 主要特性
+## 主要特性
 * 使用简单
 * Tick级别回测
 * 支持实盘
 
-### 支持交易所
+## 支持交易所
 | 交易所                                                 | 回测               | 实盘              | Broker            |
 | ----------------------------------------------------- |------------------ | ----------------- | ----------------- |
 | [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Sim](https://github.com/coinrust/crex/tree/master/brokers/bitmex-sim-broker) / [Live](https://github.com/coinrust/crex/tree/master/brokers/bitmex-broker) |
@@ -26,7 +38,7 @@ CREX 是一个用Golang语言开发的量化交易库。支持tick级别数字�
 | [OKEX Futures](https://www.okex.com/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/okex-futures-broker) |
 | [OKEX Swap](https://www.okex.com/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/okex-swap-broker) |
 
-### 示例
+## 示例
 ```golang
 package main
 
@@ -82,6 +94,7 @@ func main() {
 }
 ```
 
+## 回测数据
 ### 标准 CSV 数据格式
 * 列定界符: , (逗号)
 * 换行标记: \n (LF)
@@ -109,13 +122,13 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 1569888000527,8304.5,10270,8305,60,8305.5,1220,8306,80,8307,200,8307.5,20370,8308,68260,8308.5,120000,8309,38400,8309.5,8400,8304,185010,8303.5,52200,8303,20600,8302.5,4500,8302,2000,8301.5,18200,8301,18000,8300.5,5090,8300,71320,8299.5,310
 ```
 
-### TODO
+## TODO
 * Paper trading.
 
-### QQ群
-QQ群: 932289088
+## QQ群
+QQ群: [932289088](https://jq.qq.com/?_wv=1027&k=5rg0FEK)
 
-### 捐赠
+## 捐赠
 
 欢迎支持项目，金额随意:
 
@@ -124,5 +137,5 @@ QQ群: 932289088
 | BTC     | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
 | ETH     | 0xa74eade7ea08a8c48d7de4d582fac145afc86e3d  |
 
-### LICENSE
+## LICENSE
 MIT [©coinrust](https://github.com/coinrust)
