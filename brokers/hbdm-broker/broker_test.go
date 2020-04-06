@@ -118,3 +118,31 @@ func TestHBDMBroker_PlaceOrder(t *testing.T) {
 	}
 	t.Logf("%#v", order)
 }
+
+func TestHBDMBroker_PlaceOrder2(t *testing.T) {
+	b := newTestBroker()
+	b.SetLeverRate(10)
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	order, err := b.PlaceOrder(
+		symbol,
+		Sell,
+		OrderTypeMarket,
+		3000,
+		0,
+		1,
+		false,
+		true,
+		nil,
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
+}

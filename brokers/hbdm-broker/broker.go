@@ -176,6 +176,7 @@ func (b *HBDMBroker) PlaceOrder(symbol string, direction Direction, orderType Or
 		orderPriceType = "limit"
 	} else if orderType == OrderTypeMarket {
 		orderPriceType = "optimal_5"
+		price = 0
 	}
 	if postOnly {
 		orderPriceType = "post_only"
