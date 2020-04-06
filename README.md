@@ -1,4 +1,4 @@
-![CREX](https://github.com/coinrust/crex/raw/master/images/logo.png)
+<div align=center><img src="https://github.com/coinrust/crex/raw/master/images/logo.png" /></div>
 
 <p align="center">
   <a href="https://github.com/golang/go">
