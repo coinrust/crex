@@ -163,8 +163,11 @@ func (b *OKEXFuturesBroker) PlaceOrder(symbol string, direction Direction, order
 			string(resp))
 		return
 	}
-	//log.Printf("%v", string(resp))
-	result, err = b.GetOrder(symbol, ret.OrderId)
+	result.Symbol = symbol
+	result.ID = ret.OrderId
+	result.Status = OrderStatusNew
+	////log.Printf("%v", string(resp))
+	//result, err = b.GetOrder(symbol, ret.OrderId)
 	return
 }
 
@@ -186,6 +189,8 @@ func (b *OKEXFuturesBroker) GetOrder(symbol string, id string) (result Order, er
 	var ret okex.FuturesGetOrderResult
 	ret, err = b.client.GetFuturesOrder(symbol, id)
 	if err != nil {
+		result.Symbol = symbol
+		result.ID = id
 		return
 	}
 	result = b.convertOrder(symbol, &ret)

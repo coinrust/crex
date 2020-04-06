@@ -166,26 +166,29 @@ func (b *HBDMSwapBroker) PlaceOrder(symbol string, direction Direction, orderTyp
 			orderResult.ErrMsg)
 		return
 	}
-	var order hbdmswap.OrderInfoResult
-	order, err = b.client.OrderInfo(
-		symbol,
-		orderResult.Data.OrderID,
-		0,
-	)
-	if err != nil {
-		return
-	}
-	if order.Status != StatusOK {
-		err = fmt.Errorf("error code=%v msg=%v",
-			orderResult.ErrCode,
-			orderResult.ErrMsg)
-		return
-	}
-	if len(order.Data) != 1 {
-		err = fmt.Errorf("missing data")
-		return
-	}
-	result = b.convertOrder(symbol, &order.Data[0])
+	result.Symbol = symbol
+	result.ID = fmt.Sprint(orderResult.Data.OrderID)
+	result.Status = OrderStatusNew
+	//var order hbdmswap.OrderInfoResult
+	//order, err = b.client.OrderInfo(
+	//	symbol,
+	//	orderResult.Data.OrderID,
+	//	0,
+	//)
+	//if err != nil {
+	//	return
+	//}
+	//if order.Status != StatusOK {
+	//	err = fmt.Errorf("error code=%v msg=%v",
+	//		orderResult.ErrCode,
+	//		orderResult.ErrMsg)
+	//	return
+	//}
+	//if len(order.Data) != 1 {
+	//	err = fmt.Errorf("missing data")
+	//	return
+	//}
+	//result = b.convertOrder(symbol, &order.Data[0])
 	return
 }
 

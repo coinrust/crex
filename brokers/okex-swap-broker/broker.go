@@ -2,7 +2,6 @@ package okex_futures_broker
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -131,8 +130,11 @@ func (b *OKEXSwapBroker) PlaceOrder(symbol string, direction Direction, orderTyp
 			string(resp))
 		return
 	}
-	log.Printf("%v", string(resp))
-	result, err = b.GetOrder(symbol, ret.OrderId)
+	//log.Printf("%v", string(resp))
+	//result, err = b.GetOrder(symbol, ret.OrderId)
+	result.Symbol = symbol
+	result.ID = ret.OrderId
+	result.Status = OrderStatusNew
 	return
 }
 
