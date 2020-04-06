@@ -13,6 +13,10 @@ type BybitBroker struct {
 	client *rest.ByBit
 }
 
+func (b *BybitBroker) GetName() (name string) {
+	return "Bybit"
+}
+
 func (b *BybitBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

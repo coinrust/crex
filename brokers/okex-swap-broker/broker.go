@@ -19,6 +19,10 @@ type OKEXSwapBroker struct {
 	leverRate     int    // lever rate 杠杆倍数
 }
 
+func (b *OKEXSwapBroker) GetName() (name string) {
+	return "OKEXSwap"
+}
+
 func (b *OKEXSwapBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

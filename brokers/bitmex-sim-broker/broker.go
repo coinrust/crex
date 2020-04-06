@@ -34,6 +34,10 @@ type BitMEXSimBroker struct {
 	positions     map[string]*Position // Position key: symbol
 }
 
+func (b *BitMEXSimBroker) GetName() (name string) {
+	return "BitMEX"
+}
+
 func (b *BitMEXSimBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

@@ -18,6 +18,10 @@ type OKEXFuturesBroker struct {
 	leverRate     int    // lever rate 杠杆倍数
 }
 
+func (b *OKEXFuturesBroker) GetName() (name string) {
+	return "OKEXFutures"
+}
+
 func (b *OKEXFuturesBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

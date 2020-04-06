@@ -34,6 +34,10 @@ type DiribitSimBroker struct {
 	positions     map[string]*Position // Position key: symbol
 }
 
+func (b *DiribitSimBroker) GetName() (name string) {
+	return "Deribit"
+}
+
 func (b *DiribitSimBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

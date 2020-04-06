@@ -1,6 +1,10 @@
 package crex
 
+// Broker 交易所接口
 type Broker interface {
+	// 获取当前Broker名称
+	GetName() (name string)
+
 	// 订阅事件
 	Subscribe(event string, param string, listener interface{})
 

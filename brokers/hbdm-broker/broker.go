@@ -21,6 +21,10 @@ type HBDMBroker struct {
 	leverRate     int    // 杠杆倍数
 }
 
+func (b *HBDMBroker) GetName() (name string) {
+	return "HBDM"
+}
+
 func (b *HBDMBroker) Subscribe(event string, param string, listener interface{}) {
 
 }

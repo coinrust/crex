@@ -16,6 +16,10 @@ type DiribitBroker struct {
 	emitter          *emission.Emitter
 }
 
+func (b *DiribitBroker) GetName() (name string) {
+	return "Deribit"
+}
+
 func (b *DiribitBroker) Subscribe(event string, param string, listener interface{}) {
 	//b.client.Subscribe([]string{
 	//	"announcements",
