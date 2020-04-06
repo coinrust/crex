@@ -36,7 +36,8 @@
 | [BitMEX](https://www.bitmex.com/register/o0Duru)      | Yes               | Yes               | [Sim](https://github.com/coinrust/crex/tree/master/brokers/bitmex-sim-broker) / [Live](https://github.com/coinrust/crex/tree/master/brokers/bitmex-broker) |
 | [Deribit](https://www.deribit.com/reg-7357.93)        | Yes               | Yes               | [Sim](https://github.com/coinrust/crex/tree/master/brokers/deribit-sim-broker) / [Live](https://github.com/coinrust/crex/tree/master/brokers/deribit-broker) |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/bybit-broker) |
-| [Huobi DM](https://www.huobi.io/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/huobi-broker) |
+| [Huobi DM](https://www.huobi.io/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/hbdm-broker) |
+| [Huobi Swap](https://www.huobi.io/zh-cn/topic/invited/?invite_code=7hzc5) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/hbdm-swap-broker) |
 | [OKEX Futures](https://www.okex.com/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/okex-futures-broker) |
 | [OKEX Swap](https://www.okex.com/join/1890951) | No                | Yes               | [Live](https://github.com/coinrust/crex/tree/master/brokers/okex-swap-broker) |
 

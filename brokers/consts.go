@@ -5,6 +5,7 @@ const (
 	Deribit     = "Deribit"
 	Bybit       = "Bybit"
 	HBDM        = "HBDM"
+	HBDMSwap    = "HBDMSwap"
 	OKEXFutures = "OKEXFutures"
 	OKEXSwap    = "OKEXSwap"
 )

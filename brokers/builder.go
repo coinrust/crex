@@ -7,6 +7,7 @@ import (
 	bybitbroker "github.com/coinrust/crex/brokers/bybit-broker"
 	deribitbroker "github.com/coinrust/crex/brokers/deribit-broker"
 	hbdmbroker "github.com/coinrust/crex/brokers/hbdm-broker"
+	hbdmswapbroker "github.com/coinrust/crex/brokers/hbdm-swap-broker"
 	okexfuturesbroker "github.com/coinrust/crex/brokers/okex-futures-broker"
 	okexswapbroker "github.com/coinrust/crex/brokers/okex-swap-broker"
 	"github.com/frankrap/bitmex-api"
@@ -45,6 +46,13 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 			addr = "https://api.hbdm.com"
 		}
 		return hbdmbroker.NewBroker(addr, accessKey, secret)
+	case HBDMSwap:
+		if testnet {
+			addr = "https://api.btcgateway.pro"
+		} else {
+			addr = "https://api.hbdm.com"
+		}
+		return hbdmswapbroker.NewBroker(addr, accessKey, secret)
 	case OKEXFutures:
 		if testnet {
 			addr = "https://testnet.okex.me"

@@ -72,7 +72,9 @@ github.com/cpu/goacmedns v0.0.1/go.mod h1:sesf/pNnCYwUevQEQfEwY0Y3DydlQWSGZbaMEl
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/deckarep/golang-set v1.7.1 h1:SCQV0S6gTtp6itiFrTqI+pfmJ4LN85S1YzhDf9rTHJQ=
 github.com/deckarep/golang-set v1.7.1/go.mod h1:93vsz/8Wt4joVM7c2AVqh+YRMiUSc14yDtF28KmMOgQ=
 github.com/decker502/dnspod-go v0.2.0/go.mod h1:qsurYu1FgxcDwfSwXJdLt4kRsBLZeosEb9uq4Sy+08g=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
@@ -101,15 +103,8 @@ github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944/go.mod h1:M+CA+
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
-github.com/frankrap/huobi-api v0.0.0-20200322001841-f013851fc396 h1:PCSetqqyIS7S7MHcZJY8+JvB1HlL6swGK4UYIww2kvo=
-github.com/frankrap/huobi-api v0.0.0-20200322001841-f013851fc396/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
-github.com/frankrap/huobi-api v0.0.0-20200404142433-8c0d0bac3354 h1:4tizHfvaR3qDxAAlBZdpX9i0MqZ2AsgDCcLHQuw/k7w=
-github.com/frankrap/huobi-api v0.0.0-20200404142433-8c0d0bac3354/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
-github.com/frankrap/huobi-api v0.0.0-20200405081002-4c6866c09986/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
-github.com/frankrap/okex-api v0.0.0-20200324025205-4b3fe2deebd3 h1:hA0eoREcKFl0giOvZzbC852qu73sIqgkS9mlP0wVTjs=
-github.com/frankrap/okex-api v0.0.0-20200324025205-4b3fe2deebd3/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
-github.com/frankrap/okex-api v0.0.0-20200403022040-48202f46958d h1:dJdh8KmGYOMZ1fLly7YKzChDc/QBUOrRVqqy7ld7kZc=
-github.com/frankrap/okex-api v0.0.0-20200403022040-48202f46958d/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
+github.com/frankrap/huobi-api v0.0.0-20200406021714-3380fc281ac4 h1:v6me1nuGFdImpOMqkxBQYqnsnrC/5MCmNMwEtiJdi2g=
+github.com/frankrap/huobi-api v0.0.0-20200406021714-3380fc281ac4/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
 github.com/frankrap/okex-api v0.0.0-20200403052742-92bc7285af34 h1:XwNyaCliV50jiJPsZHDGu0ZWjmNXyjxqZKwqhkLW8SY=
 github.com/frankrap/okex-api v0.0.0-20200403052742-92bc7285af34/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -150,6 +145,7 @@ github.com/golang/mock v1.2.0/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfb
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/protobuf v1.3.0/go.mod h1:Qd/q+1AKNOZr9uGQzbzCmRO6sUih6GTPZv6a1/R87v0=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
+github.com/golang/protobuf v1.3.2 h1:6nsPYzhq5kReh6QImI3k5qWzO4PEbvbIW2cwSfR/6xs=
 github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
 github.com/golang/snappy v0.0.1/go.mod h1:/XxbfmMg8lxefKM7IXC3fBNl/7bRcc72aCRzEWrmP2Q=
@@ -305,6 +301,7 @@ github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/profile v1.2.1/go.mod h1:hJw3o1OdXxsrSjjVksARp5W95eeEaEfptyVZyv6JUPA=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3-0.20190127221311-3c4408c8b829/go.mod h1:p2iRAGwDERtqlqzRXnrOVns+ignqQo//hLXqYxZYVNs=
