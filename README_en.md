@@ -1,3 +1,5 @@
+![CREX](https://github.com/coinrust/crex/raw/master/images/crex.png)
+
 <p align="center">
   <a href="https://github.com/golang/go">
     <img alt="GitHub go.mod Go version" src="https://img.shields.io/github/go-mod/go-version/coinrust/crex">
