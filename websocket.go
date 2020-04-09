@@ -6,9 +6,9 @@ type WSEvent int
 // WS 事件枚举
 const (
 	WSEventTrade WSEvent = iota + 1
+	WSEventL2Snapshot
 	WSEventOrder
 	WSEventPosition
-	WSEventL2Snapshot
 	WSEventError
 	WSEventDisconnected
 	WSEventReconnected
