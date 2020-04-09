@@ -3,8 +3,6 @@ package okex_futures_broker
 import (
 	"fmt"
 	"github.com/coinrust/crex/util"
-	"github.com/nntaoli-project/GoEx/okex"
-	"log"
 	"strconv"
 	"strings"
 	"time"
