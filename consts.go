@@ -115,3 +115,25 @@ const (
 	ContractTypeQ1   = "Q1" // quarter 季度合约
 	ContractTypeQ2   = "Q2" // two quarter 次季度合约
 )
+
+// K线周期
+const (
+	PERIOD_1MIN   = "1m"
+	PERIOD_3MIN   = "3m"
+	PERIOD_5MIN   = "5m"
+	PERIOD_15MIN  = "15m"
+	PERIOD_30MIN  = "30m"
+	PERIOD_60MIN  = "60m"
+	PERIOD_1H     = "1h"
+	PERIOD_2H     = "2h"
+	PERIOD_3H     = "3h"
+	PERIOD_4H     = "4h"
+	PERIOD_6H     = "6h"
+	PERIOD_8H     = "8h"
+	PERIOD_12H    = "12h"
+	PERIOD_1DAY   = "1d"
+	PERIOD_3DAY   = "3d"
+	PERIOD_1WEEK  = "1w"
+	PERIOD_1MONTH = "30M"
+	PERIOD_1YEAR  = "1y"
+)

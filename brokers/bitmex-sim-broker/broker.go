@@ -70,7 +70,7 @@ func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBo
 	return
 }
 
-func (b *BitMEXSimBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BitMEXSimBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	return
 }
 

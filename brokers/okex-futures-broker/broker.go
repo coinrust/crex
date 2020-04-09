@@ -73,31 +73,31 @@ func (b *OKEXFuturesBroker) GetOrderBook(symbol string, depth int) (result Order
 	return
 }
 
-func (b *OKEXFuturesBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *OKEXFuturesBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	var granularity int64
 	var intervalValue string
 	var intervalF int64
-	if strings.HasSuffix(interval, "m") {
-		intervalValue = interval[:len(interval)-1]
+	if strings.HasSuffix(period, "m") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60
-	} else if strings.HasSuffix(interval, "h") {
-		intervalValue = interval[:len(interval)-1]
+	} else if strings.HasSuffix(period, "h") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60 * 60
-	} else if strings.HasSuffix(interval, "d") {
-		intervalValue = interval[:len(interval)-1]
+	} else if strings.HasSuffix(period, "d") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60 * 60 * 24
-	} else if strings.HasSuffix(interval, "w") {
-		intervalValue = interval[:len(interval)-1]
+	} else if strings.HasSuffix(period, "w") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60 * 60 * 24 * 7
-	} else if strings.HasSuffix(interval, "M") {
-		intervalValue = interval[:len(interval)-1]
+	} else if strings.HasSuffix(period, "M") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60 * 60 * 24 * 30
-	} else if strings.HasSuffix(interval, "y") {
-		intervalValue = interval[:len(interval)-1]
+	} else if strings.HasSuffix(period, "y") {
+		intervalValue = period[:len(period)-1]
 		intervalF = 60 * 60 * 24 * 365
 	} else {
 		var i int64
-		i, err = strconv.ParseInt(interval, 10, 64)
+		i, err = strconv.ParseInt(period, 10, 64)
 		if err != nil {
 			return
 		}

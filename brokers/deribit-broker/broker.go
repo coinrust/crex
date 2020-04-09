@@ -98,7 +98,7 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 	return
 }
 
-func (b *DiribitBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *DiribitBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	if end == 0 {
 		end = time.Now().Unix()
 	}
@@ -106,7 +106,7 @@ func (b *DiribitBroker) GetRecords(symbol string, interval string, from int64, e
 		InstrumentName: symbol,
 		StartTimestamp: from * 1000,
 		EndTimestamp:   end * 1000,
-		Resolution:     interval,
+		Resolution:     period,
 	}
 	var resp models.GetTradingviewChartDataResponse
 	resp, err = b.client.GetTradingviewChartData(params)

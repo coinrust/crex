@@ -56,17 +56,17 @@ func (b *BitMEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook,
 	return
 }
 
-func (b *BitMEXBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BitMEXBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	//@param "binSize" (string) Time interval to bucket by. Available options: [1m,5m,1h,1d].
 	var binSize string
-	if strings.HasSuffix(interval, "m") {
-		binSize = interval
-	} else if strings.HasSuffix(interval, "h") {
-		binSize = interval
-	} else if strings.HasSuffix(interval, "d") {
-		binSize = interval
+	if strings.HasSuffix(period, "m") {
+		binSize = period
+	} else if strings.HasSuffix(period, "h") {
+		binSize = period
+	} else if strings.HasSuffix(period, "d") {
+		binSize = period
 	} else {
-		binSize = interval + "m"
+		binSize = period + "m"
 	}
 	var o []swagger.TradeBin
 	o, err = b.client.GetBucketed(symbol,

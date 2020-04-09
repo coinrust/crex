@@ -88,26 +88,26 @@ func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, e
 	return
 }
 
-func (b *HBDMBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
-	var period string
-	if strings.HasSuffix(interval, "m") {
-		period = interval[:len(interval)-1] + "min"
-	} else if strings.HasSuffix(interval, "h") {
-		period = interval[:len(interval)-1] + "hour"
-	} else if strings.HasSuffix(interval, "d") {
-		period = interval[:len(interval)-1] + "day"
-	} else if strings.HasSuffix(interval, "d") {
-		period = interval[:len(interval)-1] + "day"
-	} else if strings.HasSuffix(interval, "w") {
-		//period = interval[:len(interval)-1]+"week"
-	} else if strings.HasSuffix(interval, "M") {
-		period = interval[:len(interval)-1] + "mon"
+func (b *HBDMBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+	var _period string
+	if strings.HasSuffix(period, "m") {
+		_period = period[:len(period)-1] + "min"
+	} else if strings.HasSuffix(period, "h") {
+		_period = period[:len(period)-1] + "hour"
+	} else if strings.HasSuffix(period, "d") {
+		_period = period[:len(period)-1] + "day"
+	} else if strings.HasSuffix(period, "d") {
+		_period = period[:len(period)-1] + "day"
+	} else if strings.HasSuffix(period, "w") {
+		//_period = interval[:len(period)-1]+"week"
+	} else if strings.HasSuffix(period, "M") {
+		_period = period[:len(period)-1] + "mon"
 	} else {
-		period = interval + "min"
+		_period = period + "min"
 	}
 	// 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon
 	var ret hbdm.KLineResult
-	ret, err = b.client.GetKLine(b.symbol, period, limit, from, end)
+	ret, err = b.client.GetKLine(b.symbol, _period, limit, from, end)
 	if err != nil {
 		return
 	}

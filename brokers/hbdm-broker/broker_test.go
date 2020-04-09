@@ -123,8 +123,7 @@ func TestHBDMBroker_PlaceOrder(t *testing.T) {
 		return
 	}
 
-	order, err := b.PlaceOrder(
-		symbol,
+	order, err := b.PlaceOrder(symbol,
 		Buy,
 		OrderTypeLimit,
 		3000,
@@ -132,8 +131,7 @@ func TestHBDMBroker_PlaceOrder(t *testing.T) {
 		1,
 		false,
 		false,
-		nil,
-	)
+		nil)
 	if err != nil {
 		t.Error(err)
 		return
@@ -151,8 +149,7 @@ func TestHBDMBroker_PlaceOrder2(t *testing.T) {
 		return
 	}
 
-	order, err := b.PlaceOrder(
-		symbol,
+	order, err := b.PlaceOrder(symbol,
 		Sell,
 		OrderTypeMarket,
 		3000,
@@ -160,8 +157,7 @@ func TestHBDMBroker_PlaceOrder2(t *testing.T) {
 		1,
 		false,
 		true,
-		nil,
-	)
+		nil)
 	if err != nil {
 		t.Error(err)
 		return

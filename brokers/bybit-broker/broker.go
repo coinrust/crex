@@ -61,9 +61,9 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	return
 }
 
-func (b *BybitBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BybitBroker) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	var values []rest.OHLC
-	values, err = b.client.GetKLine(symbol, interval, from, limit)
+	values, err = b.client.GetKLine(symbol, period, from, limit)
 	if err != nil {
 		return
 	}

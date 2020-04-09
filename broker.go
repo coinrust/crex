@@ -15,8 +15,8 @@ type Broker interface {
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)
 
 	// 获取K线数据
-	// interval: 数据更新频率. 分钟或者关键字1m(minute) 1h 1d 1w 1M(month) 1y 枚举值：1 3 5 15 30 60 120 240 360 720 "5m" "4h" "1d" ...
-	GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error)
+	// period: 数据周期. 分钟或者关键字1m(minute) 1h 1d 1w 1M(month) 1y 枚举值：1 3 5 15 30 60 120 240 360 720 "5m" "4h" "1d" ...
+	GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error)
 
 	// 设置合约类型
 	// currencyPair: 交易对，如: BTC-USD(OKEX) BTC(HBDM)
