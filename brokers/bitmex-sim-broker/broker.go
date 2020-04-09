@@ -32,6 +32,8 @@ type BitMEXSimBroker struct {
 	openOrders    map[string]*Order    // Open orders
 	historyOrders map[string]*Order    // History orders
 	positions     map[string]*Position // Position key: symbol
+
+	symbol string
 }
 
 func (b *BitMEXSimBroker) GetName() (name string) {
@@ -68,12 +70,13 @@ func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBo
 	return
 }
 
-func (b *BitMEXSimBroker) SetContractType(pair string, contractType string) (err error) {
+func (b *BitMEXSimBroker) SetContractType(currencyPair string, contractType string) (err error) {
+	b.symbol = currencyPair
 	return
 }
 
 func (b *BitMEXSimBroker) GetContractID() (symbol string, err error) {
-	return
+	return b.symbol, nil
 }
 
 func (b *BitMEXSimBroker) SetLeverRate(value float64) (err error) {

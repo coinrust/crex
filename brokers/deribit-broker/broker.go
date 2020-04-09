@@ -98,7 +98,7 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 	return
 }
 
-func (b *DiribitBroker) SetContractType(pair string, contractType string) (err error) {
+func (b *DiribitBroker) SetContractType(currencyPair string, contractType string) (err error) {
 	return
 }
 

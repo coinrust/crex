@@ -10,6 +10,7 @@ import (
 // BitMEXBroker the BitMEX broker
 type BitMEXBroker struct {
 	client *bitmex.BitMEX
+	symbol string
 }
 
 func (b *BitMEXBroker) GetName() (name string) {
@@ -54,12 +55,13 @@ func (b *BitMEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook,
 	return
 }
 
-func (b *BitMEXBroker) SetContractType(pair string, contractType string) (err error) {
+func (b *BitMEXBroker) SetContractType(currencyPair string, contractType string) (err error) {
+	b.symbol = currencyPair
 	return
 }
 
 func (b *BitMEXBroker) GetContractID() (symbol string, err error) {
-	return
+	return b.symbol, nil
 }
 
 func (b *BitMEXBroker) SetLeverRate(value float64) (err error) {

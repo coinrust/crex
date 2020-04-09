@@ -11,6 +11,7 @@ import (
 // BybitBroker the Bybit broker
 type BybitBroker struct {
 	client *rest.ByBit
+	symbol string
 }
 
 func (b *BybitBroker) GetName() (name string) {
@@ -59,12 +60,13 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	return
 }
 
-func (b *BybitBroker) SetContractType(pair string, contractType string) (err error) {
+func (b *BybitBroker) SetContractType(currencyPair string, contractType string) (err error) {
+	b.symbol = currencyPair
 	return
 }
 
 func (b *BybitBroker) GetContractID() (symbol string, err error) {
-	return
+	return b.symbol, nil
 }
 
 func (b *BybitBroker) SetLeverRate(value float64) (err error) {
