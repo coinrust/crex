@@ -2,12 +2,22 @@ package okex_futures_broker
 
 import (
 	"fmt"
+	"github.com/coinrust/crex/util"
 	"strconv"
+	"strings"
 	"time"
 
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/okex-api"
 )
+
+var (
+	loc *time.Location
+)
+
+func init() {
+	loc = time.Now().Location()
+}
 
 // OKEXSwapBroker the OKEX swap broker
 type OKEXSwapBroker struct {
@@ -53,21 +63,102 @@ func (b *OKEXSwapBroker) GetOrderBook(symbol string, depth int) (result OrderBoo
 
 	for _, v := range ret.Asks {
 		result.Asks = append(result.Asks, Item{
-			Price:  ParseFloat(v[0]),
-			Amount: ParseFloat(v[1]),
+			Price:  util.ParseFloat64(v[0]),
+			Amount: util.ParseFloat64(v[1]),
 		})
 	}
 
 	for _, v := range ret.Bids {
 		result.Bids = append(result.Bids, Item{
-			Price:  ParseFloat(v[0]),
-			Amount: ParseFloat(v[1]),
+			Price:  util.ParseFloat64(v[0]),
+			Amount: util.ParseFloat64(v[1]),
 		})
 	}
 
 	// 2019-07-04T09:35:07.752Z
 	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", ret.Time)
 	result.Time = timestamp.Local()
+	return
+}
+
+func (b *OKEXSwapBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	var granularity int64
+	var intervalValue string
+	var intervalF int64
+	if strings.HasSuffix(interval, "m") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60
+	} else if strings.HasSuffix(interval, "h") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60 * 60
+	} else if strings.HasSuffix(interval, "d") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60 * 60 * 24
+	} else if strings.HasSuffix(interval, "w") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60 * 60 * 24 * 7
+	} else if strings.HasSuffix(interval, "M") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60 * 60 * 24 * 30
+	} else if strings.HasSuffix(interval, "y") {
+		intervalValue = interval[:len(interval)-1]
+		intervalF = 60 * 60 * 24 * 365
+	} else {
+		var i int64
+		i, err = strconv.ParseInt(interval, 10, 64)
+		if err != nil {
+			return
+		}
+		granularity = i * 60
+	}
+	if intervalValue != "" {
+		var i int64
+		i, err = strconv.ParseInt(intervalValue, 10, 64)
+		if err != nil {
+			return
+		}
+		granularity = i * intervalF
+	}
+	optional := map[string]string{}
+	// 2018-06-20T02:31:00Z
+	if from != 0 {
+		optional["start"] = time.Unix(from, 0).UTC().Format("2006-01-02T15:04:05Z")
+	}
+	if end != 0 {
+		optional["end"] = time.Unix(end, 0).UTC().Format("2006-01-02T15:04:05Z")
+	}
+	optional["granularity"] = fmt.Sprint(granularity)
+	//log.Printf("%#v", optional)
+	var ret *okex.SwapCandleList
+	ret, err = b.client.GetSwapCandlesByInstrument(symbol, optional)
+	if err != nil {
+		return
+	}
+	/*
+		timestamp	String	开始时间
+		open	String	开盘价格
+		high	String	最高价格
+		low	String	最低价格
+		close	String	收盘价格
+		volume	String	交易量（张）
+		currency_volume	String	按币种折算的交易量
+	*/
+	for _, v := range *ret {
+		var timestamp time.Time
+		timestamp, err = time.Parse(time.RFC3339, v[0]) // 2020-04-09T09:16:00.000Z
+		if err != nil {
+			return
+		}
+		records = append(records, Record{
+			Symbol:    symbol,
+			Timestamp: timestamp.Local(),
+			Open:      util.ParseFloat64(v[1]),
+			High:      util.ParseFloat64(v[2]),
+			Low:       util.ParseFloat64(v[3]),
+			Close:     util.ParseFloat64(v[4]),
+			Volume:    util.ParseFloat64(v[5]),
+		})
+	}
 	return
 }
 
@@ -211,7 +302,7 @@ func (b *OKEXSwapBroker) GetPosition(symbol string) (result Position, err error)
 				// 2019-10-08T11:56:07.922Z
 				timestamp, _ := time.ParseInLocation(v.Timestamp,
 					"2006-01-02T15:04:05.000Z",
-					time.Now().Location())
+					loc)
 				if v.Side == "long" {
 					result.Size, _ = strconv.ParseFloat(v.Position, 64)
 					result.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
@@ -321,14 +412,4 @@ func NewBroker(addr string, accessKey string, secretKey string, passphrase strin
 	return &OKEXSwapBroker{
 		client: client,
 	}
-}
-
-func ParseFloat(s string) float64 {
-	f, _ := strconv.ParseFloat(s, 64)
-	return f
-}
-
-func ParseInt(s string) int {
-	i, _ := strconv.ParseInt(s, 10, 64)
-	return int(i)
 }

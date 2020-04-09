@@ -4,6 +4,7 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/bitmex-api"
 	"testing"
+	"time"
 )
 
 func newBrokerForTest() *BitMEXBroker {
@@ -22,6 +23,21 @@ func TestBitMEXBroker_GetOrderBook(t *testing.T) {
 		return
 	}
 	t.Logf("%#v", ob)
+}
+
+func TestBitMEXBroker_GetRecords(t *testing.T) {
+	b := newBrokerForTest()
+	start := time.Now().Add(-time.Hour)
+	end := time.Now()
+	records, err := b.GetRecords("XBTUSD",
+		"1m", start.Unix(), end.Unix(), 10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range records {
+		t.Logf("%#v", v)
+	}
 }
 
 func TestBitMEXBroker_PlaceOrder(t *testing.T) {

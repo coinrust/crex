@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"testing"
+	"time"
 )
 
 func newTestBroker() Broker {
@@ -50,6 +51,22 @@ func TestGetOrderBook(t *testing.T) {
 		t.Logf("Bid: %v", v.Price)
 	}
 	t.Logf("Time: %v", ob.Time)
+}
+
+func TestOKEXSwapBroker_GetRecords(t *testing.T) {
+	b := newTestBroker()
+	symbol := "BTC-USD-SWAP"
+	start := time.Now().Add(-20 * time.Minute)
+	end := time.Now()
+	records, err := b.GetRecords(symbol,
+		"1m", start.Unix(), end.Unix(), 10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range records {
+		t.Logf("%v: %#v", v.Timestamp.String(), v)
+	}
 }
 
 func TestOKEXBroker_PlaceOrder(t *testing.T) {

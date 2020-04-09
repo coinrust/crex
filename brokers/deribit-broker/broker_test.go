@@ -20,6 +20,21 @@ func TestDiribitBroker_GetOrderBook(t *testing.T) {
 	b.GetOrderBook("BTC-PERPETUAL", 10)
 }
 
+func TestDiribitBroker_GetRecords(t *testing.T) {
+	b := newBroker()
+	start := time.Now().Add(-time.Hour)
+	end := time.Now().UnixNano() / 1e6
+	records, err := b.GetRecords("BTC-PERPETUAL",
+		"1", start.Unix(), end, 10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range records {
+		t.Logf("%#v", v)
+	}
+}
+
 func TestDiribitBroker_Subscribe(t *testing.T) {
 	b := newBroker()
 	//event := "book.ETH-PERPETUAL.100.1.100ms"

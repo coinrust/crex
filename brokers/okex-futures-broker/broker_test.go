@@ -59,6 +59,22 @@ func TestGetOrderBook(t *testing.T) {
 	//t.Logf("Time: %v", ob.Time)
 }
 
+func TestOKEXFuturesBroker_GetRecords(t *testing.T) {
+	b := newTestBroker()
+	symbol := "BTC-USD-200410"
+	start := time.Now().Add(-20 * time.Hour)
+	end := time.Now()
+	records, err := b.GetRecords(symbol,
+		"1m", start.Unix(), end.Unix(), 10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	for _, v := range records {
+		t.Logf("%v: %#v", v.Timestamp.String(), v)
+	}
+}
+
 func TestOKEXBroker_GetContractID(t *testing.T) {
 	b := newTestBroker()
 	b.SetContractType("BTC-USD", ContractTypeW1)

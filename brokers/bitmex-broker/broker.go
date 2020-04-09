@@ -5,6 +5,7 @@ import (
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/bitmex-api/swagger"
 	"strings"
+	"time"
 )
 
 // BitMEXBroker the BitMEX broker
@@ -52,6 +53,46 @@ func (b *BitMEXBroker) GetOrderBook(symbol string, depth int) (result OrderBook,
 		})
 	}
 	result.Time = ret.Timestamp
+	return
+}
+
+func (b *BitMEXBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	//@param "binSize" (string) Time interval to bucket by. Available options: [1m,5m,1h,1d].
+	var binSize string
+	if strings.HasSuffix(interval, "m") {
+		binSize = interval
+	} else if strings.HasSuffix(interval, "h") {
+		binSize = interval
+	} else if strings.HasSuffix(interval, "d") {
+		binSize = interval
+	} else {
+		binSize = interval + "m"
+	}
+	var o []swagger.TradeBin
+	o, err = b.client.GetBucketed(symbol,
+		binSize,
+		false,
+		"",
+		"",
+		float32(limit),
+		-1,
+		false,
+		time.Unix(from, 0),
+		time.Unix(end, 0))
+	if err != nil {
+		return
+	}
+	for _, v := range o {
+		records = append(records, Record{
+			Symbol:    v.Symbol,
+			Timestamp: v.Timestamp,
+			Open:      v.Open,
+			High:      v.High,
+			Low:       v.Low,
+			Close:     v.Close,
+			Volume:    float64(v.Volume),
+		})
+	}
 	return
 }
 

@@ -98,6 +98,36 @@ func (b *DiribitBroker) GetOrderBook(symbol string, depth int) (result OrderBook
 	return
 }
 
+func (b *DiribitBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	if end == 0 {
+		end = time.Now().Unix()
+	}
+	params := &models.GetTradingviewChartDataParams{
+		InstrumentName: symbol,
+		StartTimestamp: from * 1000,
+		EndTimestamp:   end * 1000,
+		Resolution:     interval,
+	}
+	var resp models.GetTradingviewChartDataResponse
+	resp, err = b.client.GetTradingviewChartData(params)
+	if err != nil {
+		return
+	}
+	n := len(resp.Ticks)
+	for i := 0; i < n; i++ {
+		records = append(records, Record{
+			Symbol:    symbol,
+			Timestamp: time.Unix(0, resp.Ticks[i]*1e6),
+			Open:      resp.Open[i],
+			High:      resp.High[i],
+			Low:       resp.Low[i],
+			Close:     resp.Close[i],
+			Volume:    resp.Volume[i],
+		})
+	}
+	return
+}
+
 func (b *DiribitBroker) SetContractType(currencyPair string, contractType string) (err error) {
 	return
 }

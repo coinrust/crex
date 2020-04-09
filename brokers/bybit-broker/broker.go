@@ -6,6 +6,7 @@ import (
 	"github.com/frankrap/bybit-api/rest"
 	"log"
 	"strings"
+	"time"
 )
 
 // BybitBroker the Bybit broker
@@ -57,6 +58,26 @@ func (b *BybitBroker) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	}
 
 	result.Time = ob.Time
+	return
+}
+
+func (b *BybitBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	var values []rest.OHLC
+	values, err = b.client.GetKLine(symbol, interval, from, limit)
+	if err != nil {
+		return
+	}
+	for _, v := range values {
+		records = append(records, Record{
+			Symbol:    v.Symbol,
+			Timestamp: time.Unix(v.OpenTime, 0),
+			Open:      v.Open,
+			High:      v.High,
+			Low:       v.Low,
+			Close:     v.Close,
+			Volume:    v.Volume,
+		})
+	}
 	return
 }
 

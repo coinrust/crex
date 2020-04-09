@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"testing"
+	"time"
 )
 
 func newTestBroker() Broker {
@@ -40,6 +41,27 @@ func TestHBDMBroker_GetOrderBook(t *testing.T) {
 		return
 	}
 	t.Logf("%#v", ob)
+}
+
+func TestHBDMBroker_GetRecords(t *testing.T) {
+	b := newTestBroker()
+	b.SetContractType("BTC", ContractTypeW1)
+	symbol, err := b.GetContractID()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", symbol)
+	start := time.Now().Add(-time.Hour)
+	end := time.Now()
+	records, err := b.GetRecords(symbol,
+		"1m", start.Unix(), end.Unix(), 10)
+	if err != nil {
+		return
+	}
+	for _, v := range records {
+		t.Logf("%#v", v)
+	}
 }
 
 func TestHBDMBroker_GetContractID(t *testing.T) {

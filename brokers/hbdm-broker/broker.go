@@ -88,6 +88,49 @@ func (b *HBDMBroker) GetOrderBook(symbol string, depth int) (result OrderBook, e
 	return
 }
 
+func (b *HBDMBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	var period string
+	if strings.HasSuffix(interval, "m") {
+		period = interval[:len(interval)-1] + "min"
+	} else if strings.HasSuffix(interval, "h") {
+		period = interval[:len(interval)-1] + "hour"
+	} else if strings.HasSuffix(interval, "d") {
+		period = interval[:len(interval)-1] + "day"
+	} else if strings.HasSuffix(interval, "d") {
+		period = interval[:len(interval)-1] + "day"
+	} else if strings.HasSuffix(interval, "w") {
+		//period = interval[:len(interval)-1]+"week"
+	} else if strings.HasSuffix(interval, "M") {
+		period = interval[:len(interval)-1] + "mon"
+	} else {
+		period = interval + "min"
+	}
+	// 1min, 5min, 15min, 30min, 60min, 4hour, 1day, 1mon
+	var ret hbdm.KLineResult
+	ret, err = b.client.GetKLine(b.symbol, period, limit, from, end)
+	if err != nil {
+		return
+	}
+	if ret.Status != StatusOK {
+		err = fmt.Errorf("error code=%v msg=%v",
+			ret.ErrCode,
+			ret.ErrMsg)
+		return
+	}
+	for _, v := range ret.Data {
+		records = append(records, Record{
+			Symbol:    symbol,
+			Timestamp: time.Unix(int64(v.ID), 0),
+			Open:      v.Open,
+			High:      v.High,
+			Low:       v.Low,
+			Close:     v.Close,
+			Volume:    float64(v.Vol),
+		})
+	}
+	return
+}
+
 // 设置合约类型
 // pair: BTC/ETH/...
 func (b *HBDMBroker) SetContractType(pair string, contractType string) (err error) {

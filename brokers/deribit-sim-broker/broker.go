@@ -70,6 +70,10 @@ func (b *DiribitSimBroker) GetOrderBook(symbol string, depth int) (result OrderB
 	return
 }
 
+func (b *DiribitSimBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	return
+}
+
 func (b *DiribitSimBroker) SetContractType(pair string, contractType string) (err error) {
 	return
 }

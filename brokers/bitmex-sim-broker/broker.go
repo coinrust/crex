@@ -70,6 +70,10 @@ func (b *BitMEXSimBroker) GetOrderBook(symbol string, depth int) (result OrderBo
 	return
 }
 
+func (b *BitMEXSimBroker) GetRecords(symbol string, interval string, from int64, end int64, limit int) (records []Record, err error) {
+	return
+}
+
 func (b *BitMEXSimBroker) SetContractType(currencyPair string, contractType string) (err error) {
 	b.symbol = currencyPair
 	return
