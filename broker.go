@@ -5,9 +5,6 @@ type Broker interface {
 	// 获取当前Broker名称
 	GetName() (name string)
 
-	// 订阅事件
-	Subscribe(event string, param string, listener interface{})
-
 	// 获取账号信息
 	GetAccountSummary(currency string) (result AccountSummary, err error)
 

@@ -18,10 +18,6 @@ func (b *BitMEXBroker) GetName() (name string) {
 	return "BitMEX"
 }
 
-func (b *BitMEXBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *BitMEXBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var margin swagger.Margin
 	margin, err = b.client.GetMargin()

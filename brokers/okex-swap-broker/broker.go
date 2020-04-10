@@ -32,10 +32,6 @@ func (b *OKEXSwapBroker) GetName() (name string) {
 	return "OKEXSwap"
 }
 
-func (b *OKEXSwapBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *OKEXSwapBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var account okex.SwapAccount
 	account, err = b.client.GetSwapAccount(currency)

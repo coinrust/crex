@@ -24,10 +24,6 @@ func (b *OKEXFuturesBroker) GetName() (name string) {
 	return "OKEXFutures"
 }
 
-func (b *OKEXFuturesBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *OKEXFuturesBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var account okex.FuturesCurrencyAccount
 	account, err = b.client.GetFuturesAccountsByCurrency(currency)

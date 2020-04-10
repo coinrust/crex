@@ -25,10 +25,6 @@ func (b *HBDMBroker) GetName() (name string) {
 	return "HBDM"
 }
 
-func (b *HBDMBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *HBDMBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var account hbdm.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)

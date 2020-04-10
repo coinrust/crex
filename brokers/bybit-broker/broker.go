@@ -19,10 +19,6 @@ func (b *BybitBroker) GetName() (name string) {
 	return "Bybit"
 }
 
-func (b *BybitBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *BybitBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	var balance rest.Balance
 	balance, err = b.client.GetWalletBalance(currency)

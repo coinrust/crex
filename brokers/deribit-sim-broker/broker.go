@@ -38,10 +38,6 @@ func (b *DiribitSimBroker) GetName() (name string) {
 	return "Deribit"
 }
 
-func (b *DiribitSimBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *DiribitSimBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	result.Balance = b.balance
 	var symbol string

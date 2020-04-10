@@ -61,7 +61,6 @@ github.com/cloudflare/cloudflare-go v0.10.2/go.mod h1:qhVI5MKwBGhdNU89ZRz2plgYut
 github.com/containerd/continuity v0.0.0-20181203112020-004b46473808/go.mod h1:GL3xCUCBDV3CZiTSEKksMWbLE66hEyuu9qyDOOqM47Y=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/bbolt v1.3.3/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
-github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.17+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-semver v0.2.0/go.mod h1:nnelYz7RCh+5ahJtPPxZlU+153eP4D4r3EedlOD2RNk=
@@ -104,14 +103,8 @@ github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944/go.mod h1:M+CA+
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
-github.com/frankrap/huobi-api v0.0.0-20200406021714-3380fc281ac4 h1:v6me1nuGFdImpOMqkxBQYqnsnrC/5MCmNMwEtiJdi2g=
-github.com/frankrap/huobi-api v0.0.0-20200406021714-3380fc281ac4/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
-github.com/frankrap/huobi-api v0.0.0-20200409082954-7e5ef94e80fc h1:ptqcLaUcRhKBqxGX8t1z6z8knkzftJnH7xD//0urXak=
-github.com/frankrap/huobi-api v0.0.0-20200409082954-7e5ef94e80fc/go.mod h1:qRToModVi2quhh8aw9uA2j/7GPLb3wnmlSEX/X6m1mQ=
-github.com/frankrap/okex-api v0.0.0-20200403052742-92bc7285af34 h1:XwNyaCliV50jiJPsZHDGu0ZWjmNXyjxqZKwqhkLW8SY=
-github.com/frankrap/okex-api v0.0.0-20200403052742-92bc7285af34/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
-github.com/frankrap/okex-api v0.0.0-20200409092207-604282ba0aa6 h1:g139q8fqz57jMGIZibn7i3xnnPVcjYOjnbuhtRSniE4=
-github.com/frankrap/okex-api v0.0.0-20200409092207-604282ba0aa6/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
+github.com/frankrap/huobi-api v0.0.0-20200410093543-df393e4de099 h1:1n6Qr92H9WQIRh9bxXPIkm6dXmbEe1Fz65b0uh5u12U=
+github.com/frankrap/huobi-api v0.0.0-20200410093543-df393e4de099/go.mod h1:b85sYoCk5xxXesY23hCsKG/1m4SMKp0P9vqVfbFuXoo=
 github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2 h1:qHhxoU4AsJ3Ds492qal5Z4rTaUDUwwMZP7LlamXzzxM=
 github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -335,6 +328,8 @@ github.com/prometheus/procfs v0.0.3/go.mod h1:4A/X28fw3Fc593LaREMrKMqOKvUAntwMDa
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/rainycape/memcache v0.0.0-20150622160815-1031fa0ce2f2/go.mod h1:7tZKcyumwBO6qip7RNQ5r77yrssm9bfCowcLEBcU5IA=
 github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a/go.mod h1:bCqnVzQkZxMG4s8nGwiZ5l3QUCyqpo9Y+/ZMZ9VjZe4=
+github.com/recws-org/recws v1.2.1 h1:bYocRkAsS71hlQ9AMCVS+hYXHEgEyQsAbYKXf394gZ8=
+github.com/recws-org/recws v1.2.1/go.mod h1:SxTgwQU/jqYSzEgUh4ifDxq/7enApS150f8nZ5Sczk8=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/russross/blackfriday/v2 v2.0.1/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/sacloud/libsacloud v1.26.1/go.mod h1:79ZwATmHLIFZIMd7sxA3LwzVy/B77uj3LDoToVTxDoQ=
@@ -359,15 +354,12 @@ github.com/sourcegraph/jsonrpc2 v0.0.0-20190106185902-35a74f039c6a/go.mod h1:eES
 github.com/spaolacci/murmur3 v0.0.0-20180118202830-f09979ecbc72/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
 github.com/spf13/afero v1.1.2 h1:m8/z1t7/fwjysjQRYbP0RD+bUIF/8tJwPdEZsI83ACI=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
+github.com/spf13/cast v1.3.0 h1:oget//CVOEoFewqQxwr0Ej5yjygnqGkvggSE/gB35Q8=
 github.com/spf13/cast v1.3.0/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
-github.com/spf13/cast v1.3.1 h1:nFm6S0SMdyzrzcmThSipiEubIDy8WEXKNZ0UOgiRpng=
-github.com/spf13/cast v1.3.1/go.mod h1:Qx5cxh0v+4UWYiBimWS+eyWzqEqokIECu5etghLkUJE=
 github.com/spf13/jwalterweatherman v1.0.0 h1:XHEdyB+EcvlqZamSM4ZOMGlc93t6AcsBEu9Gc1vn7yk=
 github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb68N+wFjFa4jdeBTo=
 github.com/spf13/pflag v1.0.3 h1:zPAT6CGy6wXeQ7NtTnaTerfKOsV6V6F8agHXFiazDkg=
 github.com/spf13/pflag v1.0.3/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
-github.com/spf13/viper v1.6.2 h1:7aKfF+e8/k68gda3LOjo5RxiUqddoFxVq4BKBPrxk5E=
-github.com/spf13/viper v1.6.2/go.mod h1:t3iDnF5Jlj76alVNuyFBk5oUMCvsrkbvZK0WQdfDi5k=
 github.com/spf13/viper v1.6.3 h1:pDDu1OyEDTKzpJwdq4TiuLyMsUgRa/BT5cn5O62NoHs=
 github.com/spf13/viper v1.6.3/go.mod h1:jUMtyi0/lB5yZH/FjyGAoH7IMNrIhlBf6pXZmbMDvzw=
 github.com/src-d/gcfg v1.4.0/go.mod h1:p/UMsR43ujA89BJY9duynAwIpvqEujIH/jFlfL7jWoI=
@@ -385,6 +377,8 @@ github.com/technoweenie/multipartstreamer v1.0.1/go.mod h1:jNVxdtShOxzAsukZwTSw6
 github.com/tidwall/gjson v1.2.1/go.mod h1:c/nTNbUr0E0OrXEhq1pwa8iEgc2DOt4ZZqAt1HtCkPA=
 github.com/tidwall/gjson v1.3.5 h1:2oW9FBNu8qt9jy5URgrzsVx/T/KSn3qn/smJQ0crlDQ=
 github.com/tidwall/gjson v1.3.5/go.mod h1:P256ACg0Mn+j1RXIDXoss50DeIABTYK1PULOJHhxOls=
+github.com/tidwall/gjson v1.6.0 h1:9VEQWz6LLMUsUl6PueE49ir4Ka6CzLymOAZDxpFsTDc=
+github.com/tidwall/gjson v1.6.0/go.mod h1:P256ACg0Mn+j1RXIDXoss50DeIABTYK1PULOJHhxOls=
 github.com/tidwall/match v1.0.1 h1:PnKP62LPNxHKTwvHHZZzdOAOCtsJTjo6dZLCwpKm5xc=
 github.com/tidwall/match v1.0.1/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
 github.com/tidwall/pretty v0.0.0-20190325153808-1166b9ac2b65/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
@@ -394,7 +388,6 @@ github.com/timewasted/linode v0.0.0-20160829202747-37e84520dcf7/go.mod h1:imsgLp
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/transip/gotransip v0.0.0-20190812104329-6d8d9179b66f/go.mod h1:i0f4R4o2HM0m3DZYQWsj6/MEowD57VzoH0v3d7igeFY=
 github.com/uber-go/atomic v1.3.2/go.mod h1:/Ct5t2lcmbJ4OSe/waGBoaVvVqtO0bmtfVNex1PFV8g=
-github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/urfave/cli v1.22.1/go.mod h1:Gos4lmkARVdJ6EkW0WaNv/tZAAMe9V7XWyB60NtXRu0=
 github.com/vmihailenco/msgpack v4.0.4+incompatible/go.mod h1:fy3FlTQTDXWkZ7Bh6AcGMlsjHatGryHQYUTf1ShIgkk=
 github.com/vultr/govultr v0.1.4/go.mod h1:9H008Uxr/C4vFNGLqKx232C206GL0PBHzOP0809bGNA=

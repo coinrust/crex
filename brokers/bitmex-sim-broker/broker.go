@@ -40,10 +40,6 @@ func (b *BitMEXSimBroker) GetName() (name string) {
 	return "BitMEX"
 }
 
-func (b *BitMEXSimBroker) Subscribe(event string, param string, listener interface{}) {
-
-}
-
 func (b *BitMEXSimBroker) GetAccountSummary(currency string) (result AccountSummary, err error) {
 	result.Balance = b.balance
 	var symbol string
