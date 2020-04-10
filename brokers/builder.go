@@ -60,7 +60,10 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 			addr = "https://www.okex.com"
 		}
 		if params == nil {
-			log.Fatalf("passphrase missing")
+			log.Fatalf("missing params")
+		}
+		if v, ok := params["baseURL"]; ok {
+			addr = v
 		}
 		var passphrase string
 		if v, ok := params["passphrase"]; ok {
@@ -76,7 +79,10 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 			addr = "https://www.okex.com"
 		}
 		if params == nil {
-			log.Fatalf("passphrase missing")
+			log.Fatalf("missing params")
+		}
+		if v, ok := params["baseURL"]; ok {
+			addr = v
 		}
 		var passphrase string
 		if v, ok := params["passphrase"]; ok {
