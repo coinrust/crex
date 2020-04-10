@@ -11,6 +11,6 @@ require (
 	github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2
 	github.com/nntaoli-project/GoEx v1.0.7
 	github.com/sony/sonyflake v1.0.0
-	github.com/spf13/viper v1.6.2
+	github.com/spf13/viper v1.6.3
 	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
 )
