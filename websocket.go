@@ -16,7 +16,7 @@ const (
 
 // Market 市场信息
 type Market struct {
-	ID     string // BTCUSDT(OKEX)/XBTUSD(BitMEx)/...
+	ID     string // BTCUSDT(OKEX)/XBTUSD(BitMEX)/...
 	Params string
 }
 
