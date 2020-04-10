@@ -95,3 +95,22 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}
 }
+
+func NewWS(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) WebSocket {
+	switch brokerName {
+	case HBDM:
+		wsURL := "wss://api.hbdm.com/ws"
+		if v, ok := params["wsURL"]; ok {
+			wsURL = v
+		}
+		return hbdmbroker.NewWS(wsURL, accessKey, secret)
+	case HBDMSwap:
+		wsURL := "wss://api.hbdm.com/swap-ws"
+		if v, ok := params["wsURL"]; ok {
+			wsURL = v
+		}
+		return hbdmswapbroker.NewWS(wsURL, accessKey, secret)
+	default:
+		panic(fmt.Sprintf("broker error [%v]", brokerName))
+	}
+}
