@@ -23,15 +23,34 @@ func main() {
 		log.Printf("trades: %#v", trades)
 	})
 
+	// 订单事件方法
+	ws.On(WSEventOrder, func(order *Order) {
+		log.Printf("order: %#v", order)
+	})
+	// 持仓事件方法
+	ws.On(WSEventPosition, func(position *Position) {
+		log.Printf("position: %#v", position)
+	})
+
 	// 订阅订单薄
 	ws.SubscribeLevel2Snapshots(Market{
-		ID:     "BTC",
-		Params: ContractTypeW1,
+		ID:     "BTC-USD",
+		Params: "",
 	})
 	// 订阅成交记录
 	ws.SubscribeTrades(Market{
-		ID:     "BTC",
-		Params: ContractTypeW1,
+		ID:     "BTC-USD",
+		Params: "",
+	})
+	// 订阅订单成交信息
+	ws.SubscribeOrders(Market{
+		ID:     "BTC-USD",
+		Params: "",
+	})
+	// 订阅持仓信息
+	ws.SubscribePositions(Market{
+		ID:     "BTC-USD",
+		Params: "",
 	})
 
 	select {}

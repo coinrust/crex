@@ -103,8 +103,8 @@ github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944/go.mod h1:M+CA+
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
-github.com/frankrap/huobi-api v0.0.0-20200410093543-df393e4de099 h1:1n6Qr92H9WQIRh9bxXPIkm6dXmbEe1Fz65b0uh5u12U=
-github.com/frankrap/huobi-api v0.0.0-20200410093543-df393e4de099/go.mod h1:b85sYoCk5xxXesY23hCsKG/1m4SMKp0P9vqVfbFuXoo=
+github.com/frankrap/huobi-api v0.0.0-20200411113512-db0cbc3642b8 h1:j8fd7qYqJCQHooYWluLEtSj9It8JK5H3iRNOZZb7i38=
+github.com/frankrap/huobi-api v0.0.0-20200411113512-db0cbc3642b8/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2 h1:qHhxoU4AsJ3Ds492qal5Z4rTaUDUwwMZP7LlamXzzxM=
 github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
@@ -234,6 +234,8 @@ github.com/labbsr0x/goh v1.0.1/go.mod h1:8K2UhVoaWXcCU7Lxoa2omWnC8gyW8px7/lmO61c
 github.com/leodido/go-urn v1.1.0/go.mod h1:+cyI34gQWZcE1eQU7NVgKkkzdXDQHr1dBMtdAPozLkw=
 github.com/linode/linodego v0.10.0/go.mod h1:cziNP7pbvE3mXIPneHj0oRY8L1WtGEIKlZ8LANE4eXA=
 github.com/liquidweb/liquidweb-go v1.6.0/go.mod h1:UDcVnAMDkZxpw4Y7NOHkqoeiGacVLEIG/i5J9cyixzQ=
+github.com/lithammer/shortuuid/v3 v3.0.4 h1:uj4xhotfY92Y1Oa6n6HUiFn87CdoEHYUlTy0+IgbLrs=
+github.com/lithammer/shortuuid/v3 v3.0.4/go.mod h1:RviRjexKqIzx/7r1peoAITm6m7gnif/h+0zmolKJjzw=
 github.com/lucas-clemente/quic-go v0.12.1/go.mod h1:UXJJPE4RfFef/xPO5wQm0tITK8gNfqwTxjbE7s3Vb8s=
 github.com/magiconair/properties v1.8.1 h1:ZC2Vc7/ZFkGmsVC9KvOjumD+G5lXy2RtTKyzRKO2BQ4=
 github.com/magiconair/properties v1.8.1/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=
