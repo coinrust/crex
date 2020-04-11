@@ -19,18 +19,19 @@ func (s *BasicStrategy) OnTick() {
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
-	accountSummary, err := s.Brokers[0].GetAccountSummary(currency)
+	accountSummary, err := s.Broker.GetAccountSummary(currency)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("accountSummary: %#v", accountSummary)
 
-	s.Brokers[0].GetOrderBook(symbol, 10)
+	s.Broker.GetOrderBook(symbol, 10)
 
-	//s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false, nil)
+	s.Broker.PlaceOrder(symbol,
+		Buy, OrderTypeLimit, 1000.0, 10, 1, true, false, nil)
 
-	s.Brokers[0].GetOpenOrders(symbol)
-	s.Brokers[0].GetPosition(symbol)
+	s.Broker.GetOpenOrders(symbol)
+	s.Broker.GetPosition(symbol)
 }
 
 func (s *BasicStrategy) OnDeinit() {
@@ -38,9 +39,11 @@ func (s *BasicStrategy) OnDeinit() {
 }
 
 func main() {
-	apiKey := "AsJTU16U"
-	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
-	broker := brokers.NewBroker(brokers.Deribit, apiKey, secretKey, true, map[string]string{})
+	accessKey := "[accessKey]"
+	secretKey := "[secretKey]"
+	broker := brokers.NewBroker(brokers.Deribit,
+		accessKey, secretKey, true, map[string]string{})
+
 	s := &BasicStrategy{}
 	s.Setup(TradeModeLiveTrading, broker)
 
