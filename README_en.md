@@ -28,7 +28,7 @@ See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/m
 ### Main Features
 * Ease of use.
 * Tick-level backtesting.
-* Backtesting and live-trading functionality.
+* WebSocket Supported
 
 ### Supported Exchanges
 | name                                                                      | id             | ver | doc                                                               |

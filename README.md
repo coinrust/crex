@@ -28,7 +28,7 @@
 ## 主要特性
 * 使用简单
 * Tick级别回测
-* 支持实盘
+* 支持 WebSocket
 
 ## 支持交易所
 | name                                                                      | id             | ver | doc                                                               |
