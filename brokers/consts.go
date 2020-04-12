@@ -1,11 +1,11 @@
 package brokers
 
 const (
-	BitMEX      = "BitMEX"
-	Deribit     = "Deribit"
-	Bybit       = "Bybit"
-	HBDM        = "HBDM"
-	HBDMSwap    = "HBDMSwap"
-	OKEXFutures = "OKEXFutures"
-	OKEXSwap    = "OKEXSwap"
+	BitMEX      = "bitmex"
+	Deribit     = "deribit"
+	Bybit       = "bybit"
+	HBDM        = "hbdm"
+	HBDMSwap    = "hbdmswap"
+	OKEXFutures = "okexfutures"
+	OKEXSwap    = "okexswap"
 )
