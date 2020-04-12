@@ -15,55 +15,55 @@ import (
 	"log"
 )
 
-func NewBroker(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
-	var addr string
+func New(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
+	var baseURL string
 	switch brokerName {
 	case BitMEX:
 		if testnet {
-			addr = bitmexapi.HostTestnet
+			baseURL = bitmexapi.HostTestnet
 		} else {
-			addr = bitmexapi.HostReal
+			baseURL = bitmexapi.HostReal
 		}
-		return bitmex.New(addr, accessKey, secret)
+		return bitmex.New(baseURL, accessKey, secret)
 	case Deribit:
 		if testnet {
-			addr = deribitapi.TestBaseURL
+			baseURL = deribitapi.TestBaseURL
 		} else {
-			addr = deribitapi.RealBaseURL
+			baseURL = deribitapi.RealBaseURL
 		}
-		return deribit.New(addr, accessKey, secret)
+		return deribit.New(baseURL, accessKey, secret)
 	case Bybit:
 		if testnet {
-			addr = "https://api-testnet.bybit.com/"
+			baseURL = "https://api-testnet.bybit.com/"
 		} else {
-			addr = "https://api.bybit.com/"
+			baseURL = "https://api.bybit.com/"
 		}
-		return bybit.New(addr, accessKey, secret)
+		return bybit.New(baseURL, accessKey, secret)
 	case HBDM:
 		if testnet {
-			addr = "https://api.btcgateway.pro"
+			baseURL = "https://api.btcgateway.pro"
 		} else {
-			addr = "https://api.hbdm.com"
+			baseURL = "https://api.hbdm.com"
 		}
-		return hbdm.New(addr, accessKey, secret)
+		return hbdm.New(baseURL, accessKey, secret)
 	case HBDMSwap:
 		if testnet {
-			addr = "https://api.btcgateway.pro"
+			baseURL = "https://api.btcgateway.pro"
 		} else {
-			addr = "https://api.hbdm.com"
+			baseURL = "https://api.hbdm.com"
 		}
-		return hbdm_swap.New(addr, accessKey, secret)
+		return hbdm_swap.New(baseURL, accessKey, secret)
 	case OKEXFutures:
 		if testnet {
-			addr = "https://testnet.okex.me"
+			baseURL = "https://testnet.okex.me"
 		} else {
-			addr = "https://www.okex.com"
+			baseURL = "https://www.okex.com"
 		}
 		if params == nil {
 			log.Fatalf("missing params")
 		}
 		if v, ok := params["baseURL"]; ok {
-			addr = v
+			baseURL = v
 		}
 		var passphrase string
 		if v, ok := params["passphrase"]; ok {
@@ -71,18 +71,18 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_futures.New(addr, accessKey, secret, passphrase)
+		return okex_futures.New(baseURL, accessKey, secret, passphrase)
 	case OKEXSwap:
 		if testnet {
-			addr = "https://testnet.okex.me"
+			baseURL = "https://testnet.okex.me"
 		} else {
-			addr = "https://www.okex.com"
+			baseURL = "https://www.okex.com"
 		}
 		if params == nil {
 			log.Fatalf("missing params")
 		}
 		if v, ok := params["baseURL"]; ok {
-			addr = v
+			baseURL = v
 		}
 		var passphrase string
 		if v, ok := params["passphrase"]; ok {
@@ -90,7 +90,7 @@ func NewBroker(brokerName string, accessKey string, secret string, testnet bool,
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_swap.New(addr, accessKey, secret, passphrase)
+		return okex_swap.New(baseURL, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

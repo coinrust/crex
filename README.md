@@ -86,7 +86,7 @@ func (s *BasicStrategy) OnDeinit() {
 func main() {
 	accessKey := "[accessKey]"
 	secretKey := "[secretKey]"
-	broker := brokers.NewBroker(brokers.Deribit,
+	broker := brokers.New(brokers.Deribit,
 		accessKey, secretKey, true, map[string]string{})
 
 	s := &BasicStrategy{}
