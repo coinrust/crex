@@ -7,12 +7,13 @@ import (
 )
 
 func main() {
-	wsURL := "wss://api.hbdm.com/swap-ws" // "wss://api.btcgateway.pro/swap-ws"
+	wsURL := "wss://real.okex.com:8443/ws/v3"
 	params := map[string]string{}
 	params["wsURL"] = wsURL
+	params["passphrase"] = "[passphrase]"
 
-	ws := brokers.NewWS(brokers.HBDMSwap,
-		"", "", false, params)
+	ws := brokers.NewWS(brokers.OKEXFutures,
+		"[accessKey]", "[secretKey]", false, params)
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {
@@ -34,22 +35,22 @@ func main() {
 
 	// 订阅订单薄
 	ws.SubscribeLevel2Snapshots(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 	// 订阅成交记录
 	ws.SubscribeTrades(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 	// 订阅订单成交信息
 	ws.SubscribeOrders(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 	// 订阅持仓信息
 	ws.SubscribePositions(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 

@@ -15,7 +15,7 @@ type Record struct {
 
 // Trade 成交记录
 type Trade struct {
-	ID        int64     `json:"id"`     // ID
+	ID        string    `json:"id"`     // ID
 	Direction Direction `json:"type"`   // 主动成交方向
 	Price     float64   `json:"price"`  // 价格
 	Amount    float64   `json:"amount"` // 成交量(张)，买卖双边成交量之和

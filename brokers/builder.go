@@ -110,6 +110,30 @@ func NewWS(brokerName string, accessKey string, secret string, testnet bool, par
 			wsURL = v
 		}
 		return hbdm_swap.NewWS(wsURL, accessKey, secret)
+	case OKEXFutures:
+		wsURL := "wss://real.okex.com:8443/ws/v3"
+		if v, ok := params["wsURL"]; ok {
+			wsURL = v
+		}
+		var passphrase string
+		if v, ok := params["passphrase"]; ok {
+			passphrase = v
+		} else {
+			log.Fatalf("passphrase missing")
+		}
+		return okex_futures.NewWS(wsURL, accessKey, secret, passphrase)
+	case OKEXSwap:
+		wsURL := "wss://real.okex.com:8443/ws/v3"
+		if v, ok := params["wsURL"]; ok {
+			wsURL = v
+		}
+		var passphrase string
+		if v, ok := params["passphrase"]; ok {
+			passphrase = v
+		} else {
+			log.Fatalf("passphrase missing")
+		}
+		return okex_swap.NewWS(wsURL, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

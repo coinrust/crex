@@ -91,7 +91,7 @@ func (s *WS) tradeCallback(trade *hbdm.WSTrade) {
 			direction = Sell
 		}
 		t := Trade{
-			ID:        v.ID,
+			ID:        fmt.Sprint(v.ID),
 			Direction: direction,
 			Price:     v.Price,
 			Amount:    float64(v.Amount),
@@ -160,6 +160,7 @@ func (s *WS) ordersCallback(order *hbdm.WSOrder) {
 
 func (s *WS) positionsCallback(positions *hbdm.WSPositions) {
 	//log.Printf("positionsCallback")
+	var eventData []Position
 	for _, v := range positions.Data {
 		var o Position
 		o.Symbol = v.Symbol
@@ -172,8 +173,9 @@ func (s *WS) positionsCallback(positions *hbdm.WSPositions) {
 			o.Size = -v.Volume
 		}
 		o.AvgPrice = v.CostHold
-		s.emitter.Emit(WSEventPosition, &o)
+		eventData = append(eventData, o)
 	}
+	s.emitter.Emit(WSEventPosition, eventData)
 }
 
 func NewWS(wsURL string, accessKey string, secretKey string) *WS {

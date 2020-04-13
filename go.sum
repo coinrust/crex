@@ -21,6 +21,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym/WlBOVXweHU+Q+/VP0lqqI8lqeDx9IjBqo=
 github.com/DataDog/zstd v1.3.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/DataDog/zstd v1.4.0/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
+github.com/MauriceGit/skiplist v0.0.0-20191117202105-643e379adb62 h1:gDG99+yxKg62ymqQVT33Vb2oDaxTx5j3M87VdR8xcOs=
+github.com/MauriceGit/skiplist v0.0.0-20191117202105-643e379adb62/go.mod h1:877WBceefKn14QwVVn4xRFUsHsZb9clICgdeTj4XsUg=
 github.com/Microsoft/go-winio v0.4.14/go.mod h1:qXqCSQ3Xa7+6tgxaGTIe4Kpcdsi+P8jBhyzoq1bpyYA=
 github.com/Microsoft/hcsshim v0.8.6/go.mod h1:Op3hHsoHPAvb6lceZHDtd9OkTew38wNoXnJs8iY7rUg=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
@@ -105,8 +107,10 @@ github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY2
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
 github.com/frankrap/huobi-api v0.0.0-20200411113512-db0cbc3642b8 h1:j8fd7qYqJCQHooYWluLEtSj9It8JK5H3iRNOZZb7i38=
 github.com/frankrap/huobi-api v0.0.0-20200411113512-db0cbc3642b8/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
-github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2 h1:qHhxoU4AsJ3Ds492qal5Z4rTaUDUwwMZP7LlamXzzxM=
-github.com/frankrap/okex-api v0.0.0-20200409092846-bb144b8bc8d2/go.mod h1:45g+ebGPCdH3j8plJkgsVz6xP8PkNyPjpDCYoYItsi0=
+github.com/frankrap/okex-api v0.0.0-20200413071342-8b1f4b109ad2 h1:ItDIAcghvAabUSM4jQKCz0UH7OrNU1UQ6gGp2jS3au4=
+github.com/frankrap/okex-api v0.0.0-20200413071342-8b1f4b109ad2/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
+github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0 h1:t7eGZShd6RjD+v8ed8Hrt2f4lnQBS4yGMXGYfXVHbKI=
+github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsouza/go-dockerclient v1.4.4/go.mod h1:PrwszSL5fbmsESocROrOGq/NULMXRw+bajY0ltzD6MA=

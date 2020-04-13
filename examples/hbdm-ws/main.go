@@ -28,8 +28,8 @@ func main() {
 		log.Printf("order: %#v", order)
 	})
 	// 持仓事件方法
-	ws.On(WSEventPosition, func(position *Position) {
-		log.Printf("position: %#v", position)
+	ws.On(WSEventPosition, func(positions []Position) {
+		log.Printf("positions: %#v", positions)
 	})
 
 	// 订阅订单薄
