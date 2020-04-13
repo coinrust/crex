@@ -3,6 +3,7 @@ module github.com/coinrust/crex
 go 1.13
 
 require (
+	github.com/adshao/go-binance v0.0.0-20200326152909-7314295d8a33
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v0.0.0-20200225011535-9765a3267676
 	github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944

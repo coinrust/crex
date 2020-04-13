@@ -17,7 +17,7 @@ type Diribit struct {
 }
 
 func (b *Diribit) GetName() (name string) {
-	return "Deribit"
+	return "deribit"
 }
 
 func (b *Diribit) Subscribe(event string, param string, listener interface{}) {

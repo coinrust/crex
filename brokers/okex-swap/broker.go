@@ -21,7 +21,7 @@ type OKEXSwap struct {
 }
 
 func (b *OKEXSwap) GetName() (name string) {
-	return "OKEXSwap"
+	return "okexswap"
 }
 
 func (b *OKEXSwap) GetAccountSummary(currency string) (result AccountSummary, err error) {

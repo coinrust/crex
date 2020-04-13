@@ -15,7 +15,7 @@ type BitMEX struct {
 }
 
 func (b *BitMEX) GetName() (name string) {
-	return "BitMEX"
+	return "bitmex"
 }
 
 func (b *BitMEX) GetAccountSummary(currency string) (result AccountSummary, err error) {

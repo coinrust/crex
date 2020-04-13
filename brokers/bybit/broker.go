@@ -16,7 +16,7 @@ type Bybit struct {
 }
 
 func (b *Bybit) GetName() (name string) {
-	return "Bybit"
+	return "bybit"
 }
 
 func (b *Bybit) GetAccountSummary(currency string) (result AccountSummary, err error) {

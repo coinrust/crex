@@ -134,6 +134,6 @@ const (
 	PERIOD_1DAY   = "1d"
 	PERIOD_3DAY   = "3d"
 	PERIOD_1WEEK  = "1w"
-	PERIOD_1MONTH = "30M"
+	PERIOD_1MONTH = "1M"
 	PERIOD_1YEAR  = "1y"
 )

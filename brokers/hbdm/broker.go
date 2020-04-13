@@ -22,7 +22,7 @@ type HBDM struct {
 }
 
 func (b *HBDM) GetName() (name string) {
-	return "HBDM"
+	return "hbdm"
 }
 
 func (b *HBDM) GetAccountSummary(currency string) (result AccountSummary, err error) {

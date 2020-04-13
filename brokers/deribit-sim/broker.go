@@ -35,7 +35,7 @@ type DiribitSim struct {
 }
 
 func (b *DiribitSim) GetName() (name string) {
-	return "Deribit"
+	return "deribit"
 }
 
 func (b *DiribitSim) GetAccountSummary(currency string) (result AccountSummary, err error) {

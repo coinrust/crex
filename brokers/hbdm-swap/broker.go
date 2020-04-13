@@ -18,7 +18,7 @@ type HBDMSwap struct {
 }
 
 func (b *HBDMSwap) GetName() (name string) {
-	return "HBDMSwap"
+	return "hbdmswap"
 }
 
 func (b *HBDMSwap) GetAccountSummary(currency string) (result AccountSummary, err error) {

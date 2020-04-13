@@ -21,7 +21,7 @@ type OKEXFutures struct {
 }
 
 func (b *OKEXFutures) GetName() (name string) {
-	return "OKEXFutures"
+	return "okexfutures"
 }
 
 func (b *OKEXFutures) GetAccountSummary(currency string) (result AccountSummary, err error) {
