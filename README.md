@@ -33,6 +33,7 @@
 ## 支持交易所
 | name                                                                      | id             | ver | doc                                                               |
 | ------------------------------------------------------------------------- | -------------- | --- | ----------------------------------------------------------------- |
+| [Binance Futures](https://www.binance.com/cn/register?ref=10916733)       | binancefutures | 1   | [API](https://binance-docs.github.io/apidocs/futures/cn/)         |
 | [BitMEX](https://www.bitmex.com/register/o0Duru)                          | bitmex         | 1   | [API](https://www.bitmex.com/app/apiOverview)                     |
 | [Deribit](https://www.deribit.com/reg-7357.93)                            | deribit        | 2   | [API](https://docs.deribit.com/)                                  |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy)                     | bybit          | 2   | [API](https://bybit-exchange.github.io/docs/inverse/)             |

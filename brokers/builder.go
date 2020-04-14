@@ -3,6 +3,7 @@ package brokers
 import (
 	"fmt"
 	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/brokers/binancefutures"
 	"github.com/coinrust/crex/brokers/bitmex"
 	"github.com/coinrust/crex/brokers/bybit"
 	"github.com/coinrust/crex/brokers/deribit"
@@ -16,6 +17,8 @@ import (
 func New(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
 	var baseUri string
 	switch brokerName {
+	case BinanceFutures:
+		return binancefutures.New(baseUri, accessKey, secret)
 	case BitMEX:
 		if testnet {
 			baseUri = "testnet.bitmex.com"

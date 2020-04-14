@@ -33,13 +33,14 @@ See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/m
 ### Supported Exchanges
 | name                                                                      | id             | ver | doc                                                               |
 | ------------------------------------------------------------------------- | -------------- | --- | ----------------------------------------------------------------- |
+| [Binance Futures](https://www.binance.com/en/register?ref=10916733)       | binancefutures | 1   | [API](https://binance-docs.github.io/apidocs/futures/en/)         |
 | [BitMEX](https://www.bitmex.com/register/o0Duru)                          | bitmex         | 1   | [API](https://www.bitmex.com/app/apiOverview)                     |
 | [Deribit](https://www.deribit.com/reg-7357.93)                            | deribit        | 2   | [API](https://docs.deribit.com/)                                  |
 | [Bybit](https://www.bybit.com/app/register?ref=qQggy)                     | bybit          | 2   | [API](https://bybit-exchange.github.io/docs/inverse/)             |
-| [Huobi DM](https://www.huobi.io/zh-cn/topic/invited/?invite_code=7hzc5)   | hbdm           | 1   | [API](https://docs.huobigroup.com/docs/dm/v1/cn/)                 |
-| [Huobi Swap](https://www.huobi.io/zh-cn/topic/invited/?invite_code=7hzc5) | hbdmswap       | 1   | [API](https://docs.huobigroup.com/docs/coin_margined_swap/v1/cn/) |
-| [OKEX Futures](https://www.okex.com/join/1890951)                         | okexfutures    | 3   | [API](https://www.okex.me/docs/zh/#futures-README)                |
-| [OKEX Swap](https://www.okex.com/join/1890951)                            | okexswap       | 3   | [API](https://www.okex.me/docs/zh/#swap-README)                   |
+| [Huobi DM](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5)   | hbdm           | 1   | [API](https://docs.huobigroup.com/docs/dm/v1/en/)                 |
+| [Huobi Swap](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5) | hbdmswap       | 1   | [API](https://docs.huobigroup.com/docs/coin_margined_swap/v1/en/) |
+| [OKEX Futures](https://www.okex.com/join/1890951)                         | okexfutures    | 3   | [API](https://www.okex.me/docs/en/#futures-README)                |
+| [OKEX Swap](https://www.okex.com/join/1890951)                            | okexswap       | 3   | [API](https://www.okex.me/docs/en/#swap-README)                   |
 
 ### Example
 ```golang
