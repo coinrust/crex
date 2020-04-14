@@ -7,11 +7,9 @@ import (
 	"github.com/coinrust/crex/brokers/bybit"
 	"github.com/coinrust/crex/brokers/deribit"
 	"github.com/coinrust/crex/brokers/hbdm"
-	"github.com/coinrust/crex/brokers/hbdm-swap"
-	"github.com/coinrust/crex/brokers/okex-futures"
-	"github.com/coinrust/crex/brokers/okex-swap"
-	bitmexapi "github.com/frankrap/bitmex-api"
-	deribitapi "github.com/frankrap/deribit-api"
+	"github.com/coinrust/crex/brokers/hbdmswap"
+	"github.com/coinrust/crex/brokers/okexfutures"
+	"github.com/coinrust/crex/brokers/okexswap"
 	"log"
 )
 
@@ -20,16 +18,16 @@ func New(brokerName string, accessKey string, secret string, testnet bool, param
 	switch brokerName {
 	case BitMEX:
 		if testnet {
-			baseUri = bitmexapi.HostTestnet
+			baseUri = "testnet.bitmex.com"
 		} else {
-			baseUri = bitmexapi.HostReal
+			baseUri = "www.bitmex.com"
 		}
 		return bitmex.New(baseUri, accessKey, secret)
 	case Deribit:
 		if testnet {
-			baseUri = deribitapi.TestBaseURL
+			baseUri = "wss://test.deribit.com/ws/api/v2/"
 		} else {
-			baseUri = deribitapi.RealBaseURL
+			baseUri = "wss://www.deribit.com/ws/api/v2/"
 		}
 		return deribit.New(baseUri, accessKey, secret)
 	case Bybit:
@@ -52,7 +50,7 @@ func New(brokerName string, accessKey string, secret string, testnet bool, param
 		} else {
 			baseUri = "https://api.hbdm.com"
 		}
-		return hbdm_swap.New(baseUri, accessKey, secret)
+		return hbdmswap.New(baseUri, accessKey, secret)
 	case OKEXFutures:
 		if testnet {
 			baseUri = "https://testnet.okex.me"
@@ -71,7 +69,7 @@ func New(brokerName string, accessKey string, secret string, testnet bool, param
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_futures.New(baseUri, accessKey, secret, passphrase)
+		return okexfutures.New(baseUri, accessKey, secret, passphrase)
 	case OKEXSwap:
 		if testnet {
 			baseUri = "https://testnet.okex.me"
@@ -90,7 +88,7 @@ func New(brokerName string, accessKey string, secret string, testnet bool, param
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_swap.New(baseUri, accessKey, secret, passphrase)
+		return okexswap.New(baseUri, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}
@@ -109,7 +107,7 @@ func NewWS(brokerName string, accessKey string, secret string, testnet bool, par
 		if v, ok := params["wsURL"]; ok {
 			wsURL = v
 		}
-		return hbdm_swap.NewWS(wsURL, accessKey, secret)
+		return hbdmswap.NewWS(wsURL, accessKey, secret)
 	case OKEXFutures:
 		wsURL := "wss://real.okex.com:8443/ws/v3"
 		if v, ok := params["wsURL"]; ok {
@@ -121,7 +119,7 @@ func NewWS(brokerName string, accessKey string, secret string, testnet bool, par
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_futures.NewWS(wsURL, accessKey, secret, passphrase)
+		return okexfutures.NewWS(wsURL, accessKey, secret, passphrase)
 	case OKEXSwap:
 		wsURL := "wss://real.okex.com:8443/ws/v3"
 		if v, ok := params["wsURL"]; ok {
@@ -133,7 +131,7 @@ func NewWS(brokerName string, accessKey string, secret string, testnet bool, par
 		} else {
 			log.Fatalf("passphrase missing")
 		}
-		return okex_swap.NewWS(wsURL, accessKey, secret, passphrase)
+		return okexswap.NewWS(wsURL, accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", brokerName))
 	}

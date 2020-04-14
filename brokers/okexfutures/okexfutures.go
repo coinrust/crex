@@ -1,4 +1,4 @@
-package okex_swap
+package okexfutures
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 	"github.com/frankrap/okex-api"
 )
 
-// OKEXSwap the OKEX swap broker
-type OKEXSwap struct {
+// OKEXFutures the OKEX futures broker
+type OKEXFutures struct {
 	client        *okex.Client
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
@@ -20,31 +20,31 @@ type OKEXSwap struct {
 	leverRate     int    // lever rate 杠杆倍数
 }
 
-func (b *OKEXSwap) GetName() (name string) {
-	return "okexswap"
+func (b *OKEXFutures) GetName() (name string) {
+	return "okexfutures"
 }
 
-func (b *OKEXSwap) GetAccountSummary(currency string) (result AccountSummary, err error) {
-	var account okex.SwapAccount
-	account, err = b.client.GetSwapAccount(currency)
+func (b *OKEXFutures) GetAccountSummary(currency string) (result AccountSummary, err error) {
+	var account okex.FuturesCurrencyAccount
+	account, err = b.client.GetFuturesAccountsByCurrency(currency)
 	if err != nil {
 		return
 	}
 
-	result.Equity, _ = strconv.ParseFloat(account.Info.Equity, 64)
-	result.Balance, _ = strconv.ParseFloat(account.Info.TotalAvailBalance, 64)
-	result.Pnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
+	result.Equity = account.Equity
+	result.Balance = account.TotalAvailBalance
+	result.Pnl = account.RealizedPnl
 
 	return
 }
 
-func (b *OKEXSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *OKEXFutures) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
 	params := map[string]string{}
 	params["size"] = fmt.Sprintf("%v", depth) // "10"
 	//params["depth"] = fmt.Sprintf("%v", 0.01) // BTC: "0.1"
 
-	var ret okex.SwapInstrumentDepth
-	ret, err = b.client.GetSwapDepthByInstrumentId(symbol, params)
+	var ret okex.FuturesInstrumentBookResult
+	ret, err = b.client.GetFuturesInstrumentBook(symbol, params)
 	if err != nil {
 		return
 	}
@@ -64,12 +64,12 @@ func (b *OKEXSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err
 	}
 
 	// 2019-07-04T09:35:07.752Z
-	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", ret.Time)
+	timestamp, _ := time.Parse("2006-01-02T15:04:05.000Z", ret.Timestamp)
 	result.Time = timestamp.Local()
 	return
 }
 
-func (b *OKEXSwap) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *OKEXFutures) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
 	var granularity int64
 	var intervalValue string
 	var intervalF int64
@@ -117,8 +117,8 @@ func (b *OKEXSwap) GetRecords(symbol string, period string, from int64, end int6
 	}
 	optional["granularity"] = fmt.Sprint(granularity)
 	//log.Printf("%#v", optional)
-	var ret *okex.SwapCandleList
-	ret, err = b.client.GetSwapCandlesByInstrument(symbol, optional)
+	var ret [][]string
+	ret, err = b.client.GetFuturesInstrumentCandles(symbol, optional)
 	if err != nil {
 		return
 	}
@@ -131,7 +131,7 @@ func (b *OKEXSwap) GetRecords(symbol string, period string, from int64, end int6
 		volume	String	交易量（张）
 		currency_volume	String	按币种折算的交易量
 	*/
-	for _, v := range *ret {
+	for _, v := range ret {
 		var timestamp time.Time
 		timestamp, err = time.Parse(time.RFC3339, v[0]) // 2020-04-09T09:16:00.000Z
 		if err != nil {
@@ -151,21 +151,51 @@ func (b *OKEXSwap) GetRecords(symbol string, period string, from int64, end int6
 }
 
 // 设置合约类型
-func (b *OKEXSwap) SetContractType(pair string, contractType string) (err error) {
+// pair: BTC-USD
+// contractType: W1,W2,Q1,Q2,...
+func (b *OKEXFutures) SetContractType(pair string, contractType string) (err error) {
+	b.pair = pair
+	b.contractType = contractType
+	var contractAlias string
+	switch contractType {
+	case ContractTypeNone:
+	case ContractTypeW1:
+		contractAlias = "this_week"
+	case ContractTypeW2:
+		contractAlias = "next_week"
+	case ContractTypeQ1:
+		contractAlias = "quarter"
+	case ContractTypeQ2:
+		contractAlias = "bi_quarter"
+	}
+	b.contractAlias = contractAlias
 	return
 }
 
-func (b *OKEXSwap) GetContractID() (symbol string, err error) {
-	return
+func (b *OKEXFutures) GetContractID() (symbol string, err error) {
+	var ret []okex.FuturesInstrumentsResult
+	ret, err = b.client.GetFuturesInstruments()
+	if err != nil {
+		return
+	}
+	for _, v := range ret {
+		//log.Printf("%v %v %#v", v.Alias, v.InstrumentId, v)
+		if v.Underlying == b.pair &&
+			v.Alias == b.contractAlias {
+			symbol = v.InstrumentId
+			return
+		}
+	}
+	return "", fmt.Errorf("not found")
 }
 
 // 设置杠杆大小
-func (b *OKEXSwap) SetLeverRate(value float64) (err error) {
+func (b *OKEXFutures) SetLeverRate(value float64) (err error) {
 	b.leverRate = int(value)
 	return
 }
 
-func (b *OKEXSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+func (b *OKEXFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
 	var pType int
 	if direction == Buy {
@@ -182,22 +212,25 @@ func (b *OKEXSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 		}
 	}
 	var _orderType int
+	var matchPrice int
 	if postOnly {
 		_orderType = 1
 	}
-	var matchPrice int
 	if orderType == OrderTypeMarket {
+		price = 0
 		_orderType = 4
 	}
-	var newOrderParams okex.BasePlaceOrderInfo
+	var newOrderParams okex.FuturesNewOrderParams
+	newOrderParams.InstrumentId = symbol                      // "BTC-USD-190705"
+	newOrderParams.Leverage = fmt.Sprintf("%v", b.leverRate)  // "10"
 	newOrderParams.Type = fmt.Sprintf("%v", pType)            // "1"       // 1:开多2:开空3:平多4:平空
-	newOrderParams.OrderType = fmt.Sprintf("%v", _orderType)  // "0"  // 参数填数字，0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC）
+	newOrderParams.OrderType = fmt.Sprintf("%v", _orderType)  // "0"  // 参数填数字，0：普通委托（order type不填或填0都是普通委托） 1：只做Maker（Post only） 2：全部成交或立即取消（FOK） 3：立即成交并取消剩余（IOC） 4: 市价委托
 	newOrderParams.Price = fmt.Sprintf("%v", price)           // "3000.0" // 每张合约的价格
 	newOrderParams.Size = fmt.Sprintf("%v", size)             // "1"       // 买入或卖出合约的数量（以张计数）
 	newOrderParams.MatchPrice = fmt.Sprintf("%v", matchPrice) // "0" // 是否以对手价下单(0:不是 1:是)，默认为0，当取值为1时。price字段无效，当以对手价下单，order_type只能选择0:普通委托
-	var ret okex.SwapOrderResult
+	var ret okex.FuturesNewOrderResult
 	var resp []byte
-	resp, ret, err = b.client.PostSwapOrder(symbol, newOrderParams)
+	resp, ret, err = b.client.FuturesOrder(newOrderParams)
 	if err != nil {
 		err = fmt.Errorf("%v [%v]", err, string(resp))
 		return
@@ -209,50 +242,49 @@ func (b *OKEXSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 			string(resp))
 		return
 	}
-	//log.Printf("%v", string(resp))
-	//result, err = b.GetOrder(symbol, ret.OrderId)
 	result.Symbol = symbol
 	result.ID = ret.OrderId
 	result.Status = OrderStatusNew
+	////log.Printf("%v", string(resp))
+	//result, err = b.GetOrder(symbol, ret.OrderId)
 	return
 }
 
-func (b *OKEXSwap) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *OKEXFutures) GetOpenOrders(symbol string) (result []Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
-	var ret *okex.SwapOrdersInfo
-	paramMap := map[string]string{}
-	paramMap["instrument_id"] = symbol
-	paramMap["status"] = "6"
-	ret, err = b.client.GetSwapOrderByInstrumentId(symbol, paramMap)
+	var ret okex.FuturesGetOrdersResult
+	ret, err = b.client.GetFuturesOrders(symbol, 6, "", "", 100)
 	if err != nil {
 		return
 	}
-	for _, v := range ret.OrderInfo {
+	for _, v := range ret.Orders {
 		result = append(result, b.convertOrder(symbol, &v))
 	}
 	return
 }
 
-func (b *OKEXSwap) GetOrder(symbol string, id string) (result Order, err error) {
-	var ret okex.BaseOrderInfo
-	ret, err = b.client.GetSwapOrderById(symbol, id)
+func (b *OKEXFutures) GetOrder(symbol string, id string) (result Order, err error) {
+	var ret okex.FuturesGetOrderResult
+	ret, err = b.client.GetFuturesOrder(symbol, id)
 	if err != nil {
+		result.Symbol = symbol
+		result.ID = id
 		return
 	}
 	result = b.convertOrder(symbol, &ret)
 	return
 }
 
-func (b *OKEXSwap) CancelOrder(symbol string, id string) (result Order, err error) {
-	var ret okex.SwapCancelOrderResult
+func (b *OKEXFutures) CancelOrder(symbol string, id string) (result Order, err error) {
+	var ret okex.FuturesCancelInstrumentOrderResult
 	var resp []byte
-	resp, ret, err = b.client.PostSwapCancelOrder(symbol, id)
+	resp, ret, err = b.client.CancelFuturesInstrumentOrder(symbol, id)
 	if err != nil {
 		err = fmt.Errorf("%v [%v]", err, string(resp))
 		return
 	}
-	if ret.ErrorCode != "0" {
+	if ret.ErrorCode != 0 {
 		err = fmt.Errorf("code: %v message: %v [%v]",
 			ret.ErrorCode,
 			ret.ErrorMessage,
@@ -263,17 +295,17 @@ func (b *OKEXSwap) CancelOrder(symbol string, id string) (result Order, err erro
 	return
 }
 
-func (b *OKEXSwap) CancelAllOrders(symbol string) (err error) {
+func (b *OKEXFutures) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *OKEXSwap) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *OKEXFutures) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
 	return
 }
 
-func (b *OKEXSwap) GetPosition(symbol string) (result Position, err error) {
-	var ret okex.SwapPosition
-	ret, err = b.client.GetSwapPositionByInstrument(symbol)
+func (b *OKEXFutures) GetPosition(symbol string) (result Position, err error) {
+	var ret okex.FuturesPosition
+	ret, err = b.client.GetFuturesInstrumentPosition(symbol)
 	if err != nil {
 		return
 	}
@@ -284,21 +316,40 @@ func (b *OKEXSwap) GetPosition(symbol string) (result Position, err error) {
 
 	result.Symbol = symbol
 
-	if ret.MarginMode == "crossed" || ret.MarginMode == "fixed" { // 全仓
-		for _, v := range ret.Holding {
+	if ret.MarginMode == "crossed" { // 全仓
+		for _, v := range ret.CrossPosition {
 			if v.InstrumentId == symbol {
 				// 2019-10-08T11:56:07.922Z
-				timestamp, _ := time.ParseInLocation(v.Timestamp,
+				createAt, _ := time.ParseInLocation(v.CreatedAt,
 					"2006-01-02T15:04:05.000Z",
 					time.Local)
-				if v.Side == "long" {
-					result.Size, _ = strconv.ParseFloat(v.Position, 64)
-					result.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
-					result.OpenTime = timestamp
-				} else if v.Side == "short" {
-					result.Size, _ = strconv.ParseFloat(v.Position, 64)
-					result.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
-					result.OpenTime = timestamp
+				if v.LongQty > 0 {
+					result.Size = v.LongQty
+					result.AvgPrice = v.LongAvgCost
+					result.OpenTime = createAt
+				} else if v.ShortQty > 0 {
+					result.Size = -v.ShortQty
+					result.AvgPrice = v.ShortAvgCost
+					result.OpenTime = createAt
+				}
+				break
+			}
+		}
+	} else {
+		for _, v := range ret.FixedPosition {
+			if v.InstrumentId == symbol {
+				// 2019-10-08T11:56:07.922Z
+				createAt, _ := time.ParseInLocation(v.CreatedAt,
+					"2006-01-02T15:04:05.000Z",
+					time.Local)
+				if v.LongQty > 0 {
+					result.Size = v.LongQty
+					result.AvgPrice = v.LongAvgCost
+					result.OpenTime = createAt
+				} else if v.ShortQty > 0 {
+					result.Size = -v.ShortQty
+					result.AvgPrice = v.ShortAvgCost
+					result.OpenTime = createAt
 				}
 				break
 			}
@@ -307,7 +358,7 @@ func (b *OKEXSwap) GetPosition(symbol string) (result Position, err error) {
 	return
 }
 
-func (b *OKEXSwap) convertOrder(symbol string, order *okex.BaseOrderInfo) (result Order) {
+func (b *OKEXFutures) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result Order) {
 	result.ID = order.OrderId
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -317,7 +368,7 @@ func (b *OKEXSwap) convertOrder(symbol string, order *okex.BaseOrderInfo) (resul
 	result.Type = b.orderType(order)
 	result.AvgPrice = order.PriceAvg
 	result.FilledAmount = order.FilledQty
-	if order.OrderType == "1" {
+	if order.OrderType == 1 {
 		result.PostOnly = true
 	}
 	if order.Type == 2 || order.Type == 3 {
@@ -327,7 +378,7 @@ func (b *OKEXSwap) convertOrder(symbol string, order *okex.BaseOrderInfo) (resul
 	return
 }
 
-func (b *OKEXSwap) orderDirection(order *okex.BaseOrderInfo) Direction {
+func (b *OKEXFutures) orderDirection(order *okex.FuturesGetOrderResult) Direction {
 	// 订单类型
 	//1:开多
 	//2:开空
@@ -341,14 +392,11 @@ func (b *OKEXSwap) orderDirection(order *okex.BaseOrderInfo) Direction {
 	return Buy
 }
 
-func (b *OKEXSwap) orderType(order *okex.BaseOrderInfo) OrderType {
-	if order.OrderType == "4" {
-		return OrderTypeMarket
-	}
+func (b *OKEXFutures) orderType(order *okex.FuturesGetOrderResult) OrderType {
 	return OrderTypeLimit
 }
 
-func (b *OKEXSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
+func (b *OKEXFutures) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus {
 	/*
 		订单状态
 		-2：失败
@@ -379,12 +427,12 @@ func (b *OKEXSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
 	}
 }
 
-func (b *OKEXSwap) RunEventLoopOnce() (err error) {
+func (b *OKEXFutures) RunEventLoopOnce() (err error) {
 	return
 }
 
 // addr: https://www.okex.com/
-func New(addr string, accessKey string, secretKey string, passphrase string) *OKEXSwap {
+func New(addr string, accessKey string, secretKey string, passphrase string) *OKEXFutures {
 	config := okex.Config{
 		Endpoint:      addr,
 		WSEndpoint:    "",
@@ -397,7 +445,7 @@ func New(addr string, accessKey string, secretKey string, passphrase string) *OK
 		ProxyURL:      "",
 	}
 	client := okex.NewClient(config)
-	return &OKEXSwap{
+	return &OKEXFutures{
 		client: client,
 	}
 }

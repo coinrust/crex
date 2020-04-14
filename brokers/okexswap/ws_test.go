@@ -1,4 +1,4 @@
-package hbdm_swap
+package okexswap
 
 import (
 	. "github.com/coinrust/crex"
@@ -17,9 +17,10 @@ func newTestWS() *WS {
 
 	accessKey := viper.GetString("access_key")
 	secretKey := viper.GetString("secret_key")
-	wsURL := "wss://api.btcgateway.pro/swap-ws"
+	passphrase := viper.GetString("passphrase")
+	wsURL := "wss://real.okex.com:8443/ws/v3"
 	ws := NewWS(wsURL,
-		accessKey, secretKey)
+		accessKey, secretKey, passphrase)
 	return ws
 }
 
@@ -34,11 +35,11 @@ func TestWS_AllInOne(t *testing.T) {
 	})
 
 	ws.SubscribeLevel2Snapshots(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-SWAP",
 		Params: "",
 	})
 	ws.SubscribeTrades(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-SWAP",
 		Params: "",
 	})
 
@@ -53,7 +54,7 @@ func TestWS_SubscribeOrders(t *testing.T) {
 	})
 
 	ws.SubscribeOrders(Market{
-		ID:     "BTC-USD",
+		ID:     "BTC-USD-SWAP",
 		Params: "",
 	})
 

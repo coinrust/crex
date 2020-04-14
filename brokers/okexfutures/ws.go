@@ -1,4 +1,4 @@
-package okex_swap
+package okexfutures
 
 import (
 	"github.com/chuckpreslar/emission"
@@ -9,7 +9,7 @@ import (
 )
 
 type WS struct {
-	ws      *okex.SwapWS
+	ws      *okex.FuturesWS
 	emitter *emission.Emitter
 }
 
@@ -159,21 +159,28 @@ func (s *WS) convertOrder(order *okex.WSOrder) *Order {
 	return o
 }
 
-func (s *WS) positionsCallback(positions []okex.WSSwapPositionData) {
+func (s *WS) positionsCallback(positions []okex.WSFuturesPosition) {
 	//log.Printf("positionsCallback")
 	var eventData []Position
 	for _, v := range positions {
-		for _, v1 := range v.Holding {
+		longQty := util.ParseFloat64(v.LongQty)
+		shortQty := util.ParseFloat64(v.ShortQty)
+		if longQty > 0 {
 			var o Position
 			o.Symbol = v.InstrumentID
-			o.OpenTime = v1.Timestamp
-			if v1.Side == "long" {
-				o.Size = util.ParseFloat64(v1.Position)
-			} else if v1.Side == "short" {
-				o.Size = -util.ParseFloat64(v1.Position)
-			}
-			o.OpenPrice = util.ParseFloat64(v1.AvgCost)
+			o.OpenTime = v.Timestamp
+			o.Size = longQty
+			o.OpenPrice = util.ParseFloat64(v.LongAvgCost)
 			o.AvgPrice = o.OpenPrice
+			eventData = append(eventData, o)
+		} else if shortQty > 0 {
+			var o Position
+			o.Symbol = v.InstrumentID
+			o.OpenTime = v.Timestamp
+			o.Size = -shortQty
+			o.OpenPrice = util.ParseFloat64(v.ShortAvgCost)
+			o.AvgPrice = o.OpenPrice
+			eventData = append(eventData, o)
 		}
 	}
 	s.emitter.Emit(WSEventPosition, eventData)
@@ -183,7 +190,7 @@ func NewWS(wsURL string, accessKey string, secretKey string, passphrase string) 
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}
-	ws := okex.NewSwapWS(wsURL, accessKey, secretKey, passphrase)
+	ws := okex.NewFuturesWS(wsURL, accessKey, secretKey, passphrase)
 	ws.SetDepth20SnapshotCallback(s.depth20SnapshotCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.SetOrderCallback(s.ordersCallback)

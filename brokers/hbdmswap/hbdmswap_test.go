@@ -1,4 +1,4 @@
-package hbdm_swap
+package hbdmswap
 
 import (
 	. "github.com/coinrust/crex"

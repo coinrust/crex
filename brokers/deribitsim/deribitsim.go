@@ -1,4 +1,4 @@
-package deribit_sim
+package deribitsim
 
 import (
 	"errors"

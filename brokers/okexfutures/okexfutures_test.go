@@ -1,4 +1,4 @@
-package okex_futures
+package okexfutures
 
 import (
 	"log"

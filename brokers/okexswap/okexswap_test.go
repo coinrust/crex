@@ -1,4 +1,4 @@
-package okex_swap
+package okexswap
 
 import (
 	. "github.com/coinrust/crex"

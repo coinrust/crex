@@ -1,4 +1,4 @@
-package bitmex_sim
+package bitmexsim
 
 import (
 	"github.com/coinrust/crex"

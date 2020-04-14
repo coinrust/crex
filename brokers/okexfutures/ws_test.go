@@ -1,4 +1,4 @@
-package okex_swap
+package okexfutures
 
 import (
 	. "github.com/coinrust/crex"
@@ -35,11 +35,11 @@ func TestWS_AllInOne(t *testing.T) {
 	})
 
 	ws.SubscribeLevel2Snapshots(Market{
-		ID:     "BTC-USD-SWAP",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 	ws.SubscribeTrades(Market{
-		ID:     "BTC-USD-SWAP",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 
@@ -54,7 +54,7 @@ func TestWS_SubscribeOrders(t *testing.T) {
 	})
 
 	ws.SubscribeOrders(Market{
-		ID:     "BTC-USD-SWAP",
+		ID:     "BTC-USD-200626",
 		Params: "",
 	})
 
