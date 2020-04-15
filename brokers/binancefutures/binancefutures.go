@@ -253,7 +253,7 @@ func (b *BinanceFutures) AmendOrder(symbol string, id string, price float64, siz
 	return
 }
 
-func (b *BinanceFutures) GetPosition(symbol string) (result Position, err error) {
+func (b *BinanceFutures) GetPositions(symbol string) (result []Position, err error) {
 	var res []*futures.PositionRisk
 	res, err = b.client.NewGetPositionRiskService().
 		Do(context.Background())
@@ -267,14 +267,15 @@ func (b *BinanceFutures) GetPosition(symbol string) (result Position, err error)
 		if useFilter && v.Symbol != symbol {
 			continue
 		}
-		result.Symbol = v.Symbol
+		position := Position{}
+		position.Symbol = v.Symbol
 		size := util.ParseFloat64(v.PositionAmt)
 		if size != 0 {
-			result.Size = size
-			result.OpenPrice = util.ParseFloat64(v.EntryPrice)
-			result.AvgPrice = result.OpenPrice
+			position.Size = size
+			position.OpenPrice = util.ParseFloat64(v.EntryPrice)
+			position.AvgPrice = position.OpenPrice
 		}
-		break
+		result = append(result, position)
 	}
 	return
 }

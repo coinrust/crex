@@ -29,7 +29,7 @@ func (s *BasicStrategy) OnTick() {
 	//s.Brokers[0].PlaceOrder(symbol, Buy, OrderTypeLimit, 1000.0, 10, true, false, nil)
 
 	s.Brokers[0].GetOpenOrders(symbol)
-	s.Brokers[0].GetPosition(symbol)
+	s.Brokers[0].GetPositions(symbol)
 }
 
 func (s *BasicStrategy) OnDeinit() {

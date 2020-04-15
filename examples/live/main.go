@@ -31,7 +31,7 @@ func (s *BasicStrategy) OnTick() {
 		Buy, OrderTypeLimit, 1000.0, 10, 1, true, false, nil)
 
 	s.Broker.GetOpenOrders(symbol)
-	s.Broker.GetPosition(symbol)
+	s.Broker.GetPositions(symbol)
 }
 
 func (s *BasicStrategy) OnDeinit() {

@@ -189,15 +189,21 @@ func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float6
 	return
 }
 
-func (b *BitMEX) GetPosition(symbol string) (result Position, err error) {
+func (b *BitMEX) GetPositions(symbol string) (result []Position, err error) {
 	var ret swagger.Position
 	ret, err = b.client.GetPosition(symbol)
 	if err != nil {
 		return
 	}
-	result.Symbol = ret.Symbol
-	result.Size = float64(ret.CurrentQty)
-	result.AvgPrice = ret.AvgEntryPrice
+	result = []Position{
+		{
+			Symbol:    symbol,
+			OpenTime:  time.Time{},
+			OpenPrice: ret.AvgEntryPrice,
+			Size:      float64(ret.CurrentQty),
+			AvgPrice:  ret.AvgCostPrice,
+		},
+	}
 	return
 }
 

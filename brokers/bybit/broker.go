@@ -241,15 +241,21 @@ func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64
 	return
 }
 
-func (b *Bybit) GetPosition(symbol string) (result Position, err error) {
+func (b *Bybit) GetPositions(symbol string) (result []Position, err error) {
 	var ret rest.Position
 	ret, err = b.client.GetPosition(symbol)
 	if err != nil {
 		return
 	}
-	result.Symbol = ret.Symbol
-	result.Size = ret.Size
-	result.AvgPrice = ret.EntryPrice
+	result = []Position{
+		{
+			Symbol:    symbol,
+			OpenTime:  time.Time{},
+			OpenPrice: ret.EntryPrice,
+			Size:      ret.Size,
+			AvgPrice:  ret.EntryPrice,
+		},
+	}
 	return
 }
 

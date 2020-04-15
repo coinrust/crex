@@ -273,15 +273,21 @@ func (b *Diribit) AmendOrder(symbol string, id string, price float64, size float
 	return
 }
 
-func (b *Diribit) GetPosition(symbol string) (result Position, err error) {
+func (b *Diribit) GetPositions(symbol string) (result []Position, err error) {
 	var ret models.Position
 	ret, err = b.client.GetPosition(&models.GetPositionParams{InstrumentName: symbol})
 	if err != nil {
 		return
 	}
-	result.Symbol = ret.InstrumentName
-	result.Size = ret.Size
-	result.AvgPrice = ret.AveragePrice
+	result = []Position{
+		{
+			Symbol:    symbol,
+			OpenTime:  time.Time{},
+			OpenPrice: ret.AveragePrice,
+			Size:      ret.Size,
+			AvgPrice:  ret.AveragePrice,
+		},
+	}
 	return
 }
 

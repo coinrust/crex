@@ -271,7 +271,7 @@ func (b *OKEXSwap) AmendOrder(symbol string, id string, price float64, size floa
 	return
 }
 
-func (b *OKEXSwap) GetPosition(symbol string) (result Position, err error) {
+func (b *OKEXSwap) GetPositions(symbol string) (result []Position, err error) {
 	var ret okex.SwapPosition
 	ret, err = b.client.GetSwapPositionByInstrument(symbol)
 	if err != nil {
@@ -282,26 +282,27 @@ func (b *OKEXSwap) GetPosition(symbol string) (result Position, err error) {
 		return
 	}
 
-	result.Symbol = symbol
-
 	if ret.MarginMode == "crossed" || ret.MarginMode == "fixed" { // 全仓
 		for _, v := range ret.Holding {
-			if v.InstrumentId == symbol {
-				// 2019-10-08T11:56:07.922Z
-				timestamp, _ := time.ParseInLocation(v.Timestamp,
-					"2006-01-02T15:04:05.000Z",
-					time.Local)
-				if v.Side == "long" {
-					result.Size, _ = strconv.ParseFloat(v.Position, 64)
-					result.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
-					result.OpenTime = timestamp
-				} else if v.Side == "short" {
-					result.Size, _ = strconv.ParseFloat(v.Position, 64)
-					result.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
-					result.OpenTime = timestamp
-				}
-				break
+			if v.InstrumentId != symbol {
+				continue
 			}
+			position := Position{}
+			position.Symbol = symbol
+			// 2019-10-08T11:56:07.922Z
+			timestamp, _ := time.ParseInLocation(v.Timestamp,
+				"2006-01-02T15:04:05.000Z",
+				time.Local)
+			if v.Side == "long" {
+				position.Size, _ = strconv.ParseFloat(v.Position, 64)
+				position.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
+				position.OpenTime = timestamp
+			} else if v.Side == "short" {
+				position.Size, _ = strconv.ParseFloat(v.Position, 64)
+				position.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
+				position.OpenTime = timestamp
+			}
+			result = append(result, position)
 		}
 	}
 	return

@@ -344,9 +344,7 @@ func (b *HBDM) AmendOrder(symbol string, id string, price float64, size float64)
 	return
 }
 
-func (b *HBDM) GetPosition(symbol string) (result Position, err error) {
-	result.Symbol = symbol
-
+func (b *HBDM) GetPositions(symbol string) (result []Position, err error) {
 	var ret hbdm.PositionInfoResult
 	ret, err = b.client.GetPositionInfo(b.pair)
 	if err != nil {
@@ -360,18 +358,22 @@ func (b *HBDM) GetPosition(symbol string) (result Position, err error) {
 		return
 	}
 
-	if len(ret.Data) != 1 {
+	if len(ret.Data) < 1 {
 		return
 	}
 
-	position := ret.Data[0]
-	if position.Direction == "buy" {
-		result.Size = position.Volume
-	} else if position.Direction == "sell" {
-		result.Size = -position.Volume
+	for _, v := range ret.Data {
+		position := Position{}
+		position.Symbol = v.Symbol
+		if v.Direction == "buy" {
+			position.Size = v.Volume
+		} else if v.Direction == "sell" {
+			position.Size = -v.Volume
+		}
+		position.AvgPrice = v.CostHold
+		position.OpenPrice = v.CostOpen
+		result = append(result, position)
 	}
-	result.AvgPrice = position.CostHold
-	result.OpenPrice = position.CostOpen
 	return
 }
 

@@ -425,13 +425,13 @@ func (b *DiribitSim) AmendOrder(symbol string, id string, price float64, size fl
 	return
 }
 
-func (b *DiribitSim) GetPosition(symbol string) (result Position, err error) {
+func (b *DiribitSim) GetPositions(symbol string) (result []Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = *position
+	result = []Position{*position}
 	return
 }
 

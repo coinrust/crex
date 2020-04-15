@@ -420,13 +420,13 @@ func (b *BitMEXSim) AmendOrder(symbol string, id string, price float64, size flo
 	return
 }
 
-func (b *BitMEXSim) GetPosition(symbol string) (result Position, err error) {
+func (b *BitMEXSim) GetPositions(symbol string) (result []Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = *position
+	result = []Position{*position}
 	return
 }
 

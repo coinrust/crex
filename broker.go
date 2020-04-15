@@ -46,7 +46,7 @@ type Broker interface {
 	AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error)
 
 	// 获取持仓
-	GetPosition(symbol string) (result Position, err error)
+	GetPositions(symbol string) (result []Position, err error)
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only

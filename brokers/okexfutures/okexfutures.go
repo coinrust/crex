@@ -303,7 +303,7 @@ func (b *OKEXFutures) AmendOrder(symbol string, id string, price float64, size f
 	return
 }
 
-func (b *OKEXFutures) GetPosition(symbol string) (result Position, err error) {
+func (b *OKEXFutures) GetPositions(symbol string) (result []Position, err error) {
 	var ret okex.FuturesPosition
 	ret, err = b.client.GetFuturesInstrumentPosition(symbol)
 	if err != nil {
@@ -314,45 +314,49 @@ func (b *OKEXFutures) GetPosition(symbol string) (result Position, err error) {
 		return
 	}
 
-	result.Symbol = symbol
-
 	if ret.MarginMode == "crossed" { // 全仓
 		for _, v := range ret.CrossPosition {
-			if v.InstrumentId == symbol {
-				// 2019-10-08T11:56:07.922Z
-				createAt, _ := time.ParseInLocation(v.CreatedAt,
-					"2006-01-02T15:04:05.000Z",
-					time.Local)
-				if v.LongQty > 0 {
-					result.Size = v.LongQty
-					result.AvgPrice = v.LongAvgCost
-					result.OpenTime = createAt
-				} else if v.ShortQty > 0 {
-					result.Size = -v.ShortQty
-					result.AvgPrice = v.ShortAvgCost
-					result.OpenTime = createAt
-				}
-				break
+			if v.InstrumentId != symbol {
+				continue
 			}
+			position := Position{}
+			position.Symbol = symbol
+			// 2019-10-08T11:56:07.922Z
+			createAt, _ := time.ParseInLocation(v.CreatedAt,
+				"2006-01-02T15:04:05.000Z",
+				time.Local)
+			if v.LongQty > 0 {
+				position.Size = v.LongQty
+				position.AvgPrice = v.LongAvgCost
+				position.OpenTime = createAt
+			} else if v.ShortQty > 0 {
+				position.Size = -v.ShortQty
+				position.AvgPrice = v.ShortAvgCost
+				position.OpenTime = createAt
+			}
+			result = append(result, position)
 		}
 	} else {
 		for _, v := range ret.FixedPosition {
-			if v.InstrumentId == symbol {
-				// 2019-10-08T11:56:07.922Z
-				createAt, _ := time.ParseInLocation(v.CreatedAt,
-					"2006-01-02T15:04:05.000Z",
-					time.Local)
-				if v.LongQty > 0 {
-					result.Size = v.LongQty
-					result.AvgPrice = v.LongAvgCost
-					result.OpenTime = createAt
-				} else if v.ShortQty > 0 {
-					result.Size = -v.ShortQty
-					result.AvgPrice = v.ShortAvgCost
-					result.OpenTime = createAt
-				}
-				break
+			if v.InstrumentId != symbol {
+				continue
 			}
+			position := Position{}
+			position.Symbol = symbol
+			// 2019-10-08T11:56:07.922Z
+			createAt, _ := time.ParseInLocation(v.CreatedAt,
+				"2006-01-02T15:04:05.000Z",
+				time.Local)
+			if v.LongQty > 0 {
+				position.Size = v.LongQty
+				position.AvgPrice = v.LongAvgCost
+				position.OpenTime = createAt
+			} else if v.ShortQty > 0 {
+				position.Size = -v.ShortQty
+				position.AvgPrice = v.ShortAvgCost
+				position.OpenTime = createAt
+			}
+			result = append(result, position)
 		}
 	}
 	return
