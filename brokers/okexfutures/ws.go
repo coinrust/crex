@@ -72,7 +72,7 @@ func (s *WS) tradeCallback(_trades []okex.WSTrade) {
 			Direction: direction,
 			Price:     util.ParseFloat64(v.Price),
 			Amount:    util.ParseFloat64(v.Side),
-			Ts:        v.Timestamp.UnixNano() / 1e6,
+			Ts:        v.Timestamp.UnixNano() / int64(time.Millisecond),
 			Symbol:    v.InstrumentID,
 		}
 		result = append(result, t)
@@ -82,10 +82,12 @@ func (s *WS) tradeCallback(_trades []okex.WSTrade) {
 
 func (s *WS) ordersCallback(orders []okex.WSOrder) {
 	//log.Printf("ordersCallback")
+	var eventData []Order
 	for _, v := range orders {
-		o := s.convertOrder(&v)
-		s.emitter.Emit(WSEventOrder, o)
+		o := *s.convertOrder(&v)
+		eventData = append(eventData, o)
 	}
+	s.emitter.Emit(WSEventOrder, eventData)
 }
 
 func (s *WS) convertOrder(order *okex.WSOrder) *Order {

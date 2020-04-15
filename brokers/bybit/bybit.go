@@ -274,7 +274,9 @@ func (b *Bybit) convertOrder(order *rest.Order) (result Order) {
 	if strings.Contains(order.TimeInForce, "PostOnly") {
 		result.PostOnly = true
 	}
-	result.ReduceOnly = false
+	if order.ExtFields != nil {
+		result.ReduceOnly = order.ExtFields.ReduceOnly
+	}
 	result.Status = b.orderStatus(order.OrderStatus)
 	return
 }
@@ -295,7 +297,6 @@ func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
 	if strings.Contains(order.TimeInForce, "PostOnly") {
 		result.PostOnly = true
 	}
-	result.ReduceOnly = false
 	result.Status = b.orderStatus(order.OrderStatus)
 	return
 }

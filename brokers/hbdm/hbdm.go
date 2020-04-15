@@ -80,7 +80,7 @@ func (b *HBDM) GetOrderBook(symbol string, depth int) (result OrderBook, err err
 			Amount: v[1],
 		})
 	}
-	result.Time = time.Unix(0, ret.Ts*1e6)
+	result.Time = time.Unix(0, ret.Ts*int64(time.Millisecond))
 	return
 }
 

@@ -22,7 +22,7 @@ func TestDiribit_GetOrderBook(t *testing.T) {
 func TestDiribit_GetRecords(t *testing.T) {
 	b := newForTest()
 	start := time.Now().Add(-time.Hour)
-	end := time.Now().UnixNano() / 1e6
+	end := time.Now().UnixNano() / int64(time.Millisecond)
 	records, err := b.GetRecords("BTC-PERPETUAL",
 		"1", start.Unix(), end, 10)
 	if err != nil {

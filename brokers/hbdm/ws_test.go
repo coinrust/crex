@@ -48,8 +48,8 @@ func TestWS_AllInOne(t *testing.T) {
 func TestWS_SubscribeOrders(t *testing.T) {
 	ws := newTestWS()
 
-	ws.On(WSEventOrder, func(order *Order) {
-		log.Printf("order: %#v", order)
+	ws.On(WSEventOrder, func(orders []Order) {
+		log.Printf("orders: %#v", orders)
 	})
 
 	ws.SubscribeOrders(Market{

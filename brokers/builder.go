@@ -14,9 +14,9 @@ import (
 	"log"
 )
 
-func New(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
+func New(name string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
 	var baseUri string
-	switch brokerName {
+	switch name {
 	case BinanceFutures:
 		return binancefutures.New(baseUri, accessKey, secret)
 	case BitMEX:
@@ -93,12 +93,18 @@ func New(brokerName string, accessKey string, secret string, testnet bool, param
 		}
 		return okexswap.New(baseUri, accessKey, secret, passphrase)
 	default:
-		panic(fmt.Sprintf("broker error [%v]", brokerName))
+		panic(fmt.Sprintf("broker error [%v]", name))
 	}
 }
 
-func NewWS(brokerName string, accessKey string, secret string, testnet bool, params map[string]string) WebSocket {
-	switch brokerName {
+func NewWS(name string, accessKey string, secret string, testnet bool, params map[string]string) WebSocket {
+	switch name {
+	case Bybit:
+		wsURL := "wss://stream.bybit.com/realtime"
+		if testnet {
+			wsURL = "wss://stream-testnet.bybit.com/realtime"
+		}
+		return bybit.NewWS(wsURL, accessKey, secret)
 	case HBDM:
 		wsURL := "wss://api.hbdm.com/ws"
 		if v, ok := params["wsURL"]; ok {
@@ -136,6 +142,6 @@ func NewWS(brokerName string, accessKey string, secret string, testnet bool, par
 		}
 		return okexswap.NewWS(wsURL, accessKey, secret, passphrase)
 	default:
-		panic(fmt.Sprintf("broker error [%v]", brokerName))
+		panic(fmt.Sprintf("broker error [%v]", name))
 	}
 }

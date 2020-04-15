@@ -25,8 +25,8 @@ func main() {
 	})
 
 	// 订单事件方法
-	ws.On(WSEventOrder, func(order *Order) {
-		log.Printf("order: %#v", order)
+	ws.On(WSEventOrder, func(orders []Order) {
+		log.Printf("orders: %#v", orders)
 	})
 	// 持仓事件方法
 	ws.On(WSEventPosition, func(positions []Position) {

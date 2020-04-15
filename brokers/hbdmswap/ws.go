@@ -46,7 +46,7 @@ func (s *WS) depthCallback(depth *hbdmswap.WSDepth) {
 	// ch: market.BTC-USD.depth.step0
 	ob := &OrderBook{
 		Symbol: depth.Ch,
-		Time:   time.Unix(0, depth.Ts*1e6),
+		Time:   time.Unix(0, depth.Ts*int64(time.Millisecond)),
 		Asks:   nil,
 		Bids:   nil,
 	}
@@ -139,7 +139,7 @@ func (s *WS) ordersCallback(order *hbdmswap.WSOrder) {
 	default:
 		o.Status = OrderStatusCreated
 	}
-	s.emitter.Emit(WSEventOrder, &o)
+	s.emitter.Emit(WSEventOrder, []Order{o})
 }
 
 func (s *WS) positionsCallback(positions *hbdmswap.WSPositions) {
@@ -148,7 +148,7 @@ func (s *WS) positionsCallback(positions *hbdmswap.WSPositions) {
 	for _, v := range positions.Data {
 		var o Position
 		o.Symbol = v.Symbol
-		o.OpenTime = time.Unix(0, positions.Ts*1e6)
+		o.OpenTime = time.Unix(0, positions.Ts*int64(time.Millisecond))
 		o.OpenPrice = v.CostOpen
 		switch v.Direction {
 		case "buy":

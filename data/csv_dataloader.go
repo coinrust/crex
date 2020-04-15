@@ -93,7 +93,7 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	timestamp := time.Unix(0, t*1e6)
+	timestamp := time.Unix(0, t*int64(time.Millisecond))
 
 	nDepth := (n - 1) / 4
 

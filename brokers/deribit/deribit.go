@@ -94,7 +94,7 @@ func (b *Diribit) GetOrderBook(symbol string, depth int) (result OrderBook, err 
 			Amount: v[1],
 		})
 	}
-	result.Time = time.Unix(0, ret.Timestamp*1e6) // 1581819533335
+	result.Time = time.Unix(0, ret.Timestamp*int64(time.Millisecond)) // 1581819533335
 	return
 }
 
@@ -117,7 +117,7 @@ func (b *Diribit) GetRecords(symbol string, period string, from int64, end int64
 	for i := 0; i < n; i++ {
 		records = append(records, Record{
 			Symbol:    symbol,
-			Timestamp: time.Unix(0, resp.Ticks[i]*1e6),
+			Timestamp: time.Unix(0, resp.Ticks[i]*int64(time.Millisecond)),
 			Open:      resp.Open[i],
 			High:      resp.High[i],
 			Low:       resp.Low[i],

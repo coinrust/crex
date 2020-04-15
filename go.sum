@@ -102,8 +102,12 @@ github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568/go.mod h1:xEzjJPgXI
 github.com/forestgiant/sliceutil v0.0.0-20160425183142-94783f95db6c/go.mod h1:pFdJbAhRf7rh6YYMUdIQGyzne6zYL1tCUW8QV2B3UfY=
 github.com/frankrap/bitmex-api v0.0.0-20200225011535-9765a3267676 h1:11wMXvsPlKZynrmBWRfA748XTPAhQ9HBvtEY1V6IcmA=
 github.com/frankrap/bitmex-api v0.0.0-20200225011535-9765a3267676/go.mod h1:gbaBrLqnXQy2MaDOAVA2MNu+XlfOrPW+a5mi5jDzAFw=
-github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944 h1:7qPp8n2/cxH6LgAO926F07s5dPimKxz0KoW9hupcXM4=
-github.com/frankrap/bybit-api v0.0.0-20200322001335-e3990ed82944/go.mod h1:M+CA+BbtQR1EpRnMG7BVT/bvK5X+t9OAGUIYTYbC9ek=
+github.com/frankrap/bybit-api v0.0.0-20200415052649-d1acdcf28b34 h1:BXBMdgitlz2gzQSosbXPGAwmnshdJQ4g7ZLEm6KItFg=
+github.com/frankrap/bybit-api v0.0.0-20200415052649-d1acdcf28b34/go.mod h1:M+CA+BbtQR1EpRnMG7BVT/bvK5X+t9OAGUIYTYbC9ek=
+github.com/frankrap/bybit-api v0.0.0-20200415054725-73287271fcfe h1:Cdhy2uTg54j1uFJJFs1usWTP0orj5DnailOCAB1CArU=
+github.com/frankrap/bybit-api v0.0.0-20200415054725-73287271fcfe/go.mod h1:M+CA+BbtQR1EpRnMG7BVT/bvK5X+t9OAGUIYTYbC9ek=
+github.com/frankrap/bybit-api v0.0.0-20200415061053-a576e26e94f0 h1:hlynrxtCNbUQUfEfvpOfKGHTm67KdEdJ1nmhvuYO4K0=
+github.com/frankrap/bybit-api v0.0.0-20200415061053-a576e26e94f0/go.mod h1:M+CA+BbtQR1EpRnMG7BVT/bvK5X+t9OAGUIYTYbC9ek=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=

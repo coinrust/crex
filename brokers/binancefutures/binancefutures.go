@@ -117,7 +117,7 @@ func (b *BinanceFutures) GetRecords(symbol string, period string, from int64, en
 	for _, v := range res {
 		records = append(records, Record{
 			Symbol:    symbol,
-			Timestamp: time.Unix(0, v.OpenTime*1e6),
+			Timestamp: time.Unix(0, v.OpenTime*int64(time.Millisecond)),
 			Open:      util.ParseFloat64(v.Open),
 			High:      util.ParseFloat64(v.High),
 			Low:       util.ParseFloat64(v.Low),
