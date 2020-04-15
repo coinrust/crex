@@ -7,8 +7,7 @@ import (
 )
 
 func newForTest() Broker {
-	b := New("https://api-testnet.bybit.com/",
-		"6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF")
+	b := New("6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF", true)
 	return b
 }
 

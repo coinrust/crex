@@ -8,8 +8,7 @@ import (
 )
 
 func TestNewWS(t *testing.T) {
-	ws := NewWS("wss://stream-testnet.bybit.com/realtime",
-		"6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF")
+	ws := NewWS("6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF", true)
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {
 		log.Printf("%#v", ob)
 	})

@@ -2,7 +2,6 @@ package bitmex
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/frankrap/bitmex-api"
 	"testing"
 	"time"
 )
@@ -10,7 +9,7 @@ import (
 func newForTest() *BitMEX {
 	apiKey := "eEtTUdma5LgAmryFerX-DAdp"
 	secretKey := "kPjKmu-EIe1E73poRTnUraQWCMWbRq7PZ2-bzP8cnemniMXu"
-	b := New(bitmex.HostTestnet, apiKey, secretKey)
+	b := New(apiKey, secretKey, true)
 	b.client.SetProxy("127.0.0.1:1080")
 	return b
 }

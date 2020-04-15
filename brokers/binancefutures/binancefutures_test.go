@@ -21,9 +21,7 @@ func newTestBroker() Broker {
 	proxyURL := viper.GetString("proxy_url")
 	log.Printf("accessKey: %v", accessKey)
 	log.Printf("secretKey: %v", secretKey)
-	baseUri := ""
-	//b := New(baseUri, accessKey, secretKey)
-	b := New(baseUri, accessKey, secretKey)
+	b := New(accessKey, secretKey)
 	if proxyURL != "" {
 		b.SetProxy(proxyURL)
 	}

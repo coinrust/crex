@@ -386,7 +386,7 @@ func (b *OKEXSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
 }
 
 func (b *OKEXSwap) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey, b.passphrase)
+	ws = NewWS(b.accessKey, b.secretKey, b.passphrase, b.testnet)
 	return
 }
 

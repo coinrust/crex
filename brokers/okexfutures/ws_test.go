@@ -18,9 +18,7 @@ func newTestWS() *WS {
 	accessKey := viper.GetString("access_key")
 	secretKey := viper.GetString("secret_key")
 	passphrase := viper.GetString("passphrase")
-	wsURL := "wss://real.okex.com:8443/ws/v3"
-	ws := NewWS(wsURL,
-		accessKey, secretKey, passphrase)
+	ws := NewWS(accessKey, secretKey, passphrase, true)
 	return ws
 }
 

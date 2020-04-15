@@ -2,7 +2,6 @@ package deribit
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/frankrap/deribit-api"
 	"testing"
 	"time"
 )
@@ -10,7 +9,7 @@ import (
 func newForTest() Broker {
 	apiKey := "AsJTU16U"
 	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
-	b := New(deribit.TestBaseURL, apiKey, secretKey)
+	b := New(apiKey, secretKey, true)
 	return b
 }
 

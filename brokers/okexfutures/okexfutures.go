@@ -17,6 +17,7 @@ type OKEXFutures struct {
 	accessKey     string
 	secretKey     string
 	passphrase    string
+	testnet       bool
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
 	contractAlias string // okex contract type 合约类型
@@ -435,7 +436,7 @@ func (b *OKEXFutures) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus
 }
 
 func (b *OKEXFutures) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey, b.passphrase)
+	ws = NewWS(b.accessKey, b.secretKey, b.passphrase, b.testnet)
 	return
 }
 
@@ -465,5 +466,6 @@ func New(accessKey string, secretKey string, passphrase string, testnet bool) *O
 		accessKey:  accessKey,
 		secretKey:  secretKey,
 		passphrase: passphrase,
+		testnet:    testnet,
 	}
 }

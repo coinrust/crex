@@ -17,9 +17,7 @@ func newTestWS() *WS {
 
 	accessKey := viper.GetString("access_key")
 	secretKey := viper.GetString("secret_key")
-	wsURL := "wss://api.btcgateway.pro/ws"
-	ws := NewWS(wsURL,
-		accessKey, secretKey)
+	ws := NewWS(accessKey, secretKey, false)
 	return ws
 }
 

@@ -16,6 +16,7 @@ type HBDMSwap struct {
 	client    *hbdmswap.Client
 	accessKey string
 	secretKey string
+	testnet   bool
 	leverRate int // 杠杆倍数
 }
 
@@ -405,7 +406,7 @@ func (b *HBDMSwap) orderStatus(order *hbdmswap.Order) OrderStatus {
 }
 
 func (b *HBDMSwap) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey)
+	ws = NewWS(b.accessKey, b.secretKey, b.testnet)
 	return
 }
 
@@ -415,9 +416,6 @@ func (b *HBDMSwap) RunEventLoopOnce() (err error) {
 
 func New(accessKey string, secretKey string, testnet bool) *HBDMSwap {
 	baseUri := "https://api.hbdm.com"
-	if testnet {
-		baseUri = "https://api.btcgateway.pro"
-	}
 	apiParams := &hbdmswap.ApiParameter{
 		Debug:              false,
 		AccessKey:          accessKey,
@@ -431,5 +429,6 @@ func New(accessKey string, secretKey string, testnet bool) *HBDMSwap {
 		client:    client,
 		accessKey: accessKey,
 		secretKey: secretKey,
+		testnet:   testnet,
 	}
 }

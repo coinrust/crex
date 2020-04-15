@@ -16,6 +16,7 @@ type HBDM struct {
 	client        *hbdm.Client
 	accessKey     string
 	secretKey     string
+	testnet       bool
 	pair          string // 交易对 BTC/ETH/...
 	_contractType string // 合约类型
 	contractType  string // 合约类型(HBDM)
@@ -449,7 +450,7 @@ func (b *HBDM) orderStatus(order *hbdm.Order) OrderStatus {
 }
 
 func (b *HBDM) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey)
+	ws = NewWS(b.accessKey, b.secretKey, b.testnet)
 	return
 }
 
@@ -459,9 +460,6 @@ func (b *HBDM) RunEventLoopOnce() (err error) {
 
 func New(accessKey string, secretKey string, testnet bool) *HBDM {
 	baseUri := "https://api.hbdm.com"
-	if testnet {
-		baseUri = "https://api.btcgateway.pro"
-	}
 	apiParams := &hbdm.ApiParameter{
 		Debug:              false,
 		AccessKey:          accessKey,
@@ -475,5 +473,6 @@ func New(accessKey string, secretKey string, testnet bool) *HBDM {
 		client:    client,
 		accessKey: accessKey,
 		secretKey: secretKey,
+		testnet:   testnet,
 	}
 }

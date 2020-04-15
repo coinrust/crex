@@ -178,7 +178,7 @@ func (s *WS) positionsCallback(positions *hbdm.WSPositions) {
 	s.emitter.Emit(WSEventPosition, eventData)
 }
 
-func NewWS(accessKey string, secretKey string) *WS {
+func NewWS(accessKey string, secretKey string, testnet bool) *WS {
 	wsURL := "wss://api.hbdm.com/ws"
 	s := &WS{
 		emitter: emission.NewEmitter(),

@@ -18,8 +18,7 @@ func newForTest() Broker {
 
 	accessKey := viper.GetString("access_key")
 	secretKey := viper.GetString("secret_key")
-	baseURL := "https://api.btcgateway.pro"
-	return New(baseURL, accessKey, secretKey)
+	return New(accessKey, secretKey, true)
 }
 
 func TestHBDM_GetAccountSummary(t *testing.T) {

@@ -43,15 +43,15 @@ func NewWS(name string, accessKey string, secret string, testnet bool, params ma
 	case Bybit:
 		return bybit.NewWS(accessKey, secret, testnet)
 	case HBDM:
-		return hbdm.NewWS(accessKey, secret)
+		return hbdm.NewWS(accessKey, secret, testnet)
 	case HBDMSwap:
-		return hbdmswap.NewWS(accessKey, secret)
+		return hbdmswap.NewWS(accessKey, secret, testnet)
 	case OKEXFutures:
 		passphrase := getParamsString(params, "passphrase")
-		return okexfutures.NewWS(accessKey, secret, passphrase)
+		return okexfutures.NewWS(accessKey, secret, passphrase, testnet)
 	case OKEXSwap:
 		passphrase := getParamsString(params, "passphrase")
-		return okexswap.NewWS(accessKey, secret, passphrase)
+		return okexswap.NewWS(accessKey, secret, passphrase, testnet)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", name))
 	}
