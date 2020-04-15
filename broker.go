@@ -48,6 +48,9 @@ type Broker interface {
 	// 获取持仓
 	GetPositions(symbol string) (result []Position, err error)
 
+	// 返回WebSocket对象
+	WS() (ws WebSocket, err error)
+
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
 }

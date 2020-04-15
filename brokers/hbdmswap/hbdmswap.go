@@ -14,6 +14,8 @@ const StatusOK = "ok"
 // HBDMSwap the Huobi DM Swap broker
 type HBDMSwap struct {
 	client    *hbdmswap.Client
+	accessKey string
+	secretKey string
 	leverRate int // 杠杆倍数
 }
 
@@ -402,22 +404,32 @@ func (b *HBDMSwap) orderStatus(order *hbdmswap.Order) OrderStatus {
 	}
 }
 
+func (b *HBDMSwap) WS() (ws WebSocket, err error) {
+	ws = NewWS(b.accessKey, b.secretKey)
+	return
+}
+
 func (b *HBDMSwap) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(addr string, accessKey string, secretKey string) *HBDMSwap {
-	//baseURL := "https://api.hbdm.com"
+func New(accessKey string, secretKey string, testnet bool) *HBDMSwap {
+	baseUri := "https://api.hbdm.com"
+	if testnet {
+		baseUri = "https://api.btcgateway.pro"
+	}
 	apiParams := &hbdmswap.ApiParameter{
 		Debug:              false,
 		AccessKey:          accessKey,
 		SecretKey:          secretKey,
 		EnablePrivateSign:  false,
-		Url:                addr,
+		Url:                baseUri,
 		PrivateKeyPrime256: "",
 	}
 	client := hbdmswap.NewClient(apiParams)
 	return &HBDMSwap{
-		client: client,
+		client:    client,
+		accessKey: accessKey,
+		secretKey: secretKey,
 	}
 }

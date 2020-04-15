@@ -383,11 +383,16 @@ func (b *BinanceFutures) orderStatus(status futures.OrderStatusType) OrderStatus
 	}
 }
 
+func (b *BinanceFutures) WS() (ws WebSocket, err error) {
+	err = NotImplemented
+	return
+}
+
 func (b *BinanceFutures) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(baseUri string, accessKey string, secretKey string) *BinanceFutures {
+func New(accessKey string, secretKey string) *BinanceFutures {
 	client := futures.NewClient(accessKey, secretKey)
 	return &BinanceFutures{
 		client: client,

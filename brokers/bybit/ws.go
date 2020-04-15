@@ -155,7 +155,11 @@ func (s *WS) orderStatus(orderStatus string) OrderStatus {
 	}
 }
 
-func NewWS(wsURL string, accessKey string, secretKey string) *WS {
+func NewWS(accessKey string, secretKey string, testnet bool) *WS {
+	wsURL := "wss://stream.bybit.com/realtime"
+	if testnet {
+		wsURL = "wss://stream-testnet.bybit.com/realtime"
+	}
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}

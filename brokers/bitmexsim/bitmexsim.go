@@ -430,6 +430,11 @@ func (b *BitMEXSim) GetPositions(symbol string) (result []Position, err error) {
 	return
 }
 
+func (b *BitMEXSim) WS() (ws WebSocket, err error) {
+	err = NotImplemented
+	return
+}
+
 func (b *BitMEXSim) RunEventLoopOnce() (err error) {
 	for _, order := range b.openOrders {
 		b.matchOrder(order, false)

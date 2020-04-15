@@ -271,12 +271,21 @@ func (b *BitMEX) orderStatus(order *swagger.Order) OrderStatus {
 	}
 }
 
+func (b *BitMEX) WS() (ws WebSocket, err error) {
+	err = NotImplemented
+	return
+}
+
 func (b *BitMEX) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(addr string, accessKey string, secretKey string) *BitMEX {
-	client := bitmex.New(addr, accessKey, secretKey)
+func New(accessKey string, secretKey string, testnet bool) *BitMEX {
+	baseUri := "www.bitmex.com"
+	if testnet {
+		baseUri = "testnet.bitmex.com"
+	}
+	client := bitmex.New(baseUri, accessKey, secretKey)
 	return &BitMEX{
 		client: client,
 	}

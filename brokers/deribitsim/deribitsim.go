@@ -435,6 +435,11 @@ func (b *DiribitSim) GetPositions(symbol string) (result []Position, err error) 
 	return
 }
 
+func (b *DiribitSim) WS() (ws WebSocket, err error) {
+	err = NotImplemented
+	return
+}
+
 func (b *DiribitSim) RunEventLoopOnce() (err error) {
 	for _, order := range b.openOrders {
 		b.matchOrder(order, false)

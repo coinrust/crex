@@ -11,87 +11,28 @@ import (
 	"github.com/coinrust/crex/brokers/hbdmswap"
 	"github.com/coinrust/crex/brokers/okexfutures"
 	"github.com/coinrust/crex/brokers/okexswap"
-	"log"
 )
 
 func New(name string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
-	var baseUri string
 	switch name {
 	case BinanceFutures:
-		return binancefutures.New(baseUri, accessKey, secret)
+		return binancefutures.New(accessKey, secret)
 	case BitMEX:
-		if testnet {
-			baseUri = "testnet.bitmex.com"
-		} else {
-			baseUri = "www.bitmex.com"
-		}
-		return bitmex.New(baseUri, accessKey, secret)
+		return bitmex.New(accessKey, secret, testnet)
 	case Deribit:
-		if testnet {
-			baseUri = "wss://test.deribit.com/ws/api/v2/"
-		} else {
-			baseUri = "wss://www.deribit.com/ws/api/v2/"
-		}
-		return deribit.New(baseUri, accessKey, secret)
+		return deribit.New(accessKey, secret, testnet)
 	case Bybit:
-		if testnet {
-			baseUri = "https://api-testnet.bybit.com/"
-		} else {
-			baseUri = "https://api.bybit.com/"
-		}
-		return bybit.New(baseUri, accessKey, secret)
+		return bybit.New(accessKey, secret, testnet)
 	case HBDM:
-		if testnet {
-			baseUri = "https://api.btcgateway.pro"
-		} else {
-			baseUri = "https://api.hbdm.com"
-		}
-		return hbdm.New(baseUri, accessKey, secret)
+		return hbdm.New(accessKey, secret, testnet)
 	case HBDMSwap:
-		if testnet {
-			baseUri = "https://api.btcgateway.pro"
-		} else {
-			baseUri = "https://api.hbdm.com"
-		}
-		return hbdmswap.New(baseUri, accessKey, secret)
+		return hbdmswap.New(accessKey, secret, testnet)
 	case OKEXFutures:
-		if testnet {
-			baseUri = "https://testnet.okex.me"
-		} else {
-			baseUri = "https://www.okex.com"
-		}
-		if params == nil {
-			log.Fatalf("missing params")
-		}
-		if v, ok := params["baseUri"]; ok {
-			baseUri = v
-		}
-		var passphrase string
-		if v, ok := params["passphrase"]; ok {
-			passphrase = v
-		} else {
-			log.Fatalf("passphrase missing")
-		}
-		return okexfutures.New(baseUri, accessKey, secret, passphrase)
+		passphrase := getParamsString(params, "passphrase")
+		return okexfutures.New(accessKey, secret, passphrase, testnet)
 	case OKEXSwap:
-		if testnet {
-			baseUri = "https://testnet.okex.me"
-		} else {
-			baseUri = "https://www.okex.com"
-		}
-		if params == nil {
-			log.Fatalf("missing params")
-		}
-		if v, ok := params["baseUri"]; ok {
-			baseUri = v
-		}
-		var passphrase string
-		if v, ok := params["passphrase"]; ok {
-			passphrase = v
-		} else {
-			log.Fatalf("passphrase missing")
-		}
-		return okexswap.New(baseUri, accessKey, secret, passphrase)
+		passphrase := getParamsString(params, "passphrase")
+		return okexswap.New(accessKey, secret, passphrase, testnet)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", name))
 	}
@@ -100,48 +41,29 @@ func New(name string, accessKey string, secret string, testnet bool, params map[
 func NewWS(name string, accessKey string, secret string, testnet bool, params map[string]string) WebSocket {
 	switch name {
 	case Bybit:
-		wsURL := "wss://stream.bybit.com/realtime"
-		if testnet {
-			wsURL = "wss://stream-testnet.bybit.com/realtime"
-		}
-		return bybit.NewWS(wsURL, accessKey, secret)
+		return bybit.NewWS(accessKey, secret, testnet)
 	case HBDM:
-		wsURL := "wss://api.hbdm.com/ws"
-		if v, ok := params["wsURL"]; ok {
-			wsURL = v
-		}
-		return hbdm.NewWS(wsURL, accessKey, secret)
+		return hbdm.NewWS(accessKey, secret)
 	case HBDMSwap:
-		wsURL := "wss://api.hbdm.com/swap-ws"
-		if v, ok := params["wsURL"]; ok {
-			wsURL = v
-		}
-		return hbdmswap.NewWS(wsURL, accessKey, secret)
+		return hbdmswap.NewWS(accessKey, secret)
 	case OKEXFutures:
-		wsURL := "wss://real.okex.com:8443/ws/v3"
-		if v, ok := params["wsURL"]; ok {
-			wsURL = v
-		}
-		var passphrase string
-		if v, ok := params["passphrase"]; ok {
-			passphrase = v
-		} else {
-			log.Fatalf("passphrase missing")
-		}
-		return okexfutures.NewWS(wsURL, accessKey, secret, passphrase)
+		passphrase := getParamsString(params, "passphrase")
+		return okexfutures.NewWS(accessKey, secret, passphrase)
 	case OKEXSwap:
-		wsURL := "wss://real.okex.com:8443/ws/v3"
-		if v, ok := params["wsURL"]; ok {
-			wsURL = v
-		}
-		var passphrase string
-		if v, ok := params["passphrase"]; ok {
-			passphrase = v
-		} else {
-			log.Fatalf("passphrase missing")
-		}
-		return okexswap.NewWS(wsURL, accessKey, secret, passphrase)
+		passphrase := getParamsString(params, "passphrase")
+		return okexswap.NewWS(accessKey, secret, passphrase)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", name))
+	}
+}
+
+func getParamsString(params map[string]string, key string) string {
+	if params == nil {
+		return ""
+	}
+	if v, ok := params["passphrase"]; ok {
+		return v
+	} else {
+		return ""
 	}
 }

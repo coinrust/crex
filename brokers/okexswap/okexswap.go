@@ -13,7 +13,12 @@ import (
 
 // OKEXSwap the OKEX swap broker
 type OKEXSwap struct {
-	client        *okex.Client
+	client     *okex.Client
+	accessKey  string
+	secretKey  string
+	passphrase string
+	testnet    bool
+
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
 	contractAlias string // okex contract type 合约类型
@@ -380,14 +385,22 @@ func (b *OKEXSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
 	}
 }
 
+func (b *OKEXSwap) WS() (ws WebSocket, err error) {
+	ws = NewWS(b.accessKey, b.secretKey, b.passphrase)
+	return
+}
+
 func (b *OKEXSwap) RunEventLoopOnce() (err error) {
 	return
 }
 
-// addr: https://www.okex.com/
-func New(addr string, accessKey string, secretKey string, passphrase string) *OKEXSwap {
+func New(accessKey string, secretKey string, passphrase string, testnet bool) *OKEXSwap {
+	baseUri := "https://www.okex.com"
+	if testnet {
+		baseUri = "https://testnet.okex.me"
+	}
 	config := okex.Config{
-		Endpoint:      addr,
+		Endpoint:      baseUri,
 		WSEndpoint:    "",
 		ApiKey:        accessKey,
 		SecretKey:     secretKey,
@@ -399,6 +412,10 @@ func New(addr string, accessKey string, secretKey string, passphrase string) *OK
 	}
 	client := okex.NewClient(config)
 	return &OKEXSwap{
-		client: client,
+		client:     client,
+		accessKey:  accessKey,
+		secretKey:  secretKey,
+		passphrase: passphrase,
+		testnet:    testnet,
 	}
 }

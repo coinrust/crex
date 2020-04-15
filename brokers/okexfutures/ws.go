@@ -188,7 +188,8 @@ func (s *WS) positionsCallback(positions []okex.WSFuturesPosition) {
 	s.emitter.Emit(WSEventPosition, eventData)
 }
 
-func NewWS(wsURL string, accessKey string, secretKey string, passphrase string) *WS {
+func NewWS(accessKey string, secretKey string, passphrase string) *WS {
+	wsURL := "wss://real.okex.com:8443/ws/v3"
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}

@@ -14,6 +14,9 @@ import (
 // OKEXFutures the OKEX futures broker
 type OKEXFutures struct {
 	client        *okex.Client
+	accessKey     string
+	secretKey     string
+	passphrase    string
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
 	contractAlias string // okex contract type 合约类型
@@ -431,14 +434,22 @@ func (b *OKEXFutures) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus
 	}
 }
 
+func (b *OKEXFutures) WS() (ws WebSocket, err error) {
+	ws = NewWS(b.accessKey, b.secretKey, b.passphrase)
+	return
+}
+
 func (b *OKEXFutures) RunEventLoopOnce() (err error) {
 	return
 }
 
-// addr: https://www.okex.com/
-func New(addr string, accessKey string, secretKey string, passphrase string) *OKEXFutures {
+func New(accessKey string, secretKey string, passphrase string, testnet bool) *OKEXFutures {
+	baseUri := "https://www.okex.com"
+	if testnet {
+		baseUri = "https://testnet.okex.me"
+	}
 	config := okex.Config{
-		Endpoint:      addr,
+		Endpoint:      baseUri,
 		WSEndpoint:    "",
 		ApiKey:        accessKey,
 		SecretKey:     secretKey,
@@ -450,6 +461,9 @@ func New(addr string, accessKey string, secretKey string, passphrase string) *OK
 	}
 	client := okex.NewClient(config)
 	return &OKEXFutures{
-		client: client,
+		client:     client,
+		accessKey:  accessKey,
+		secretKey:  secretKey,
+		passphrase: passphrase,
 	}
 }

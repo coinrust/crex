@@ -354,13 +354,22 @@ func (b *Diribit) orderStatus(order *models.Order) OrderStatus {
 	}
 }
 
+func (b *Diribit) WS() (ws WebSocket, err error) {
+	err = NotImplemented
+	return
+}
+
 func (b *Diribit) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(addr string, accessKey string, secretKey string) *Diribit {
+func New(accessKey string, secretKey string, testnet bool) *Diribit {
+	baseUri := "wss://www.deribit.com/ws/api/v2/"
+	if testnet {
+		baseUri = "wss://test.deribit.com/ws/api/v2/"
+	}
 	cfg := &deribit.Configuration{
-		Addr:          addr,
+		Addr:          baseUri,
 		ApiKey:        accessKey,
 		SecretKey:     secretKey,
 		AutoReconnect: true,

@@ -14,6 +14,8 @@ const StatusOK = "ok"
 // HBDM the Huobi DM broker
 type HBDM struct {
 	client        *hbdm.Client
+	accessKey     string
+	secretKey     string
 	pair          string // 交易对 BTC/ETH/...
 	_contractType string // 合约类型
 	contractType  string // 合约类型(HBDM)
@@ -446,22 +448,32 @@ func (b *HBDM) orderStatus(order *hbdm.Order) OrderStatus {
 	}
 }
 
+func (b *HBDM) WS() (ws WebSocket, err error) {
+	ws = NewWS(b.accessKey, b.secretKey)
+	return
+}
+
 func (b *HBDM) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(addr string, accessKey string, secretKey string) *HBDM {
-	//baseURL := "https://api.hbdm.com"
+func New(accessKey string, secretKey string, testnet bool) *HBDM {
+	baseUri := "https://api.hbdm.com"
+	if testnet {
+		baseUri = "https://api.btcgateway.pro"
+	}
 	apiParams := &hbdm.ApiParameter{
 		Debug:              false,
 		AccessKey:          accessKey,
 		SecretKey:          secretKey,
 		EnablePrivateSign:  false,
-		Url:                addr,
+		Url:                baseUri,
 		PrivateKeyPrime256: "",
 	}
 	client := hbdm.NewClient(apiParams)
 	return &HBDM{
-		client: client,
+		client:    client,
+		accessKey: accessKey,
+		secretKey: secretKey,
 	}
 }
