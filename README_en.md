@@ -112,12 +112,8 @@ import (
 )
 
 func main() {
-	wsURL := "wss://api.hbdm.com/ws" // "wss://api.btcgateway.pro/ws"
-	params := map[string]string{}
-	params["wsURL"] = wsURL
-
 	ws := brokers.NewWS(brokers.HBDM,
-		"[accessKey]", "[secretKey]", false, params)
+		"[accessKey]", "[secretKey]", false, nil)
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {

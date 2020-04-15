@@ -7,12 +7,8 @@ import (
 )
 
 func main() {
-	wsURL := "wss://api.hbdm.com/swap-ws" // "wss://api.btcgateway.pro/swap-ws"
-	params := map[string]string{}
-	params["wsURL"] = wsURL
-
 	ws := brokers.NewWS(brokers.HBDMSwap,
-		"", "", false, params)
+		"", "", false, nil)
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {

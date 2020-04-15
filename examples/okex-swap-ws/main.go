@@ -7,9 +7,7 @@ import (
 )
 
 func main() {
-	wsURL := "wss://real.okex.com:8443/ws/v3"
 	params := map[string]string{}
-	params["wsURL"] = wsURL
 	params["passphrase"] = "[passphrase]"
 
 	ws := brokers.NewWS(brokers.OKEXSwap,
