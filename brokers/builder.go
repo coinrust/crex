@@ -61,7 +61,7 @@ func getParamsString(params map[string]string, key string) string {
 	if params == nil {
 		return ""
 	}
-	if v, ok := params["passphrase"]; ok {
+	if v, ok := params[key]; ok {
 		return v
 	} else {
 		return ""

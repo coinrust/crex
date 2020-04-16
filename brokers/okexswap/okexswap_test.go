@@ -19,8 +19,7 @@ func newTestBroker() Broker {
 	accessKey := viper.GetString("access_key")
 	secretKey := viper.GetString("secret_key")
 	passphrase := viper.GetString("passphrase")
-	baseURL := "https://www.okex.me" // https://www.okex.com
-	return New(baseURL, accessKey, secretKey, passphrase)
+	return New(accessKey, secretKey, passphrase, false)
 }
 
 func TestGetAccountSummary(t *testing.T) {
@@ -130,10 +129,10 @@ func TestOKEXBroker_CancelOrder(t *testing.T) {
 func TestOKEXBroker_GetPosition(t *testing.T) {
 	b := newTestBroker()
 	symbol := "BTC-USD-SWAP"
-	position, err := b.GetPosition(symbol)
+	positions, err := b.GetPositions(symbol)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", position)
+	t.Logf("%#v", positions)
 }
