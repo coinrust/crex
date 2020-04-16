@@ -31,16 +31,19 @@ See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/m
 * WebSocket Supported
 
 ### Supported Exchanges
-| name                                                                      | id             | ver | doc                                                               |
-| ------------------------------------------------------------------------- | -------------- | --- | ----------------------------------------------------------------- |
-| [Binance Futures](https://www.binance.com/en/register?ref=10916733)       | binancefutures | 1   | [API](https://binance-docs.github.io/apidocs/futures/en/)         |
-| [BitMEX](https://www.bitmex.com/register/o0Duru)                          | bitmex         | 1   | [API](https://www.bitmex.com/app/apiOverview)                     |
-| [Deribit](https://www.deribit.com/reg-7357.93)                            | deribit        | 2   | [API](https://docs.deribit.com/)                                  |
-| [Bybit](https://www.bybit.com/app/register?ref=qQggy)                     | bybit          | 2   | [API](https://bybit-exchange.github.io/docs/inverse/)             |
-| [Huobi DM](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5)   | hbdm           | 1   | [API](https://docs.huobigroup.com/docs/dm/v1/en/)                 |
-| [Huobi Swap](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5) | hbdmswap       | 1   | [API](https://docs.huobigroup.com/docs/coin_margined_swap/v1/en/) |
-| [OKEX Futures](https://www.okex.com/join/1890951)                         | okexfutures    | 3   | [API](https://www.okex.me/docs/en/#futures-README)                |
-| [OKEX Swap](https://www.okex.com/join/1890951)                            | okexswap       | 3   | [API](https://www.okex.me/docs/en/#swap-README)                   |
+The CREX library currently supports the following 8 cryptocurrency exchange markets and trading APIs:
+
+
+| logo                                                                                                  | name                                                                      | id             | ver | ws  | doc                                                               |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------- | --- | --- | ----------------------------------------------------------------- |
+| [![binance](https://github.com/coinrust/crex/raw/master/images/binance.png)](https://www.binance.com) | [Binance Futures](https://www.binance.com/en/register?ref=10916733)       | binancefutures | 1   | N   | [API](https://binance-docs.github.io/apidocs/futures/en/)         |
+| [![bitmex](https://github.com/coinrust/crex/raw/master/images/bitmex.png)](https://www.binance.com)   | [BitMEX](https://www.bitmex.com/register/o0Duru)                          | bitmex         | 1   | N   | [API](https://www.bitmex.com/app/apiOverview)                     |
+| [![deribit](https://github.com/coinrust/crex/raw/master/images/deribit.png)](https://www.deribit.com) | [Deribit](https://www.deribit.com/reg-7357.93)                            | deribit        | 2   | Y   | [API](https://docs.deribit.com/)                                  |
+| [![bybit](https://github.com/coinrust/crex/raw/master/images/bybit.png)](https://www.bybit.com)       | [Bybit](https://www.bybit.com/app/register?ref=qQggy)                     | bybit          | 2   | Y   | [API](https://bybit-exchange.github.io/docs/inverse/)             |
+| [![huobi](https://github.com/coinrust/crex/raw/master/images/huobi.png)](https://www.huobi.com)       | [Huobi DM](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5)   | hbdm           | 1   | Y   | [API](https://docs.huobigroup.com/docs/dm/v1/en/)                 |
+| [![huobi](https://github.com/coinrust/crex/raw/master/images/huobi.png)](https://www.huobi.com)       | [Huobi Swap](https://www.huobi.io/en-us/topic/invited/?invite_code=7hzc5) | hbdmswap       | 1   | Y   | [API](https://docs.huobigroup.com/docs/coin_margined_swap/v1/en/) |
+| [![okex](https://github.com/coinrust/crex/raw/master/images/okex.png)](https://www.okex.com)          | [OKEX Futures](https://www.okex.com/join/1890951)                         | okexfutures    | 3   | Y   | [API](https://www.okex.me/docs/en/#futures-README)                |
+| [![okex](https://github.com/coinrust/crex/raw/master/images/okex.png)](https://www.okex.com)          | [OKEX Swap](https://www.okex.com/join/1890951)                            | okexswap       | 3   | Y   | [API](https://www.okex.me/docs/en/#swap-README)                   |
 
 ### Example
 ```golang
