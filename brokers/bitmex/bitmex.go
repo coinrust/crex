@@ -280,12 +280,12 @@ func (b *BitMEX) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(accessKey string, secretKey string, testnet bool) *BitMEX {
+func New(params *Parameters) *BitMEX {
 	baseUri := "www.bitmex.com"
-	if testnet {
+	if params.Testnet {
 		baseUri = "testnet.bitmex.com"
 	}
-	client := bitmex.New(baseUri, accessKey, secretKey)
+	client := bitmex.New(baseUri, params.AccessKey, params.SecretKey)
 	return &BitMEX{
 		client: client,
 	}

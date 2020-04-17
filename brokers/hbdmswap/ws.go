@@ -162,20 +162,20 @@ func (s *WS) positionsCallback(positions *hbdmswap.WSPositions) {
 	s.emitter.Emit(WSEventPosition, eventData)
 }
 
-func NewWS(accessKey string, secretKey string, testnet bool) *WS {
+func NewWS(params *Parameters) *WS {
 	wsURL := "wss://api.hbdm.com/swap-ws"
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}
-	ws := hbdmswap.NewWS(wsURL, accessKey, secretKey)
+	ws := hbdmswap.NewWS(wsURL, params.AccessKey, params.SecretKey)
 	ws.SetDepthCallback(s.depthCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.Start()
 	s.ws = ws
-	if accessKey != "" && secretKey != "" {
+	if params.AccessKey != "" && params.SecretKey != "" {
 		nwsURL := strings.Replace(wsURL,
 			"/swap-ws", "/swap-notification", -1)
-		nws := hbdmswap.NewNWS(nwsURL, accessKey, secretKey)
+		nws := hbdmswap.NewNWS(nwsURL, params.AccessKey, params.SecretKey)
 		nws.SetOrdersCallback(s.ordersCallback)
 		nws.SetPositionsCallback(s.positionsCallback)
 		nws.Start()

@@ -155,9 +155,9 @@ func (s *WS) orderStatus(orderStatus string) OrderStatus {
 	}
 }
 
-func NewWS(accessKey string, secretKey string, testnet bool) *WS {
+func NewWS(params *Parameters) *WS {
 	wsURL := "wss://stream.bybit.com/realtime"
-	if testnet {
+	if params.Testnet {
 		wsURL = "wss://stream-testnet.bybit.com/realtime"
 	}
 	s := &WS{
@@ -165,8 +165,8 @@ func NewWS(accessKey string, secretKey string, testnet bool) *WS {
 	}
 	cfg := &bws.Configuration{
 		Addr:          wsURL,
-		ApiKey:        accessKey,
-		SecretKey:     secretKey,
+		ApiKey:        params.AccessKey,
+		SecretKey:     params.SecretKey,
 		AutoReconnect: true,
 	}
 	ws := bws.New(cfg)

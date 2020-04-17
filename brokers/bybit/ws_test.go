@@ -8,7 +8,14 @@ import (
 )
 
 func TestNewWS(t *testing.T) {
-	ws := NewWS("6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF", true)
+	params := &Parameters{
+		HttpClient: nil,
+		AccessKey:  "6IASD6KDBdunn5qLpT",
+		SecretKey:  "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF",
+		Passphrase: "",
+		Testnet:    true,
+	}
+	ws := NewWS(params)
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {
 		log.Printf("%#v", ob)
 	})

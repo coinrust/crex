@@ -39,10 +39,10 @@ func (s *BasicStrategy) OnDeinit() {
 }
 
 func main() {
-	accessKey := "[accessKey]"
-	secretKey := "[secretKey]"
 	broker := brokers.New(brokers.Deribit,
-		accessKey, secretKey, true, nil)
+		//ApiAccessKeyOption("[accessKey]"),
+		//ApiSecretKeyOption("[secretKey]"),
+		ApiTestnetOption(true))
 
 	s := &BasicStrategy{}
 	s.Setup(TradeModeLiveTrading, broker)

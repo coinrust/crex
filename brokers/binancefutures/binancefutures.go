@@ -392,8 +392,8 @@ func (b *BinanceFutures) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(accessKey string, secretKey string) *BinanceFutures {
-	client := futures.NewClient(accessKey, secretKey)
+func New(params *Parameters) *BinanceFutures {
+	client := futures.NewClient(params.AccessKey, params.SecretKey)
 	return &BinanceFutures{
 		client: client,
 	}

@@ -16,9 +16,11 @@ func newForTest() Broker {
 		log.Panic(err)
 	}
 
-	accessKey := viper.GetString("access_key")
-	secretKey := viper.GetString("secret_key")
-	return New(accessKey, secretKey, true)
+	params := &Parameters{}
+	params.AccessKey = viper.GetString("access_key")
+	params.SecretKey = viper.GetString("secret_key")
+	params.Testnet = true
+	return New(params)
 }
 
 func TestHBDMSwap_GetRecords(t *testing.T) {

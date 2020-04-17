@@ -13,11 +13,8 @@ import (
 
 // OKEXSwap the OKEX swap broker
 type OKEXSwap struct {
-	client     *okex.Client
-	accessKey  string
-	secretKey  string
-	passphrase string
-	testnet    bool
+	client *okex.Client
+	params *Parameters
 
 	pair          string // contract pair 合约交易对
 	contractType  string // contract type 合约类型
@@ -386,7 +383,7 @@ func (b *OKEXSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
 }
 
 func (b *OKEXSwap) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey, b.passphrase, b.testnet)
+	ws = NewWS(b.params)
 	return
 }
 
@@ -394,28 +391,26 @@ func (b *OKEXSwap) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(accessKey string, secretKey string, passphrase string, testnet bool) *OKEXSwap {
+func New(params *Parameters) *OKEXSwap {
 	baseUri := "https://www.okex.com"
-	if testnet {
+	if params.Testnet {
 		baseUri = "https://testnet.okex.me"
 	}
 	config := okex.Config{
 		Endpoint:      baseUri,
 		WSEndpoint:    "",
-		ApiKey:        accessKey,
-		SecretKey:     secretKey,
-		Passphrase:    passphrase,
+		ApiKey:        params.AccessKey,
+		SecretKey:     params.SecretKey,
+		Passphrase:    params.Passphrase,
 		TimeoutSecond: 45,
 		IsPrint:       false,
 		I18n:          okex.ENGLISH,
 		ProxyURL:      "",
+		HTTPClient:    params.HttpClient,
 	}
 	client := okex.NewClient(config)
 	return &OKEXSwap{
-		client:     client,
-		accessKey:  accessKey,
-		secretKey:  secretKey,
-		passphrase: passphrase,
-		testnet:    testnet,
+		client: client,
+		params: params,
 	}
 }

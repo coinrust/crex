@@ -1,5 +1,54 @@
 package crex
 
+import "net/http"
+
+type Parameters struct {
+	HttpClient *http.Client
+	DebugMode  bool
+	AccessKey  string
+	SecretKey  string
+	Passphrase string
+	Testnet    bool
+}
+
+type ApiOption func(p *Parameters)
+
+func ApiDebugModeOption(debugMode bool) ApiOption {
+	return func(p *Parameters) {
+		p.DebugMode = debugMode
+	}
+}
+
+func ApiHttpClientOption(httpClient *http.Client) ApiOption {
+	return func(p *Parameters) {
+		p.HttpClient = httpClient
+	}
+}
+
+func ApiAccessKeyOption(accessKey string) ApiOption {
+	return func(p *Parameters) {
+		p.AccessKey = accessKey
+	}
+}
+
+func ApiSecretKeyOption(secretKey string) ApiOption {
+	return func(p *Parameters) {
+		p.SecretKey = secretKey
+	}
+}
+
+func ApiPassPhraseOption(passPhrase string) ApiOption {
+	return func(p *Parameters) {
+		p.Passphrase = passPhrase
+	}
+}
+
+func ApiTestnetOption(testnet bool) ApiOption {
+	return func(p *Parameters) {
+		p.Testnet = testnet
+	}
+}
+
 // Broker 交易所接口
 type Broker interface {
 	// 获取当前Broker名称

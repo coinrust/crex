@@ -2,6 +2,12 @@ package crex
 
 import "time"
 
+type AccountSummary struct {
+	Balance float64
+	Pnl     float64
+	Equity  float64
+}
+
 type Item struct {
 	Price  float64
 	Amount float64

@@ -7,9 +7,12 @@ import (
 )
 
 func newForTest() *BitMEX {
-	apiKey := "eEtTUdma5LgAmryFerX-DAdp"
-	secretKey := "kPjKmu-EIe1E73poRTnUraQWCMWbRq7PZ2-bzP8cnemniMXu"
-	b := New(apiKey, secretKey, true)
+	params := &Parameters{
+		AccessKey: "eEtTUdma5LgAmryFerX-DAdp",
+		SecretKey: "kPjKmu-EIe1E73poRTnUraQWCMWbRq7PZ2-bzP8cnemniMXu",
+		Testnet:   true,
+	}
+	b := New(params)
 	b.client.SetProxy("127.0.0.1:1080")
 	return b
 }

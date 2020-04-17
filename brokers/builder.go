@@ -13,57 +13,62 @@ import (
 	"github.com/coinrust/crex/brokers/okexswap"
 )
 
-func New(name string, accessKey string, secret string, testnet bool, params map[string]string) Broker {
+func New(name string, opts ...ApiOption) Broker {
+	params := &Parameters{}
+
+	for _, opt := range opts {
+		opt(params)
+	}
+
+	return NewFromParameters(name, params)
+}
+
+func NewWS(name string, opts ...ApiOption) WebSocket {
+	params := &Parameters{}
+
+	for _, opt := range opts {
+		opt(params)
+	}
+
+	return NewWSFromParameters(name, params)
+}
+
+func NewFromParameters(name string, params *Parameters) Broker {
 	switch name {
 	case BinanceFutures:
-		return binancefutures.New(accessKey, secret)
+		return binancefutures.New(params)
 	case BitMEX:
-		return bitmex.New(accessKey, secret, testnet)
+		return bitmex.New(params)
 	case Deribit:
-		return deribit.New(accessKey, secret, testnet)
+		return deribit.New(params)
 	case Bybit:
-		return bybit.New(accessKey, secret, testnet)
+		return bybit.New(params)
 	case HBDM:
-		return hbdm.New(accessKey, secret, testnet)
+		return hbdm.New(params)
 	case HBDMSwap:
-		return hbdmswap.New(accessKey, secret, testnet)
+		return hbdmswap.New(params)
 	case OKEXFutures:
-		passphrase := getParamsString(params, "passphrase")
-		return okexfutures.New(accessKey, secret, passphrase, testnet)
+		return okexfutures.New(params)
 	case OKEXSwap:
-		passphrase := getParamsString(params, "passphrase")
-		return okexswap.New(accessKey, secret, passphrase, testnet)
+		return okexswap.New(params)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", name))
 	}
 }
 
-func NewWS(name string, accessKey string, secret string, testnet bool, params map[string]string) WebSocket {
+func NewWSFromParameters(name string, params *Parameters) WebSocket {
 	switch name {
 	case Bybit:
-		return bybit.NewWS(accessKey, secret, testnet)
+		return bybit.NewWS(params)
 	case HBDM:
-		return hbdm.NewWS(accessKey, secret, testnet)
+		return hbdm.NewWS(params)
 	case HBDMSwap:
-		return hbdmswap.NewWS(accessKey, secret, testnet)
+		return hbdmswap.NewWS(params)
 	case OKEXFutures:
-		passphrase := getParamsString(params, "passphrase")
-		return okexfutures.NewWS(accessKey, secret, passphrase, testnet)
+		return okexfutures.NewWS(params)
 	case OKEXSwap:
-		passphrase := getParamsString(params, "passphrase")
-		return okexswap.NewWS(accessKey, secret, passphrase, testnet)
+		return okexswap.NewWS(params)
 	default:
 		panic(fmt.Sprintf("broker error [%v]", name))
-	}
-}
-
-func getParamsString(params map[string]string, key string) string {
-	if params == nil {
-		return ""
-	}
-	if v, ok := params["passphrase"]; ok {
-		return v
-	} else {
-		return ""
 	}
 }

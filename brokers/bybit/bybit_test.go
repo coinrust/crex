@@ -7,7 +7,12 @@ import (
 )
 
 func newForTest() Broker {
-	b := New("6IASD6KDBdunn5qLpT", "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF", true)
+	params := &Parameters{
+		AccessKey: "6IASD6KDBdunn5qLpT",
+		SecretKey: "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF",
+		Testnet:   true,
+	}
+	b := New(params)
 	return b
 }
 

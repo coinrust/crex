@@ -87,10 +87,10 @@ func (s *BasicStrategy) OnDeinit() {
 }
 
 func main() {
-	accessKey := "[accessKey]"
-	secretKey := "[secretKey]"
 	broker := brokers.New(brokers.Deribit,
-		accessKey, secretKey, true, map[string]string{})
+		//ApiAccessKeyOption("[accessKey]"),
+		//ApiSecretKeyOption("[secretKey]"),
+		ApiTestnetOption(true))
 
 	s := &BasicStrategy{}
 	s.Setup(TradeModeLiveTrading, broker)
@@ -115,7 +115,9 @@ import (
 
 func main() {
 	ws := brokers.NewWS(brokers.HBDM,
-		"[accessKey]", "[secretKey]", false, nil)
+		//ApiAccessKeyOption("[accessKey]"),
+		//ApiSecretKeyOption("[secretKey]"),
+		ApiTestnetOption(false))
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {
@@ -127,12 +129,12 @@ func main() {
 	})
 
 	// 订单事件方法
-	ws.On(WSEventOrder, func(order *Order) {
-		log.Printf("order: %#v", order)
+	ws.On(WSEventOrder, func(orders []Order) {
+		log.Printf("orders: %#v", orders)
 	})
 	// 持仓事件方法
-	ws.On(WSEventPosition, func(position *Position) {
-		log.Printf("position: %#v", position)
+	ws.On(WSEventPosition, func(positions []Position) {
+		log.Printf("positions: %#v", positions)
 	})
 
 	// 订阅订单薄

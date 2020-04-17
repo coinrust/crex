@@ -15,9 +15,11 @@ func newTestWS() *WS {
 		log.Panic(err)
 	}
 
-	accessKey := viper.GetString("access_key")
-	secretKey := viper.GetString("secret_key")
-	ws := NewWS(accessKey, secretKey, true)
+	params := &Parameters{}
+	params.AccessKey = viper.GetString("access_key")
+	params.SecretKey = viper.GetString("secret_key")
+	params.Testnet = true
+	ws := NewWS(params)
 	return ws
 }
 

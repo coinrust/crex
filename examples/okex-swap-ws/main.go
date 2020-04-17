@@ -7,11 +7,10 @@ import (
 )
 
 func main() {
-	params := map[string]string{}
-	params["passphrase"] = "[passphrase]"
-
 	ws := brokers.NewWS(brokers.OKEXSwap,
-		"[accessKey]", "[secretKey]", false, params)
+		ApiAccessKeyOption("[accessKey]"),
+		ApiSecretKeyOption("[secretKey]"),
+		ApiPassPhraseOption("[passphrase]"))
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {

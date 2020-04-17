@@ -363,15 +363,15 @@ func (b *Diribit) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(accessKey string, secretKey string, testnet bool) *Diribit {
+func New(params *Parameters) *Diribit {
 	baseUri := "wss://www.deribit.com/ws/api/v2/"
-	if testnet {
+	if params.Testnet {
 		baseUri = "wss://test.deribit.com/ws/api/v2/"
 	}
 	cfg := &deribit.Configuration{
 		Addr:          baseUri,
-		ApiKey:        accessKey,
-		SecretKey:     secretKey,
+		ApiKey:        params.AccessKey,
+		SecretKey:     params.SecretKey,
 		AutoReconnect: true,
 	}
 	client := deribit.New(cfg)

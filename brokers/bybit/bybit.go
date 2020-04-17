@@ -11,11 +11,9 @@ import (
 
 // Bybit the Bybit broker
 type Bybit struct {
-	client    *rest.ByBit
-	accessKey string
-	secretKey string
-	testnet   bool
-	symbol    string
+	client *rest.ByBit
+	params *Parameters
+	symbol string
 }
 
 func (b *Bybit) GetName() (name string) {
@@ -352,7 +350,7 @@ func (b *Bybit) orderStatus(orderStatus string) OrderStatus {
 }
 
 func (b *Bybit) WS() (ws WebSocket, err error) {
-	ws = NewWS(b.accessKey, b.secretKey, b.testnet)
+	ws = NewWS(b.params)
 	return
 }
 
@@ -360,12 +358,12 @@ func (b *Bybit) RunEventLoopOnce() (err error) {
 	return
 }
 
-func New(accessKey string, secretKey string, testnet bool) *Bybit {
+func New(params *Parameters) *Bybit {
 	baseUri := "https://api.bybit.com/"
-	if testnet {
+	if params.Testnet {
 		baseUri = "https://api-testnet.bybit.com/"
 	}
-	client := rest.New(baseUri, accessKey, secretKey)
+	client := rest.New(params.HttpClient, baseUri, params.AccessKey, params.SecretKey)
 	for i := 0; i < 3; i++ {
 		err := client.SetCorrectServerTime()
 		if err != nil {
@@ -374,9 +372,7 @@ func New(accessKey string, secretKey string, testnet bool) *Bybit {
 		}
 	}
 	return &Bybit{
-		client:    client,
-		accessKey: accessKey,
-		secretKey: secretKey,
-		testnet:   testnet,
+		client: client,
+		params: params,
 	}
 }

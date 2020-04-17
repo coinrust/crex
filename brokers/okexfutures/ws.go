@@ -188,12 +188,13 @@ func (s *WS) positionsCallback(positions []okex.WSFuturesPosition) {
 	s.emitter.Emit(WSEventPosition, eventData)
 }
 
-func NewWS(accessKey string, secretKey string, passphrase string, testnet bool) *WS {
+func NewWS(params *Parameters) *WS {
 	wsURL := "wss://real.okex.com:8443/ws/v3"
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}
-	ws := okex.NewFuturesWS(wsURL, accessKey, secretKey, passphrase)
+	ws := okex.NewFuturesWS(wsURL,
+		params.AccessKey, params.SecretKey, params.Passphrase)
 	ws.SetDepth20SnapshotCallback(s.depth20SnapshotCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.SetOrderCallback(s.ordersCallback)

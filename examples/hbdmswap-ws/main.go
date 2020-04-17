@@ -8,7 +8,9 @@ import (
 
 func main() {
 	ws := brokers.NewWS(brokers.HBDMSwap,
-		"", "", false, nil)
+		//ApiAccessKeyOption("[accessKey]"),
+		//ApiSecretKeyOption("[secretKey]"),
+		ApiTestnetOption(false))
 
 	// 订单薄事件方法
 	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {

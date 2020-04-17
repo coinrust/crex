@@ -7,9 +7,12 @@ import (
 )
 
 func newForTest() Broker {
-	apiKey := "AsJTU16U"
-	secretKey := "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U"
-	b := New(apiKey, secretKey, true)
+	params := &Parameters{
+		AccessKey: "AsJTU16U",
+		SecretKey: "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U",
+		Testnet:   true,
+	}
+	b := New(params)
 	return b
 }
 
