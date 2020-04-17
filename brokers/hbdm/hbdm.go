@@ -465,6 +465,7 @@ func New(params *Parameters) *HBDM {
 		EnablePrivateSign:  false,
 		Url:                baseUri,
 		PrivateKeyPrime256: "",
+		HttpClient:         params.HttpClient,
 	}
 	client := hbdm.NewClient(apiParams)
 	return &HBDM{

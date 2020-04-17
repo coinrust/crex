@@ -421,6 +421,7 @@ func New(params *Parameters) *HBDMSwap {
 		EnablePrivateSign:  false,
 		Url:                baseUri,
 		PrivateKeyPrime256: "",
+		HttpClient:         params.HttpClient,
 	}
 	client := hbdmswap.NewClient(apiParams)
 	return &HBDMSwap{
