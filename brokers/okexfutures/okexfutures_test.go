@@ -17,11 +17,11 @@ func newForTest() Broker {
 		log.Panic(err)
 	}
 
-	accessKey := viper.GetString("access_key")
-	secretKey := viper.GetString("secret_key")
-	passphrase := viper.GetString("passphrase")
-	baseURL := "https://www.okex.me" // https://www.okex.com
-	return New(baseURL, accessKey, secretKey, passphrase)
+	params := &Parameters{}
+	params.AccessKey = viper.GetString("access_key")
+	params.SecretKey = viper.GetString("secret_key")
+	params.Passphrase = viper.GetString("passphrase")
+	return New(params)
 }
 
 func TestGetAccountSummary(t *testing.T) {
