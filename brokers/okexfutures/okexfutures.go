@@ -399,6 +399,9 @@ func (b *OKEXFutures) orderDirection(order *okex.FuturesGetOrderResult) Directio
 }
 
 func (b *OKEXFutures) orderType(order *okex.FuturesGetOrderResult) OrderType {
+	if order.OrderType == 4 {
+		return OrderTypeMarket
+	}
 	return OrderTypeLimit
 }
 
