@@ -17,13 +17,11 @@ func newForTest() Broker {
 		log.Panic(err)
 	}
 
-	params := &Parameters{}
-	params.AccessKey = viper.GetString("access_key")
-	params.SecretKey = viper.GetString("secret_key")
-	params.Passphrase = viper.GetString("passphrase")
-	params.Testnet = true
-
-	return New(params)
+	accessKey := viper.GetString("access_key")
+	secretKey := viper.GetString("secret_key")
+	passphrase := viper.GetString("passphrase")
+	baseURL := "https://www.okex.me" // https://www.okex.com
+	return New(baseURL, accessKey, secretKey, passphrase)
 }
 
 func TestGetAccountSummary(t *testing.T) {
@@ -149,10 +147,10 @@ func TestOKEXFutures_CancelOrder(t *testing.T) {
 func TestOKEXFutures_GetPosition(t *testing.T) {
 	b := newForTest()
 	symbol := "BTC-USD-200327"
-	positions, err := b.GetPositions(symbol)
+	position, err := b.GetPosition(symbol)
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", positions)
+	t.Logf("%#v", position)
 }
