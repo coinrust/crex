@@ -24,14 +24,14 @@ func newTestBroker() Broker {
 	return New(params)
 }
 
-func TestGetAccountSummary(t *testing.T) {
+func TestGetBalance(t *testing.T) {
 	b := newTestBroker()
-	accountSummary, err := b.GetAccountSummary("BTC-USD-SWAP")
+	balance, err := b.GetBalance("BTC-USD-SWAP")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", accountSummary)
+	t.Logf("%#v", balance)
 }
 
 func TestGetOrderBook(t *testing.T) {

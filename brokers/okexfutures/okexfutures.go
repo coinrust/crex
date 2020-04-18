@@ -26,16 +26,14 @@ func (b *OKEXFutures) GetName() (name string) {
 	return "okexfutures"
 }
 
-func (b *OKEXFutures) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *OKEXFutures) GetBalance(currency string) (result Balance, err error) {
 	var account okex.FuturesCurrencyAccount
 	account, err = b.client.GetFuturesAccountsByCurrency(currency)
 	if err != nil {
 		return
 	}
 
-	result.Equity = account.Equity
-	result.Balance = account.TotalAvailBalance
-	result.Pnl = account.RealizedPnl
+	result.Total = account.Equity
 
 	return
 }

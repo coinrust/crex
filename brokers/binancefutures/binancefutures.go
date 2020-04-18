@@ -41,7 +41,7 @@ func (b *BinanceFutures) SetProxy(proxyURL string) error {
 }
 
 // currency: USDT
-func (b *BinanceFutures) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *BinanceFutures) GetBalance(currency string) (result Balance, err error) {
 	var res []*futures.Balance
 	res, err = b.client.NewGetBalanceService().
 		Do(context.Background())
@@ -50,8 +50,7 @@ func (b *BinanceFutures) GetAccountSummary(currency string) (result AccountSumma
 	}
 	for _, v := range res {
 		if v.Asset == currency { // USDT
-			result.Equity = util.ParseFloat64(v.Balance)
-			result.Balance = result.Equity
+			result.Total = util.ParseFloat64(v.Balance)
 			break
 		}
 	}

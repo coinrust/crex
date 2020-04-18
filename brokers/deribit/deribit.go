@@ -56,7 +56,7 @@ func (b *Diribit) handleOrderBook(m *models.OrderBookNotification) {
 	b.emitter.Emit("orderbook", &ob)
 }
 
-func (b *Diribit) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *Diribit) GetBalance(currency string) (result Balance, err error) {
 	params := &models.GetAccountSummaryParams{
 		Currency: currency,
 		Extended: false,
@@ -66,9 +66,7 @@ func (b *Diribit) GetAccountSummary(currency string) (result AccountSummary, err
 	if err != nil {
 		return
 	}
-	result.Equity = ret.Equity
-	result.Balance = ret.Balance
-	result.Pnl = ret.TotalPl
+	result.Total = ret.Equity
 	return
 }
 

@@ -26,7 +26,7 @@ func (b *HBDM) GetName() (name string) {
 	return "hbdm"
 }
 
-func (b *HBDM) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *HBDM) GetBalance(currency string) (result Balance, err error) {
 	var account hbdm.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)
 	if err != nil {
@@ -42,9 +42,7 @@ func (b *HBDM) GetAccountSummary(currency string) (result AccountSummary, err er
 
 	for _, v := range account.Data {
 		if v.Symbol == currency {
-			result.Equity = v.MarginBalance
-			result.Balance = v.MarginAvailable
-			result.Pnl = v.ProfitReal
+			result.Total = v.MarginBalance
 			break
 		}
 	}

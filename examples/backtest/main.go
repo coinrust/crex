@@ -20,8 +20,8 @@ func (s *BasicStrategy) OnTick() {
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
-	s.Brokers[0].GetAccountSummary(currency)
-	s.Brokers[1].GetAccountSummary(currency)
+	s.Brokers[0].GetBalance(currency)
+	s.Brokers[1].GetBalance(currency)
 
 	s.Brokers[0].GetOrderBook(symbol, 10)
 	s.Brokers[1].GetOrderBook(symbol, 10)

@@ -26,7 +26,7 @@ func (b *OKEXSwap) GetName() (name string) {
 	return "okexswap"
 }
 
-func (b *OKEXSwap) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *OKEXSwap) GetBalance(currency string) (result Balance, err error) {
 	var account okex.SwapAccount
 	account, err = b.client.GetSwapAccount(currency)
 	if err != nil {
@@ -34,8 +34,9 @@ func (b *OKEXSwap) GetAccountSummary(currency string) (result AccountSummary, er
 	}
 
 	result.Equity, _ = strconv.ParseFloat(account.Info.Equity, 64)
-	result.Balance, _ = strconv.ParseFloat(account.Info.TotalAvailBalance, 64)
-	result.Pnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
+	result.Available, _ = strconv.ParseFloat(account.Info.TotalAvailBalance, 64)
+	result.Total = result.Available
+	//result.Pnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
 
 	return
 }

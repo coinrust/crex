@@ -2,10 +2,12 @@ package crex
 
 import "time"
 
-type AccountSummary struct {
-	Balance float64
-	Pnl     float64
-	Equity  float64
+type Balance struct {
+	Equity        float64 // 净值
+	Total         float64 // 钱包余额（可用+锁定）
+	Available     float64 // 可用净值
+	RealizedPnl   float64
+	UnrealisedPnl float64
 }
 
 type Item struct {

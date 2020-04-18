@@ -24,14 +24,14 @@ func newForTest() Broker {
 	return New(params)
 }
 
-func TestGetAccountSummary(t *testing.T) {
+func TestGetBalance(t *testing.T) {
 	b := newForTest()
-	accountSummary, err := b.GetAccountSummary("BTC")
+	balance, err := b.GetBalance("BTC")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", accountSummary)
+	t.Logf("%#v", balance)
 }
 
 func TestGetOrderBook(t *testing.T) {
@@ -147,7 +147,7 @@ func TestOKEXFutures_CancelOrder(t *testing.T) {
 func TestOKEXFutures_GetPosition(t *testing.T) {
 	b := newForTest()
 	symbol := "BTC-USD-200327"
-	position, err := b.GetPosition(symbol)
+	position, err := b.GetPositions(symbol)
 	if err != nil {
 		t.Error(err)
 		return

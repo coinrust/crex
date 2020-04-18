@@ -18,15 +18,13 @@ func (b *BitMEX) GetName() (name string) {
 	return "bitmex"
 }
 
-func (b *BitMEX) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *BitMEX) GetBalance(currency string) (result Balance, err error) {
 	var margin swagger.Margin
 	margin, err = b.client.GetMargin()
 	if err != nil {
 		return
 	}
-	result.Equity = float64(margin.MarginBalance)
-	result.Balance = float64(margin.WalletBalance)
-	result.Pnl = 0
+	result.Total = float64(margin.MarginBalance)
 	return
 }
 

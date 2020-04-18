@@ -67,11 +67,11 @@ func (s *BasicStrategy) OnTick() {
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
-	accountSummary, err := s.Broker.GetAccountSummary(currency)
+	balance, err := s.Broker.GetBalance(currency)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("accountSummary: %#v", accountSummary)
+	log.Printf("balance: %#v", balance)
 
 	s.Broker.GetOrderBook(symbol, 10)
 

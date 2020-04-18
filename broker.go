@@ -54,8 +54,8 @@ type Broker interface {
 	// 获取当前Broker名称
 	GetName() (name string)
 
-	// 获取账号信息
-	GetAccountSummary(currency string) (result AccountSummary, err error)
+	// 获取账号余额
+	GetBalance(currency string) (result Balance, err error)
 
 	// 获取订单薄(OrderBook)
 	GetOrderBook(symbol string, depth int) (result OrderBook, err error)

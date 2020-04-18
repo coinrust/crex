@@ -32,14 +32,14 @@ func newTestBroker() Broker {
 	return b
 }
 
-func TestBinanceFutures_GetAccountSummary(t *testing.T) {
+func TestBinanceFutures_GetBalance(t *testing.T) {
 	b := newTestBroker()
-	accountSummary, err := b.GetAccountSummary("USDT")
+	balance, err := b.GetBalance("USDT")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", accountSummary)
+	t.Logf("%#v", balance)
 }
 
 func TestBinanceFutures_GetOrderBook(t *testing.T) {

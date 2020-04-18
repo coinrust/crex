@@ -20,16 +20,14 @@ func (b *Bybit) GetName() (name string) {
 	return "bybit"
 }
 
-func (b *Bybit) GetAccountSummary(currency string) (result AccountSummary, err error) {
+func (b *Bybit) GetBalance(currency string) (result Balance, err error) {
 	var balance rest.Balance
 	balance, err = b.client.GetWalletBalance(currency)
 	if err != nil {
 		return
 	}
 
-	result.Equity = balance.Equity
-	result.Balance = balance.WalletBalance
-	result.Pnl = balance.UnrealisedPnl
+	result.Total = balance.Equity
 	return
 }
 

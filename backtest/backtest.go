@@ -95,13 +95,13 @@ func (b *Backtest) addItemStats() {
 func (b *Backtest) fetchItemStats(item *LogItem) {
 	n := len(b.brokers)
 	for i := 0; i < n; i++ {
-		accountSummary, err := b.brokers[i].GetAccountSummary("BTC")
+		balance, err := b.brokers[i].GetBalance("BTC")
 		if err != nil {
 			log.Fatal(err)
 		}
 		item.Stats = append(item.Stats, LogStats{
-			Balance: accountSummary.Balance,
-			Equity:  accountSummary.Equity,
+			Balance: balance.Total,
+			Equity:  balance.Total,
 		})
 	}
 }

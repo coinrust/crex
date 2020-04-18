@@ -23,14 +23,14 @@ func newForTest() Broker {
 	return New(params)
 }
 
-func TestHBDM_GetAccountSummary(t *testing.T) {
+func TestHBDM_GetBalance(t *testing.T) {
 	b := newForTest()
-	accountSummary, err := b.GetAccountSummary("BTC")
+	balance, err := b.GetBalance("BTC")
 	if err != nil {
 		t.Error(err)
 		return
 	}
-	t.Logf("%#v", accountSummary)
+	t.Logf("%#v", balance)
 }
 
 func TestHBDM_GetOrderBook(t *testing.T) {
