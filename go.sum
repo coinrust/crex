@@ -110,6 +110,8 @@ github.com/frankrap/bybit-api v0.0.0-20200415061053-a576e26e94f0 h1:hlynrxtCNbUQ
 github.com/frankrap/bybit-api v0.0.0-20200415061053-a576e26e94f0/go.mod h1:M+CA+BbtQR1EpRnMG7BVT/bvK5X+t9OAGUIYTYbC9ek=
 github.com/frankrap/bybit-api v0.0.0-20200417022113-382325f8ba21 h1:ppOAIDASC0kKc606jMxrSFgNTUqWmvKs8FTLkRaXBZA=
 github.com/frankrap/bybit-api v0.0.0-20200417022113-382325f8ba21/go.mod h1:h/dzciYAmmAlWp3c2S518fiKzmjjSiF7FMSdOvsjmyc=
+github.com/frankrap/bybit-api v0.0.0-20200418112850-376caa82768b h1:gj2kwaH5t43TwujN4e8w09Lac3k42po8aQabt7Cl9k8=
+github.com/frankrap/bybit-api v0.0.0-20200418112850-376caa82768b/go.mod h1:xUtWMANwTNW1dQBN3t5OYcht4q4ARkr/0w0mTnNaQJU=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
@@ -589,6 +591,7 @@ honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+nhooyr.io/websocket v1.7.2 h1:aIkwzOCACzgKF5DMqGA9pvJoJCiP0GsBeomGWVexRTc=
 nhooyr.io/websocket v1.7.2/go.mod h1:FyTYp9aYEPchTiPpXj2mOOnHJ49S35YStWZCjotwizg=
 nhooyr.io/websocket v1.7.4 h1:w/LGB2sZT0RV8lZYR7nfyaYz4PUbYZ5oF7NBon2M0NY=
 nhooyr.io/websocket v1.7.4/go.mod h1:PxYxCwFdFYQ0yRvtQz3s/dC+VEm7CSuC/4b9t8MQQxw=
