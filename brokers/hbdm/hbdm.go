@@ -42,7 +42,10 @@ func (b *HBDM) GetBalance(currency string) (result Balance, err error) {
 
 	for _, v := range account.Data {
 		if v.Symbol == currency {
-			result.Total = v.MarginBalance
+			result.Equity = v.MarginBalance
+			result.Available = v.MarginBalance
+			result.RealizedPnl = v.ProfitReal
+			result.UnrealisedPnl = v.ProfitUnreal
 			break
 		}
 	}

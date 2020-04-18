@@ -41,7 +41,7 @@ func (b *BitMEXSim) GetName() (name string) {
 }
 
 func (b *BitMEXSim) GetBalance(currency string) (result Balance, err error) {
-	result.Total = b.balance
+	result.Available = b.balance
 	var symbol string
 	if currency == "XBT" || currency == "BTC" {
 		symbol = "XBTUSD"
@@ -56,7 +56,7 @@ func (b *BitMEXSim) GetBalance(currency string) (result Balance, err error) {
 		price = ob.BidPrice()
 	}
 	pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price)
-	result.Total = result.Total + pnl
+	result.Equity = result.Available + pnl
 	return
 }
 

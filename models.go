@@ -4,8 +4,7 @@ import "time"
 
 type Balance struct {
 	Equity        float64 // 净值
-	Total         float64 // 钱包余额（可用+锁定）
-	Available     float64 // 可用净值
+	Available     float64 // 可用余额
 	RealizedPnl   float64
 	UnrealisedPnl float64
 }

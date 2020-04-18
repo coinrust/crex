@@ -33,7 +33,10 @@ func (b *OKEXFutures) GetBalance(currency string) (result Balance, err error) {
 		return
 	}
 
-	result.Total = account.Equity
+	result.Equity = account.Equity
+	result.Available = account.TotalAvailBalance
+	result.RealizedPnl = account.RealizedPnl
+	result.UnrealisedPnl = account.UnRealizedPnl
 
 	return
 }

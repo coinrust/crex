@@ -24,7 +24,10 @@ func (b *BitMEX) GetBalance(currency string) (result Balance, err error) {
 	if err != nil {
 		return
 	}
-	result.Total = float64(margin.MarginBalance)
+	result.Equity = float64(margin.MarginBalance)
+	result.Available = float64(margin.AvailableMargin)
+	result.RealizedPnl = float64(margin.RealisedPnl)
+	result.UnrealisedPnl = float64(margin.UnrealisedPnl)
 	return
 }
 

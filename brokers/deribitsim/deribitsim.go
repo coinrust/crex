@@ -39,7 +39,7 @@ func (b *DiribitSim) GetName() (name string) {
 }
 
 func (b *DiribitSim) GetBalance(currency string) (result Balance, err error) {
-	result.Total = b.balance
+	result.Available = b.balance
 	var symbol string
 	if currency == "BTC" {
 		symbol = "BTC-PERPETUAL"
@@ -56,7 +56,7 @@ func (b *DiribitSim) GetBalance(currency string) (result Balance, err error) {
 		price = ob.BidPrice()
 	}
 	pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price)
-	result.Total = result.Total + pnl
+	result.Equity = result.Available + pnl
 	return
 }
 

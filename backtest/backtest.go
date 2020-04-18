@@ -100,8 +100,8 @@ func (b *Backtest) fetchItemStats(item *LogItem) {
 			log.Fatal(err)
 		}
 		item.Stats = append(item.Stats, LogStats{
-			Balance: balance.Total,
-			Equity:  balance.Total,
+			Balance: balance.Available,
+			Equity:  balance.Equity,
 		})
 	}
 }

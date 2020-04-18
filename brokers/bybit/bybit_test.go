@@ -16,6 +16,16 @@ func newForTest() Broker {
 	return b
 }
 
+func TestBybit_GetBalance(t *testing.T) {
+	b := newForTest()
+	balance, err := b.GetBalance("BTC")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", balance)
+}
+
 func TestBybit_GetOpenOrders(t *testing.T) {
 	b := newForTest()
 	orders, err := b.GetOpenOrders("BTCUSD")

@@ -66,7 +66,10 @@ func (b *Diribit) GetBalance(currency string) (result Balance, err error) {
 	if err != nil {
 		return
 	}
-	result.Total = ret.Equity
+	result.Equity = ret.Equity
+	result.Available = ret.Balance
+	result.RealizedPnl = ret.SessionRpl
+	result.UnrealisedPnl = ret.SessionUpl
 	return
 }
 

@@ -27,7 +27,10 @@ func (b *Bybit) GetBalance(currency string) (result Balance, err error) {
 		return
 	}
 
-	result.Total = balance.Equity
+	result.Equity = balance.Equity
+	result.Available = balance.AvailableBalance
+	result.RealizedPnl = balance.RealisedPnl
+	result.UnrealisedPnl = balance.UnrealisedPnl
 	return
 }
 

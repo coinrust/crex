@@ -35,8 +35,8 @@ func (b *OKEXSwap) GetBalance(currency string) (result Balance, err error) {
 
 	result.Equity, _ = strconv.ParseFloat(account.Info.Equity, 64)
 	result.Available, _ = strconv.ParseFloat(account.Info.TotalAvailBalance, 64)
-	result.Total = result.Available
-	//result.Pnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
+	result.RealizedPnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
+	result.UnrealisedPnl, _ = strconv.ParseFloat(account.Info.UnrealizedPnl, 64)
 
 	return
 }
