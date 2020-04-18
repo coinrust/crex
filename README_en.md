@@ -196,9 +196,6 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 QQ group: [932289088](https://jq.qq.com/?_wv=1027&k=5rg0FEK)
 
 ### Donate
-
-Feel free to donate:
-
 | METHOD  | ADDRESS                                     |
 |-------- |-------------------------------------------- |
 | BTC     | 1Nk4AsGj5HEJ5csRenTUPab1sjUySCZ3Pq          |
