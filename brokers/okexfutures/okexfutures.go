@@ -449,7 +449,7 @@ func (b *OKEXFutures) RunEventLoopOnce() (err error) {
 func New(params *Parameters) *OKEXFutures {
 	baseUri := "https://www.okex.com"
 	if params.Testnet {
-		baseUri = "https://testnet.okex.me"
+		baseUri = "https://testnet.okex.com"
 	}
 	config := okex.Config{
 		Endpoint:      baseUri,
@@ -460,7 +460,7 @@ func New(params *Parameters) *OKEXFutures {
 		TimeoutSecond: 45,
 		IsPrint:       false,
 		I18n:          okex.ENGLISH,
-		ProxyURL:      "",
+		ProxyURL:      params.ProxyURL,
 		HTTPClient:    params.HttpClient,
 	}
 	client := okex.NewClient(config)

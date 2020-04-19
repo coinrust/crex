@@ -181,13 +181,16 @@ func (s *WS) positionsCallback(positions []okex.WSSwapPositionData) {
 	s.emitter.Emit(WSEventPosition, eventData)
 }
 
-func NewWS(parameters *Parameters) *WS {
+func NewWS(params *Parameters) *WS {
 	wsURL := "wss://real.okex.com:8443/ws/v3"
 	s := &WS{
 		emitter: emission.NewEmitter(),
 	}
 	ws := okex.NewSwapWS(wsURL,
-		parameters.AccessKey, parameters.SecretKey, parameters.Passphrase)
+		params.AccessKey, params.SecretKey, params.Passphrase)
+	if params.ProxyURL != "" {
+		ws.SetProxy(params.ProxyURL)
+	}
 	ws.SetDepth20SnapshotCallback(s.depth20SnapshotCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.SetOrderCallback(s.ordersCallback)

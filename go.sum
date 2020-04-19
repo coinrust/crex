@@ -112,6 +112,8 @@ github.com/frankrap/bybit-api v0.0.0-20200417022113-382325f8ba21 h1:ppOAIDASC0kK
 github.com/frankrap/bybit-api v0.0.0-20200417022113-382325f8ba21/go.mod h1:h/dzciYAmmAlWp3c2S518fiKzmjjSiF7FMSdOvsjmyc=
 github.com/frankrap/bybit-api v0.0.0-20200418112850-376caa82768b h1:gj2kwaH5t43TwujN4e8w09Lac3k42po8aQabt7Cl9k8=
 github.com/frankrap/bybit-api v0.0.0-20200418112850-376caa82768b/go.mod h1:xUtWMANwTNW1dQBN3t5OYcht4q4ARkr/0w0mTnNaQJU=
+github.com/frankrap/bybit-api v0.0.0-20200418232743-735bd31e7835 h1:GcJ8JoqRnlRnV8qdDbZTsO9k/ceH10ySfjnkWuIsjHs=
+github.com/frankrap/bybit-api v0.0.0-20200418232743-735bd31e7835/go.mod h1:s6fbTYrs3vjVxbL+uNE5miohj5leKUTi+mYXs6bXRuw=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797 h1:0/Ts8MnLdsFqr4+gRMdVMRphTbo5ta7L2UzQaP4pejI=
 github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797/go.mod h1:FY20fKyTOTqjkkBUFLeQ+6zoEoOYsUz3SLfPk5/CmTo=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
@@ -121,10 +123,16 @@ github.com/frankrap/huobi-api v0.0.0-20200417020645-5c96a195a830 h1:7ffK8PbKJZVX
 github.com/frankrap/huobi-api v0.0.0-20200417020645-5c96a195a830/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/huobi-api v0.0.0-20200417122418-da00ff646cbb h1:0HFLeZZKw1c3EAaHRkmyhxaLY4rr3bAbg47DZjjKkWA=
 github.com/frankrap/huobi-api v0.0.0-20200417122418-da00ff646cbb/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
+github.com/frankrap/huobi-api v0.0.0-20200419021029-98abd3f46cdf h1:AkNaIQM29VWCINJQwlYIEd8xPzApXCRZY1QUj3E5OLs=
+github.com/frankrap/huobi-api v0.0.0-20200419021029-98abd3f46cdf/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0 h1:t7eGZShd6RjD+v8ed8Hrt2f4lnQBS4yGMXGYfXVHbKI=
 github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
 github.com/frankrap/okex-api v0.0.0-20200417020035-a99bec82fe31 h1:lnIDfmbk7e+NJoYPObbyeKCSpXvUL/BQZ0M++NmzMwk=
 github.com/frankrap/okex-api v0.0.0-20200417020035-a99bec82fe31/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
+github.com/frankrap/okex-api v0.0.0-20200419021155-c711ce6628ef h1:cK3f/YVMCLMiUJPVWL6y4WZXKAJLY2+4x70LPeekrG4=
+github.com/frankrap/okex-api v0.0.0-20200419021155-c711ce6628ef/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
+github.com/frankrap/okex-api v0.0.0-20200419021534-ec49c279f3ab h1:cO3YgCb6NsXFbRNrbKs51Xcyb4RyglZn49Ew5wxbno8=
+github.com/frankrap/okex-api v0.0.0-20200419021534-ec49c279f3ab/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=
 github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMoQvtojpjFo=
 github.com/fsouza/go-dockerclient v1.4.4/go.mod h1:PrwszSL5fbmsESocROrOGq/NULMXRw+bajY0ltzD6MA=

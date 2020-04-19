@@ -3,8 +3,9 @@ package crex
 import "net/http"
 
 type Parameters struct {
-	HttpClient *http.Client
 	DebugMode  bool
+	HttpClient *http.Client
+	ProxyURL   string // socks5://127.0.0.1:1080 | http://127.0.0.1:1080
 	AccessKey  string
 	SecretKey  string
 	Passphrase string
@@ -22,6 +23,12 @@ func ApiDebugModeOption(debugMode bool) ApiOption {
 func ApiHttpClientOption(httpClient *http.Client) ApiOption {
 	return func(p *Parameters) {
 		p.HttpClient = httpClient
+	}
+}
+
+func ApiProxyURLOption(proxyURL string) ApiOption {
+	return func(p *Parameters) {
+		p.ProxyURL = proxyURL
 	}
 }
 

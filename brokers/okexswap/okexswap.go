@@ -406,7 +406,7 @@ func New(params *Parameters) *OKEXSwap {
 		TimeoutSecond: 45,
 		IsPrint:       false,
 		I18n:          okex.ENGLISH,
-		ProxyURL:      "",
+		ProxyURL:      params.ProxyURL,
 		HTTPClient:    params.HttpClient,
 	}
 	client := okex.NewClient(config)

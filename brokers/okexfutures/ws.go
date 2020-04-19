@@ -195,6 +195,9 @@ func NewWS(params *Parameters) *WS {
 	}
 	ws := okex.NewFuturesWS(wsURL,
 		params.AccessKey, params.SecretKey, params.Passphrase)
+	if params.ProxyURL != "" {
+		ws.SetProxy(params.ProxyURL)
+	}
 	ws.SetDepth20SnapshotCallback(s.depth20SnapshotCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.SetOrderCallback(s.ordersCallback)

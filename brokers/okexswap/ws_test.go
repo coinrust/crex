@@ -19,6 +19,7 @@ func newTestWS() *WS {
 	params.AccessKey = viper.GetString("access_key")
 	params.SecretKey = viper.GetString("secret_key")
 	params.Passphrase = viper.GetString("passphrase")
+	params.ProxyURL = viper.GetString("proxy_url")
 	params.Testnet = true
 	ws := NewWS(params)
 	return ws
