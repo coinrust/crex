@@ -2,32 +2,20 @@ package binancefutures
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/spf13/viper"
-	"log"
+	"github.com/coinrust/crex/configtest"
 	"testing"
 	"time"
 )
 
 func testExchange() Exchange {
-	viper.SetConfigName("test_config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Panic(err)
-	}
-
-	accessKey := viper.GetString("access_key")
-	secretKey := viper.GetString("secret_key")
-	proxyURL := viper.GetString("proxy_url")
-	log.Printf("accessKey: %v", accessKey)
-	log.Printf("secretKey: %v", secretKey)
+	testConfig := configtest.LoadTestConfig("binancefutures")
 	params := &Parameters{
-		AccessKey: accessKey,
-		SecretKey: secretKey,
+		AccessKey: testConfig.AccessKey,
+		SecretKey: testConfig.SecretKey,
 	}
 	ex := NewBinanceFutures(params)
-	if proxyURL != "" {
-		ex.SetProxy(proxyURL)
+	if testConfig.ProxyURL != "" {
+		ex.SetProxy(testConfig.ProxyURL)
 	}
 	return ex
 }

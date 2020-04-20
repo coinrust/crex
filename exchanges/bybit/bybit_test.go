@@ -2,15 +2,17 @@ package bybit
 
 import (
 	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/configtest"
 	"testing"
 	"time"
 )
 
 func testExchange() Exchange {
+	testConfig := configtest.LoadTestConfig("bybit")
 	params := &Parameters{
-		AccessKey: "6IASD6KDBdunn5qLpT",
-		SecretKey: "nXjZMUiB3aMiPaQ9EUKYFloYNd0zM39RjRWF",
-		Testnet:   true,
+		AccessKey: testConfig.AccessKey,
+		SecretKey: testConfig.SecretKey,
+		Testnet:   testConfig.Testnet,
 	}
 	ex := NewBybit(params)
 	return ex

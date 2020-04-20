@@ -1,27 +1,23 @@
 package okexfutures
 
 import (
+	"github.com/coinrust/crex/configtest"
 	"log"
 	"testing"
 	"time"
 
 	. "github.com/coinrust/crex"
-	"github.com/spf13/viper"
 )
 
 func testExchange() Exchange {
-	viper.SetConfigName("test_config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Panic(err)
-	}
+	testConfig := configtest.LoadTestConfig("okexfutures")
 
 	params := &Parameters{}
-	params.AccessKey = viper.GetString("access_key")
-	params.SecretKey = viper.GetString("secret_key")
-	params.Passphrase = viper.GetString("passphrase")
-	params.ProxyURL = viper.GetString("proxy_url")
+	params.AccessKey = testConfig.AccessKey
+	params.SecretKey = testConfig.SecretKey
+	params.Passphrase = testConfig.Passphrase
+	params.Testnet = testConfig.Testnet
+	params.ProxyURL = testConfig.ProxyURL
 	return NewOkexFutures(params)
 }
 

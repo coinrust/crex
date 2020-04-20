@@ -2,15 +2,17 @@ package deribit
 
 import (
 	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/configtest"
 	"testing"
 	"time"
 )
 
 func newForTest() Exchange {
+	testConfig := configtest.LoadTestConfig("deribit")
 	params := &Parameters{
-		AccessKey: "AsJTU16U",
-		SecretKey: "mM5_K8LVxztN6TjjYpv_cJVGQBvk4jglrEpqkw1b87U",
-		Testnet:   true,
+		AccessKey: testConfig.AccessKey,
+		SecretKey: testConfig.SecretKey,
+		Testnet:   testConfig.Testnet,
 	}
 	b := NewDeribit(params)
 	return b
