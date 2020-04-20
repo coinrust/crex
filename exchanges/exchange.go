@@ -20,10 +20,10 @@ func NewExchange(name string, opts ...ApiOption) Exchange {
 		opt(params)
 	}
 
-	return NewFromParameters(name, params)
+	return NewExchangeFromParameters(name, params)
 }
 
-func NewFromParameters(name string, params *Parameters) Exchange {
+func NewExchangeFromParameters(name string, params *Parameters) Exchange {
 	switch name {
 	case BinanceFutures:
 		return binancefutures.NewBinanceFutures(params)
