@@ -4,7 +4,7 @@ import "log"
 
 // Strategy interface
 type Strategy interface {
-	Setup(mode TradeMode, brokers ...Exchange)
+	Setup(mode TradeMode, exchanges ...Exchange)
 	GetTradeMode() TradeMode
 	OnInit()
 	OnTick()

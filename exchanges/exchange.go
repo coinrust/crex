@@ -42,6 +42,6 @@ func NewExchangeFromParameters(name string, params *Parameters) Exchange {
 	case OkexSwap:
 		return okexswap.NewOkexSwap(params)
 	default:
-		panic(fmt.Sprintf("broker error [%v]", name))
+		panic(fmt.Sprintf("new exchange error [%v]", name))
 	}
 }

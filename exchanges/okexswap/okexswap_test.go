@@ -79,11 +79,8 @@ func TestOKEXSwap_PlaceOrder(t *testing.T) {
 		Buy,
 		OrderTypeLimit,
 		3000,
-		0,
 		1,
-		true,
-		false,
-		nil)
+		OrderPostOnlyOption(true))
 	if err != nil {
 		t.Error(err)
 		return

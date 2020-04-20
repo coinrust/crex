@@ -63,11 +63,49 @@ func ApiWebSocketOption(enabled bool) ApiOption {
 	}
 }
 
+type OrderParameter struct {
+	StopPx     float64
+	PostOnly   bool
+	ReduceOnly bool
+	PriceType  string
+}
+
+// 订单选项
+type OrderOption func(p *OrderParameter)
+
+// 触发价格选项
+func OrderStopPxOption(stopPx float64) OrderOption {
+	return func(p *OrderParameter) {
+		p.StopPx = stopPx
+	}
+}
+
+// 被动委托选项
+func OrderPostOnlyOption(postOnly bool) OrderOption {
+	return func(p *OrderParameter) {
+		p.PostOnly = postOnly
+	}
+}
+
+// 只减仓选项
+func OrderReduceOnlyOption(reduceOnly bool) OrderOption {
+	return func(p *OrderParameter) {
+		p.ReduceOnly = reduceOnly
+	}
+}
+
+// OrderPriceType 选项
+func OrderPriceTypeOption(priceType string) OrderOption {
+	return func(p *OrderParameter) {
+		p.PriceType = priceType
+	}
+}
+
 // Exchange 交易所接口
 type Exchange interface {
 	WebSocket
 
-	// 获取当前Broker名称
+	// 获取 Exchange 名称
 	GetName() (name string)
 
 	// 获取账号余额
@@ -91,9 +129,21 @@ type Exchange interface {
 	// 设置杠杆大小
 	SetLeverRate(value float64) (err error)
 
+	// 开多
+	OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+
+	// 开空
+	OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+
+	// 平多
+	CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+
+	// 平空
+	CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+
 	// 下单
-	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, stopPx float64, size float64,
-		postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error)
+	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, size float64,
+		opts ...OrderOption) (result Order, err error)
 
 	// 获取活跃委托单列表
 	GetOpenOrders(symbol string) (result []Order, err error)
@@ -115,4 +165,16 @@ type Exchange interface {
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
+}
+
+func ParseOrderParameter(opts ...OrderOption) *OrderParameter {
+	p := &OrderParameter{
+		StopPx:     0,
+		PostOnly:   false,
+		ReduceOnly: false,
+	}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
 }

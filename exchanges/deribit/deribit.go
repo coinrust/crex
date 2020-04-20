@@ -102,16 +102,31 @@ func (b *Deribit) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *Deribit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *Deribit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *Deribit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *Deribit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	var _orderType string
 	var trigger string
 	if orderType == OrderTypeLimit {
 		_orderType = models.OrderTypeLimit
-		stopPx = 0
 	} else if orderType == OrderTypeMarket {
 		_orderType = models.OrderTypeMarket
-		stopPx = 0
 	} else if orderType == OrderTypeStopLimit {
 		_orderType = models.OrderTypeStopLimit
 		trigger = models.TriggerTypeLastPrice
@@ -129,9 +144,9 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 			Price: price,
 			//TimeInForce:    "",
 			//MaxShow:        nil,
-			PostOnly:   postOnly,
-			ReduceOnly: reduceOnly,
-			StopPrice:  stopPx,
+			PostOnly:   params.PostOnly,
+			ReduceOnly: params.ReduceOnly,
+			StopPrice:  params.StopPx,
 			Trigger:    trigger,
 			//Advanced:       "",
 		})
@@ -149,9 +164,9 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 			Price: price,
 			//TimeInForce:    "",
 			//MaxShow:        nil,
-			PostOnly:   postOnly,
-			ReduceOnly: reduceOnly,
-			StopPrice:  stopPx,
+			PostOnly:   params.PostOnly,
+			ReduceOnly: params.ReduceOnly,
+			StopPrice:  params.StopPx,
 			Trigger:    trigger,
 			//Advanced:       "",
 		})

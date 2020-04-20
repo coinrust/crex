@@ -152,12 +152,29 @@ func (b *BinanceFutures) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *BinanceFutures) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *BinanceFutures) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *BinanceFutures) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *BinanceFutures) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
 		Quantity(fmt.Sprint(size)).
-		ReduceOnly(reduceOnly)
+		ReduceOnly(params.ReduceOnly)
 	var side futures.SideType
 	if direction == Buy {
 		side = futures.SideTypeBuy
@@ -172,15 +189,15 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 		_orderType = futures.OrderTypeMarket
 	case OrderTypeStopMarket:
 		_orderType = futures.OrderTypeStopMarket
-		service = service.StopPrice(fmt.Sprint(stopPx))
+		service = service.StopPrice(fmt.Sprint(params.StopPx))
 	case OrderTypeStopLimit:
 		_orderType = futures.OrderTypeStop
-		service = service.StopPrice(fmt.Sprint(stopPx))
+		service = service.StopPrice(fmt.Sprint(params.StopPx))
 	}
 	if price > 0 {
 		service = service.Price(fmt.Sprint(price))
 	}
-	if postOnly {
+	if params.PostOnly {
 		service = service.TimeInForce(futures.TimeInForceTypeGTX)
 	}
 	service = service.Side(side).Type(_orderType)

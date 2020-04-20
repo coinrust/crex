@@ -50,7 +50,7 @@ package main
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/brokers"
+	"github.com/coinrust/crex/exchanges"
 	"log"
 	"time"
 )
@@ -67,19 +67,22 @@ func (s *BasicStrategy) OnTick() {
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
-	balance, err := s.Broker.GetBalance(currency)
+	balance, err := s.Exchange.GetBalance(currency)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Printf("balance: %#v", balance)
 
-	s.Broker.GetOrderBook(symbol, 10)
+	s.Exchange.GetOrderBook(symbol, 10)
 
-	s.Broker.PlaceOrder(symbol,
-		Buy, OrderTypeLimit, 1000.0, 10, 1, true, false, nil)
+	s.Exchange.OpenLong(symbol, OrderTypeLimit, 5000, 10)
+	s.Exchange.CloseLong(symbol, OrderTypeLimit, 6000, 10)
 
-	s.Broker.GetOpenOrders(symbol)
-	s.Broker.GetPositions(symbol)
+	s.Exchange.PlaceOrder(symbol,
+		Buy, OrderTypeLimit, 1000.0, 10, OrderPostOnlyOption(true))
+
+	s.Exchange.GetOpenOrders(symbol)
+	s.Exchange.GetPositions(symbol)
 }
 
 func (s *BasicStrategy) OnDeinit() {
@@ -87,13 +90,14 @@ func (s *BasicStrategy) OnDeinit() {
 }
 
 func main() {
-	broker := brokers.New(brokers.Deribit,
+	exchange := exchanges.NewExchange(exchanges.Deribit,
+		ApiProxyURLOption("socks5://127.0.0.1:1080"), // 使用代理
 		//ApiAccessKeyOption("[accessKey]"),
 		//ApiSecretKeyOption("[secretKey]"),
 		ApiTestnetOption(true))
 
 	s := &BasicStrategy{}
-	s.Setup(TradeModeLiveTrading, broker)
+	s.Setup(TradeModeLiveTrading, exchange)
 
 	// run loop
 	for {

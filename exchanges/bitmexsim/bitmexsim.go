@@ -82,8 +82,25 @@ func (b *BitMEXSim) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *BitMEXSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *BitMEXSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *BitMEXSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *BitMEXSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
@@ -95,8 +112,8 @@ func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType Ord
 		FilledAmount: 0,
 		Direction:    direction,
 		Type:         orderType,
-		PostOnly:     postOnly,
-		ReduceOnly:   reduceOnly,
+		PostOnly:     params.PostOnly,
+		ReduceOnly:   params.ReduceOnly,
 		Status:       OrderStatusNew,
 	}
 

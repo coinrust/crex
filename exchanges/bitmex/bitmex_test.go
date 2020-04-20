@@ -48,11 +48,8 @@ func TestBitMEX_PlaceOrder(t *testing.T) {
 		Buy,
 		OrderTypeLimit,
 		8000,
-		0,
 		10,
-		true,
-		false,
-		nil)
+		OrderPostOnlyOption(true))
 	if err != nil {
 		t.Error(err)
 		return

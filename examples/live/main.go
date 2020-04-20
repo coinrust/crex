@@ -27,8 +27,11 @@ func (s *BasicStrategy) OnTick() {
 
 	s.Exchange.GetOrderBook(symbol, 10)
 
+	s.Exchange.OpenLong(symbol, OrderTypeLimit, 5000, 10)
+	s.Exchange.CloseLong(symbol, OrderTypeLimit, 6000, 10)
+
 	s.Exchange.PlaceOrder(symbol,
-		Buy, OrderTypeLimit, 1000.0, 10, 1, true, false, nil)
+		Buy, OrderTypeLimit, 1000.0, 10, OrderPostOnlyOption(true))
 
 	s.Exchange.GetOpenOrders(symbol)
 	s.Exchange.GetPositions(symbol)
@@ -40,6 +43,7 @@ func (s *BasicStrategy) OnDeinit() {
 
 func main() {
 	exchange := exchanges.NewExchange(exchanges.Deribit,
+		ApiProxyURLOption("socks5://127.0.0.1:1080"), // 使用代理
 		//ApiAccessKeyOption("[accessKey]"),
 		//ApiSecretKeyOption("[secretKey]"),
 		ApiTestnetOption(true))

@@ -93,12 +93,29 @@ func (b *Bybit) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *Bybit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *Bybit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *Bybit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *Bybit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *Bybit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {
-		return b.placeOrder(symbol, direction, orderType, price, size, postOnly, reduceOnly)
+		return b.placeOrder(symbol, direction, orderType, price, size, params.PostOnly, params.ReduceOnly)
 	} else if orderType == OrderTypeStopLimit || orderType == OrderTypeStopMarket {
-		return b.placeStopOrder(symbol, direction, orderType, price, stopPx, size, postOnly, reduceOnly)
+		return b.placeStopOrder(symbol, direction, orderType, price, params.StopPx, size, params.PostOnly, params.ReduceOnly)
 	} else {
 		err = errors.New("error")
 		return

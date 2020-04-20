@@ -169,24 +169,41 @@ func (b *OkexSwap) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *OkexSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *OkexSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *OkexSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *OkexSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *OkexSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	var pType int
 	if direction == Buy {
-		if reduceOnly {
+		if params.ReduceOnly {
 			pType = 4
 		} else {
 			pType = 1
 		}
 	} else if direction == Sell {
-		if reduceOnly {
+		if params.ReduceOnly {
 			pType = 3
 		} else {
 			pType = 2
 		}
 	}
 	var _orderType int
-	if postOnly {
+	if params.PostOnly {
 		_orderType = 1
 	}
 	var matchPrice int

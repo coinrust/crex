@@ -16,12 +16,12 @@ type Backtest struct {
 
 // NewBacktest Create backtest
 // data: The data
-func NewBacktest(data *data.Data, strategy Strategy, brokers []Exchange) *Backtest {
+func NewBacktest(data *data.Data, strategy Strategy, exchanges []Exchange) *Backtest {
 	b := &Backtest{
 		data:     data,
 		strategy: strategy,
 	}
-	b.exchanges = brokers
+	b.exchanges = exchanges
 	strategy.Setup(TradeModeBacktest, b.exchanges...)
 	b.logs = LogItems{}
 	return b
@@ -51,8 +51,8 @@ func (b *Backtest) Run() {
 }
 
 func (b *Backtest) runEventLoopOnce() {
-	for _, broker := range b.exchanges {
-		broker.RunEventLoopOnce()
+	for _, exchange := range b.exchanges {
+		exchange.RunEventLoopOnce()
 	}
 }
 

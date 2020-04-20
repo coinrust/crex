@@ -42,11 +42,8 @@ func TestDiribit_PlaceStopOrder(t *testing.T) {
 		Buy,
 		OrderTypeStopMarket,
 		0,
-		8900,
 		10,
-		false,
-		false,
-		nil)
+		OrderStopPxOption(8900))
 	if err != nil {
 		t.Error(err)
 		return

@@ -141,6 +141,22 @@ func (b *HbdmSwap) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *HbdmSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *HbdmSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *HbdmSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *HbdmSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 // PlaceOrder 下单
 // params:
 // order_price_type: 订单报价类型
@@ -162,7 +178,8 @@ func (b *HbdmSwap) SetLeverRate(value float64) (err error) {
 // "optimal_10_fok"：最优10档-FOK下单
 // "optimal_20_fok"：最优20档-FOK下单
 func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter()
 	var orderResult hbdmswap.OrderResult
 	var _direction string
 	var offset string
@@ -172,7 +189,7 @@ func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 	} else if direction == Sell {
 		_direction = "sell"
 	}
-	if reduceOnly {
+	if params.ReduceOnly {
 		offset = "close"
 	} else {
 		offset = "open"
@@ -182,13 +199,11 @@ func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 	} else if orderType == OrderTypeMarket {
 		orderPriceType = "optimal_5"
 	}
-	if postOnly {
+	if params.PostOnly {
 		orderPriceType = "post_only"
 	}
-	if params != nil {
-		if v, ok := params["order_price_type"]; ok {
-			orderPriceType = v.(string)
-		}
+	if params.PriceType != "" {
+		orderPriceType = params.PriceType
 	}
 	orderResult, err = b.client.Order(
 		symbol,

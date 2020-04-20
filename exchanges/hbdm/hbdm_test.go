@@ -141,11 +141,7 @@ func TestHbdm_PlaceOrder(t *testing.T) {
 		Buy,
 		OrderTypeLimit,
 		3000,
-		0,
-		1,
-		false,
-		false,
-		nil)
+		1)
 	if err != nil {
 		t.Error(err)
 		return
@@ -167,11 +163,8 @@ func TestHbdm_PlaceOrder2(t *testing.T) {
 		Sell,
 		OrderTypeMarket,
 		3000,
-		0,
 		1,
-		false,
-		true,
-		nil)
+		OrderReduceOnlyOption(true))
 	if err != nil {
 		t.Error(err)
 		return

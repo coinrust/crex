@@ -106,8 +106,25 @@ func (b *BitMEX) SetLeverRate(value float64) (err error) {
 	return
 }
 
+func (b *BitMEX) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size)
+}
+
+func (b *BitMEX) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size)
+}
+
+func (b *BitMEX) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
+func (b *BitMEX) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
+}
+
 func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool, params map[string]interface{}) (result Order, err error) {
+	size float64, opts ...OrderOption) (result Order, err error) {
+	params := ParseOrderParameter(opts...)
 	var side string
 	var _orderType string
 	if direction == Buy {
@@ -125,17 +142,18 @@ func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderT
 		_orderType = bitmex.ORD_TYPE_STOP
 	}
 	var execInst string
-	if postOnly {
+	if params.PostOnly {
 		execInst = "ParticipateDoNotInitiate"
 	}
-	if reduceOnly {
+	if params.ReduceOnly {
 		if execInst != "" {
 			execInst += ","
 		}
 		execInst += "ReduceOnly"
 	}
 	var order swagger.Order
-	order, err = b.client.PlaceOrder(side, _orderType, stopPx, price, int32(size), "", execInst, symbol)
+	order, err = b.client.PlaceOrder(side,
+		_orderType, params.StopPx, price, int32(size), "", execInst, symbol)
 	if err != nil {
 		return
 	}
