@@ -357,6 +357,7 @@ func NewDeribit(params *Parameters) *Deribit {
 		baseUri = "wss://test.deribit.com/ws/api/v2/"
 	}
 	cfg := &deribit.Configuration{
+		DebugMode:     params.DebugMode,
 		Addr:          baseUri,
 		ApiKey:        params.AccessKey,
 		SecretKey:     params.SecretKey,

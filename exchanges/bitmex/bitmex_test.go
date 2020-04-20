@@ -2,18 +2,20 @@ package bitmex
 
 import (
 	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/configtest"
 	"testing"
 	"time"
 )
 
 func testExchange() *BitMEX {
+	testConfig := configtest.LoadTestConfig("bitmex")
 	params := &Parameters{
-		AccessKey: "eEtTUdma5LgAmryFerX-DAdp",
-		SecretKey: "kPjKmu-EIe1E73poRTnUraQWCMWbRq7PZ2-bzP8cnemniMXu",
-		Testnet:   true,
+		AccessKey: testConfig.AccessKey,
+		SecretKey: testConfig.SecretKey,
+		Testnet:   testConfig.Testnet,
+		ProxyURL:  testConfig.ProxyURL,
 	}
 	ex := NewBitMEX(params)
-	ex.client.SetProxy("127.0.0.1:1080")
 	return ex
 }
 

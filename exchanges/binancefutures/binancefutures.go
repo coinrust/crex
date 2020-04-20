@@ -423,7 +423,11 @@ func (b *BinanceFutures) RunEventLoopOnce() (err error) {
 
 func NewBinanceFutures(params *Parameters) *BinanceFutures {
 	client := futures.NewClient(params.AccessKey, params.SecretKey)
-	return &BinanceFutures{
+	b := &BinanceFutures{
 		client: client,
 	}
+	if params.ProxyURL != "" {
+		b.SetProxy(params.ProxyURL)
+	}
+	return b
 }

@@ -12,11 +12,10 @@ func testExchange() Exchange {
 	params := &Parameters{
 		AccessKey: testConfig.AccessKey,
 		SecretKey: testConfig.SecretKey,
+		Testnet:   testConfig.Testnet,
+		ProxyURL:  testConfig.ProxyURL,
 	}
 	ex := NewBinanceFutures(params)
-	if testConfig.ProxyURL != "" {
-		ex.SetProxy(testConfig.ProxyURL)
-	}
 	return ex
 }
 

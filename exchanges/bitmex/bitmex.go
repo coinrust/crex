@@ -316,6 +316,12 @@ func NewBitMEX(params *Parameters) *BitMEX {
 		baseUri = "testnet.bitmex.com"
 	}
 	client := bitmex.New(baseUri, params.AccessKey, params.SecretKey)
+	if strings.HasPrefix(params.ProxyURL, "socks5:") {
+		socks5Proxy := strings.ReplaceAll(params.ProxyURL, "socks5:", "")
+		client.SetProxy(socks5Proxy)
+	} else if strings.HasPrefix(params.ProxyURL, "http://") {
+		client.SetHttpProxy(params.ProxyURL)
+	}
 	return &BitMEX{
 		client: client,
 	}

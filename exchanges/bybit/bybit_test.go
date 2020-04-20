@@ -13,6 +13,7 @@ func testExchange() Exchange {
 		AccessKey: testConfig.AccessKey,
 		SecretKey: testConfig.SecretKey,
 		Testnet:   testConfig.Testnet,
+		ProxyURL:  testConfig.ProxyURL,
 	}
 	ex := NewBybit(params)
 	return ex

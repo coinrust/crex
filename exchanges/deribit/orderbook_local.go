@@ -13,7 +13,7 @@ type OrderBookLocal struct {
 	symbol string
 	asks   map[string]*Item // key: price
 	bids   map[string]*Item // key: price
-	m      sync.RWMutex
+	mu     sync.RWMutex
 }
 
 func NewOrderBookLocal(symbol string) *OrderBookLocal {
@@ -26,8 +26,8 @@ func NewOrderBookLocal(symbol string) *OrderBookLocal {
 }
 
 func (o *OrderBookLocal) GetOrderbook() (ob OrderBook) {
-	o.m.RLock()
-	defer o.m.RUnlock()
+	o.mu.RLock()
+	defer o.mu.RUnlock()
 
 	for _, v := range o.asks {
 		ob.Asks = append(ob.Asks, Item{
@@ -61,8 +61,8 @@ func (o *OrderBookLocal) Key(price float64) string {
 }
 
 func (o *OrderBookLocal) Update(newOrderBook *models.OrderBookNotification) {
-	o.m.Lock()
-	defer o.m.Unlock()
+	o.mu.Lock()
+	defer o.mu.Unlock()
 
 	// [action, price, amount]
 	// action: new, change or delete.

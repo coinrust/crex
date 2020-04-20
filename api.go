@@ -5,11 +5,13 @@ import "net/http"
 type Parameters struct {
 	DebugMode  bool
 	HttpClient *http.Client
-	ProxyURL   string // socks5://127.0.0.1:1080 | http://127.0.0.1:1080
+	ProxyURL   string // example: socks5://127.0.0.1:1080 | http://127.0.0.1:1080
+	ApiURL     string
+	WsURL      string
+	Testnet    bool
 	AccessKey  string
 	SecretKey  string
 	Passphrase string
-	Testnet    bool
 	WebSocket  bool // Enable websocket option
 }
 
@@ -30,6 +32,18 @@ func ApiHttpClientOption(httpClient *http.Client) ApiOption {
 func ApiProxyURLOption(proxyURL string) ApiOption {
 	return func(p *Parameters) {
 		p.ProxyURL = proxyURL
+	}
+}
+
+func ApiApiURLOption(apiURL string) ApiOption {
+	return func(p *Parameters) {
+		p.ApiURL = apiURL
+	}
+}
+
+func ApiWsURLOption(wsURL string) ApiOption {
+	return func(p *Parameters) {
+		p.WsURL = wsURL
 	}
 }
 
@@ -103,7 +117,6 @@ func OrderPriceTypeOption(priceType string) OrderOption {
 
 // Exchange 交易所接口
 type Exchange interface {
-	WebSocket
 
 	// 获取 Exchange 名称
 	GetName() (name string)
@@ -162,6 +175,21 @@ type Exchange interface {
 
 	// 获取持仓
 	GetPositions(symbol string) (result []Position, err error)
+
+	// 订阅成交记录
+	SubscribeTrades(market Market, callback func(trades []Trade)) error
+
+	// 订阅L2 OrderBook
+	SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error
+
+	// 订阅Balance
+	//SubscribeBalances(market Market, callback func(balance *Balance)) error
+
+	// 订阅委托
+	SubscribeOrders(market Market, callback func(orders []Order)) error
+
+	// 订阅持仓
+	SubscribePositions(market Market, callback func(positions []Position)) error
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
