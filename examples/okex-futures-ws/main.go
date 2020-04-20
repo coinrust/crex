@@ -2,53 +2,36 @@ package main
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/brokers"
+	"github.com/coinrust/crex/exchanges"
 	"log"
 )
 
 func main() {
-	ws := brokers.NewWS(brokers.OKEXFutures,
-		ApiAccessKeyOption("[accessKey]"),
-		ApiSecretKeyOption("[secretKey]"),
-		ApiPassPhraseOption("[passphrase]"))
+	ws := exchanges.NewExchange(exchanges.OkexFutures,
+		ApiProxyURLOption("socks5://127.0.0.1:1080"), // 使用代理
+		//ApiAccessKeyOption("[accessKey]"),
+		//ApiSecretKeyOption("[secretKey]"),
+		//ApiPassPhraseOption("[passphrase]"),
+		ApiWebSocketOption(true)) // 开启 WebSocket
 
-	// 订单薄事件方法
-	ws.On(WSEventL2Snapshot, func(ob *OrderBook) {
-		log.Printf("ob: %#v", ob)
-	})
-	// 成交记录事件方法
-	ws.On(WSEventTrade, func(trades []Trade) {
-		log.Printf("trades: %#v", trades)
-	})
-
-	// 订单事件方法
-	ws.On(WSEventOrder, func(orders []Order) {
-		log.Printf("orders: %#v", orders)
-	})
-	// 持仓事件方法
-	ws.On(WSEventPosition, func(positions []Position) {
-		log.Printf("positions: %#v", positions)
-	})
-
+	market := Market{
+		Symbol: "BTC-USD-200626",
+	}
 	// 订阅订单薄
-	ws.SubscribeLevel2Snapshots(Market{
-		ID:     "BTC-USD-200626",
-		Params: "",
+	ws.SubscribeLevel2Snapshots(market, func(ob *OrderBook) {
+		log.Printf("%#v", ob)
 	})
 	// 订阅成交记录
-	ws.SubscribeTrades(Market{
-		ID:     "BTC-USD-200626",
-		Params: "",
+	ws.SubscribeTrades(market, func(trades []Trade) {
+		log.Printf("%#v", trades)
 	})
 	// 订阅订单成交信息
-	ws.SubscribeOrders(Market{
-		ID:     "BTC-USD-200626",
-		Params: "",
+	ws.SubscribeOrders(market, func(orders []Order) {
+		log.Printf("%#v", orders)
 	})
 	// 订阅持仓信息
-	ws.SubscribePositions(Market{
-		ID:     "BTC-USD-200626",
-		Params: "",
+	ws.SubscribePositions(market, func(positions []Position) {
+		log.Printf("%#v", positions)
 	})
 
 	select {}

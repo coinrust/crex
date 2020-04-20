@@ -4,7 +4,7 @@ import "log"
 
 // Strategy interface
 type Strategy interface {
-	Setup(mode TradeMode, brokers ...Broker)
+	Setup(mode TradeMode, brokers ...Exchange)
 	GetTradeMode() TradeMode
 	OnInit()
 	OnTick()
@@ -14,18 +14,18 @@ type Strategy interface {
 // StrategyBase Strategy base class
 type StrategyBase struct {
 	tradeMode TradeMode
-	Brokers   []Broker
-	Broker    Broker
+	Exchanges []Exchange
+	Exchange  Exchange
 }
 
-// Setup Setup the brokers
-func (s *StrategyBase) Setup(mode TradeMode, brokers ...Broker) {
-	if len(brokers) == 0 {
-		log.Fatal("empty brokers")
+// Setup Setups the exchanges
+func (s *StrategyBase) Setup(mode TradeMode, exchanges ...Exchange) {
+	if len(exchanges) == 0 {
+		log.Fatal("empty exchanges")
 	}
 	s.tradeMode = mode
-	s.Brokers = append(s.Brokers, brokers...)
-	s.Broker = brokers[0]
+	s.Exchanges = append(s.Exchanges, exchanges...)
+	s.Exchange = exchanges[0]
 }
 
 func (s *StrategyBase) GetTradeMode() TradeMode {

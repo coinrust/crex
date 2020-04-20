@@ -8,7 +8,7 @@ require (
 	github.com/frankrap/bitmex-api v0.0.0-20200225011535-9765a3267676
 	github.com/frankrap/bybit-api v0.0.0-20200418232743-735bd31e7835
 	github.com/frankrap/deribit-api v0.0.0-20200322001639-1fbbf5c14797
-	github.com/frankrap/huobi-api v0.0.0-20200419021029-98abd3f46cdf
+	github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5
 	github.com/frankrap/okex-api v0.0.0-20200419021534-ec49c279f3ab
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/viper v1.6.3

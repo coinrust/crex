@@ -10,6 +10,7 @@ type Parameters struct {
 	SecretKey  string
 	Passphrase string
 	Testnet    bool
+	WebSocket  bool // Enable websocket option
 }
 
 type ApiOption func(p *Parameters)
@@ -56,8 +57,16 @@ func ApiTestnetOption(testnet bool) ApiOption {
 	}
 }
 
-// Broker 交易所接口
-type Broker interface {
+func ApiWebSocketOption(enabled bool) ApiOption {
+	return func(p *Parameters) {
+		p.WebSocket = enabled
+	}
+}
+
+// Exchange 交易所接口
+type Exchange interface {
+	WebSocket
+
 	// 获取当前Broker名称
 	GetName() (name string)
 
@@ -103,9 +112,6 @@ type Broker interface {
 
 	// 获取持仓
 	GetPositions(symbol string) (result []Position, err error)
-
-	// 返回WebSocket对象
-	WS() (ws WebSocket, err error)
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only

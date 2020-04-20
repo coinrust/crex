@@ -8,21 +8,21 @@ import (
 )
 
 type Backtest struct {
-	data     *data.Data
-	strategy Strategy
-	brokers  []Broker
-	logs     LogItems
+	data      *data.Data
+	strategy  Strategy
+	exchanges []Exchange
+	logs      LogItems
 }
 
 // NewBacktest Create backtest
 // data: The data
-func NewBacktest(data *data.Data, strategy Strategy, brokers []Broker) *Backtest {
+func NewBacktest(data *data.Data, strategy Strategy, brokers []Exchange) *Backtest {
 	b := &Backtest{
 		data:     data,
 		strategy: strategy,
 	}
-	b.brokers = brokers
-	strategy.Setup(TradeModeBacktest, b.brokers...)
+	b.exchanges = brokers
+	strategy.Setup(TradeModeBacktest, b.exchanges...)
 	b.logs = LogItems{}
 	return b
 }
@@ -51,7 +51,7 @@ func (b *Backtest) Run() {
 }
 
 func (b *Backtest) runEventLoopOnce() {
-	for _, broker := range b.brokers {
+	for _, broker := range b.exchanges {
 		broker.RunEventLoopOnce()
 	}
 }
@@ -93,9 +93,9 @@ func (b *Backtest) addItemStats() {
 }
 
 func (b *Backtest) fetchItemStats(item *LogItem) {
-	n := len(b.brokers)
+	n := len(b.exchanges)
 	for i := 0; i < n; i++ {
-		balance, err := b.brokers[i].GetBalance("BTC")
+		balance, err := b.exchanges[i].GetBalance("BTC")
 		if err != nil {
 			log.Fatal(err)
 		}

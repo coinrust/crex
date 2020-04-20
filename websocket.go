@@ -7,6 +7,7 @@ type WSEvent int
 const (
 	WSEventTrade WSEvent = iota + 1
 	WSEventL2Snapshot
+	WSEventBalance
 	WSEventOrder
 	WSEventPosition
 	WSEventError
@@ -16,15 +17,14 @@ const (
 
 // Market 市场信息
 type Market struct {
-	ID     string // BTCUSDT(OKEX)/XBTUSD(BitMEX)/...
-	Params string
+	Symbol string // BTCUSDT(OKEX)/XBTUSD(BitMEX)/...
 }
 
 // WebSocket 代表WS连接
 type WebSocket interface {
-	On(event WSEvent, listener interface{})
-	SubscribeTrades(market Market)
-	SubscribeLevel2Snapshots(market Market)
-	SubscribeOrders(market Market)
-	SubscribePositions(market Market)
+	SubscribeTrades(market Market, callback func(trades []Trade)) error
+	SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error
+	//SubscribeBalances(market Market, callback func(balance *Balance)) error
+	SubscribeOrders(market Market, callback func(orders []Order)) error
+	SubscribePositions(market Market, callback func(positions []Position)) error
 }

@@ -125,6 +125,8 @@ github.com/frankrap/huobi-api v0.0.0-20200417122418-da00ff646cbb h1:0HFLeZZKw1c3
 github.com/frankrap/huobi-api v0.0.0-20200417122418-da00ff646cbb/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/huobi-api v0.0.0-20200419021029-98abd3f46cdf h1:AkNaIQM29VWCINJQwlYIEd8xPzApXCRZY1QUj3E5OLs=
 github.com/frankrap/huobi-api v0.0.0-20200419021029-98abd3f46cdf/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
+github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5 h1:5xpEsWvHEk7y6NBa9iNzCIgjQ1swSkYkE4Q+YGT8TjI=
+github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0 h1:t7eGZShd6RjD+v8ed8Hrt2f4lnQBS4yGMXGYfXVHbKI=
 github.com/frankrap/okex-api v0.0.0-20200413091020-62021a3d1ba0/go.mod h1:Y2aFUMk3I6nbkJR2nkMEDLsgok8Tt/2XMzJR4AJF2kk=
 github.com/frankrap/okex-api v0.0.0-20200417020035-a99bec82fe31 h1:lnIDfmbk7e+NJoYPObbyeKCSpXvUL/BQZ0M++NmzMwk=
