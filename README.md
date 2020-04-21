@@ -59,11 +59,11 @@ type BasicStrategy struct {
 	StrategyBase
 }
 
-func (s *BasicStrategy) OnInit() {
-
+func (s *BasicStrategy) OnInit() error {
+	return nil
 }
 
-func (s *BasicStrategy) OnTick() {
+func (s *BasicStrategy) OnTick() error {
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
@@ -83,10 +83,20 @@ func (s *BasicStrategy) OnTick() {
 
 	s.Exchange.GetOpenOrders(symbol)
 	s.Exchange.GetPositions(symbol)
+	return nil
 }
 
-func (s *BasicStrategy) OnDeinit() {
+func (s *BasicStrategy) Run() error {
+	// run loop
+	for {
+		s.OnTick()
+		time.Sleep(1 * time.Second)
+	}
+	return nil
+}
 
+func (s *BasicStrategy) OnDeinit() error {
+	return nil
 }
 
 func main() {
@@ -97,13 +107,12 @@ func main() {
 		ApiTestnetOption(true))
 
 	s := &BasicStrategy{}
+
 	s.Setup(TradeModeLiveTrading, exchange)
 
-	// run loop
-	for {
-		s.OnTick()
-		time.Sleep(1 * time.Second)
-	}
+	s.OnInit()
+	s.Run()
+	s.OnDeinit()
 }
 ```
 
