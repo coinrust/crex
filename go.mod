@@ -11,7 +11,7 @@ require (
 	github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5
 	github.com/frankrap/okex-api v0.0.0-20200420092342-a8556197f4ee
 	github.com/sony/sonyflake v1.0.0
-	github.com/spf13/cast v1.3.0
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/viper v1.6.3
 	golang.org/x/sys v0.0.0-20200321134203-328b4cd54aae // indirect
 )
