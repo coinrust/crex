@@ -191,7 +191,7 @@ func NewSwapWebSocket(params *Parameters) *SwapWebSocket {
 		emitter: emission.NewEmitter(),
 	}
 	ws := okex.NewSwapWS(wsURL,
-		params.AccessKey, params.SecretKey, params.Passphrase)
+		params.AccessKey, params.SecretKey, params.Passphrase, params.DebugMode)
 	if params.ProxyURL != "" {
 		ws.SetProxy(params.ProxyURL)
 	}

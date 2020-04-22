@@ -2,6 +2,7 @@ package deribit
 
 import (
 	"errors"
+	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
@@ -11,6 +12,7 @@ import (
 // Deribit the deribit exchange
 type Deribit struct {
 	client *deribit.Client
+	dobMap map[string]*DepthOrderBook
 }
 
 func (b *Deribit) GetName() (name string) {
@@ -332,15 +334,82 @@ func (b *Deribit) orderStatus(order *models.Order) OrderStatus {
 }
 
 func (b *Deribit) SubscribeTrades(market Market, callback func(trades []Trade)) error {
-	return ErrNotImplemented
+	// "trades.BTC-PERPETUAL.raw"
+	ch := fmt.Sprintf("trades.%v.raw", market.Symbol)
+	b.client.On(ch, func(e *models.TradesNotification) {
+		var trades []Trade
+		for _, v := range *e {
+			var direction Direction
+			if v.Direction == "buy" {
+				direction = Buy
+			} else if v.Direction == "sell" {
+				direction = Sell
+			}
+			trades = append(trades, Trade{
+				ID:        v.TradeID,
+				Direction: direction,
+				Price:     v.Price,
+				Amount:    v.Amount,
+				Ts:        v.Timestamp,
+				Symbol:    v.InstrumentName,
+			})
+		}
+		callback(trades)
+	})
+	b.client.Subscribe([]string{ch})
+	return nil
 }
 
 func (b *Deribit) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error {
-	return ErrNotImplemented
+	// "book.BTC-PERPETUAL.raw"
+	ch := fmt.Sprintf("book.%v.raw", market.Symbol)
+	b.client.On(ch, func(e *models.OrderBookRawNotification) {
+		if v, ok := b.dobMap[e.InstrumentName]; ok {
+			v.Update(e)
+			ob := v.GetOrderBook(20)
+			callback(&ob)
+		} else {
+			dob := NewDepthOrderBook(e.InstrumentName)
+			dob.Update(e)
+			b.dobMap[e.InstrumentName] = dob
+			ob := dob.GetOrderBook(20)
+			callback(&ob)
+		}
+	})
+	b.client.Subscribe([]string{ch})
+	return nil
 }
 
 func (b *Deribit) SubscribeOrders(market Market, callback func(orders []Order)) error {
-	return ErrNotImplemented
+	ch := fmt.Sprintf("user.orders.%v.raw", market.Symbol)
+	b.client.On(ch, func(e *models.UserOrderNotification) {
+		var orders []Order
+		for _, v := range *e {
+			var direction Direction
+			if v.Direction == "buy" {
+				direction = Buy
+			} else if v.Direction == "sell" {
+				direction = Sell
+			}
+			orders = append(orders, Order{
+				ID:           v.OrderID,
+				Symbol:       v.InstrumentName,
+				Price:        v.Price.ToFloat64(),
+				StopPx:       v.StopPrice,
+				Size:         v.Amount,
+				AvgPrice:     v.AveragePrice,
+				FilledAmount: v.FilledAmount,
+				Direction:    direction,
+				Type:         b.convertOrderType(v.OrderType),
+				PostOnly:     v.PostOnly,
+				ReduceOnly:   v.ReduceOnly,
+				Status:       b.orderStatus(&v),
+			})
+		}
+		callback(orders)
+	})
+	b.client.Subscribe([]string{ch})
+	return nil
 }
 
 func (b *Deribit) SubscribePositions(market Market, callback func(positions []Position)) error {
@@ -366,5 +435,6 @@ func NewDeribit(params *Parameters) *Deribit {
 	client := deribit.New(cfg)
 	return &Deribit{
 		client: client,
+		dobMap: make(map[string]*DepthOrderBook),
 	}
 }

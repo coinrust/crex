@@ -2,24 +2,19 @@ package hbdmswap
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/spf13/viper"
+	"github.com/coinrust/crex/configtest"
 	"log"
 	"testing"
 )
 
 func testWebSocket() *SwapWebSocket {
-	viper.SetConfigName("test_config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Panic(err)
-	}
+	testConfig := configtest.LoadTestConfig("hbdmswap")
 
 	params := &Parameters{}
-	params.AccessKey = viper.GetString("access_key")
-	params.SecretKey = viper.GetString("secret_key")
-	params.ProxyURL = viper.GetString("proxy_url")
-	params.Testnet = true
+	params.AccessKey = testConfig.AccessKey
+	params.SecretKey = testConfig.SecretKey
+	params.ProxyURL = testConfig.ProxyURL
+	params.Testnet = testConfig.Testnet
 	ws := NewSwapWebSocket(params)
 	return ws
 }
@@ -28,14 +23,12 @@ func TestSwapWebSocket_AllInOne(t *testing.T) {
 	ws := testWebSocket()
 
 	ws.SubscribeLevel2Snapshots(Market{
-		Symbol:       "BTC-USD",
-		ContractType: "",
+		Symbol: "BTC-USD",
 	}, func(ob *OrderBook) {
 		t.Logf("%#v", ob)
 	})
 	ws.SubscribeTrades(Market{
-		Symbol:       "BTC-USD",
-		ContractType: "",
+		Symbol: "BTC-USD",
 	}, func(trades []Trade) {
 		t.Logf("%#v", trades)
 	})
@@ -47,8 +40,7 @@ func TestSwapWebSocket_SubscribeOrders(t *testing.T) {
 	ws := testWebSocket()
 
 	ws.SubscribeOrders(Market{
-		Symbol:       "BTC-USD",
-		ContractType: "",
+		Symbol: "BTC-USD",
 	}, func(orders []Order) {
 		log.Printf("%#v", orders)
 	})

@@ -198,7 +198,7 @@ func NewFuturesWebSocket(params *Parameters) *FuturesWebSocket {
 		emitter: emission.NewEmitter(),
 	}
 	ws := okex.NewFuturesWS(wsURL,
-		params.AccessKey, params.SecretKey, params.Passphrase)
+		params.AccessKey, params.SecretKey, params.Passphrase, params.DebugMode)
 	if params.ProxyURL != "" {
 		ws.SetProxy(params.ProxyURL)
 	}

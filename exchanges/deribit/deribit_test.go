@@ -3,6 +3,7 @@ package deribit
 import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/configtest"
+	"log"
 	"testing"
 	"time"
 )
@@ -68,4 +69,22 @@ func TestDiribit_GetOpenOrders(t *testing.T) {
 			v.Status.String(),
 		)
 	}
+}
+
+func TestDeribit_SubscribeTrades(t *testing.T) {
+	b := newForTest()
+	b.SubscribeTrades(Market{Symbol: "BTC-PERPETUAL"}, func(trades []Trade) {
+		log.Printf("trades: %#v", trades)
+	})
+
+	select {}
+}
+
+func TestDeribit_SubscribeLevel2Snapshots(t *testing.T) {
+	b := newForTest()
+	b.SubscribeLevel2Snapshots(Market{Symbol: "BTC-PERPETUAL"}, func(ob *OrderBook) {
+		log.Printf("ob: %#v", ob)
+	})
+
+	select {}
 }

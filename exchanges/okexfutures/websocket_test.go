@@ -2,25 +2,20 @@ package okexfutures
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/spf13/viper"
+	"github.com/coinrust/crex/configtest"
 	"log"
 	"testing"
 )
 
 func testWebSocket() *FuturesWebSocket {
-	viper.SetConfigName("test_config")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		log.Panic(err)
-	}
+	testConfig := configtest.LoadTestConfig("okexfutures")
 
 	params := &Parameters{}
-	params.AccessKey = viper.GetString("access_key")
-	params.SecretKey = viper.GetString("secret_key")
-	params.Passphrase = viper.GetString("passphrase")
-	params.ProxyURL = viper.GetString("proxy_url")
-	params.Testnet = true
+	params.AccessKey = testConfig.AccessKey
+	params.SecretKey = testConfig.SecretKey
+	params.Passphrase = testConfig.Passphrase
+	params.ProxyURL = testConfig.ProxyURL
+	params.Testnet = testConfig.Testnet
 	ws := NewFuturesWebSocket(params)
 	return ws
 }
