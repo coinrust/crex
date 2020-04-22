@@ -100,6 +100,8 @@ github.com/frankrap/bitmex-api v0.0.0-20200420092018-52e156fd54a5 h1:0i77ztCNbcb
 github.com/frankrap/bitmex-api v0.0.0-20200420092018-52e156fd54a5/go.mod h1:tYkd4SQQOqpY9QCdsHpkHCXuu/RgjXXNuPi3tOqbrbs=
 github.com/frankrap/bybit-api v0.0.0-20200422052431-8bb1983a54aa h1:MS17nKwyx0/ua5bdtu3WvJXWjnC2kKB6RguuTtBCvy4=
 github.com/frankrap/bybit-api v0.0.0-20200422052431-8bb1983a54aa/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
+github.com/frankrap/bybit-api v0.0.0-20200422082309-08575cd93e9b h1:/+g3X29mStDDHMDGM/EpYxX4Cw1QQlrBtyJBzBG/37c=
+github.com/frankrap/bybit-api v0.0.0-20200422082309-08575cd93e9b/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc h1:sT8tSFhw5Ui/E9P8nUvfn2bhJ/e1KQjcELBUYLfZYNw=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc/go.mod h1:O04S0Ua6eRjE2BQROBddsalhIqF5PzKBlF9+ANfIvBM=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
