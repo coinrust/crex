@@ -5,11 +5,13 @@ import (
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
 	bws "github.com/frankrap/bybit-api/ws"
+	"log"
 	"time"
 )
 
 type BybitWebSocket struct {
 	ws      *bws.ByBitWS
+	params  *Parameters
 	emitter *emission.Emitter
 }
 
@@ -105,6 +107,9 @@ func (s *BybitWebSocket) handlePosition(data []*bws.Position) {
 }
 
 func (s *BybitWebSocket) handleOrder(data []*bws.Order) {
+	if s.params.DebugMode {
+		log.Printf("handleOrder data=%#v", data)
+	}
 	var orders []Order
 	for _, v := range data {
 		var o Order
@@ -130,6 +135,7 @@ func (s *BybitWebSocket) handleOrder(data []*bws.Order) {
 			o.PostOnly = true
 		}
 		o.Status = s.orderStatus(v.OrderStatus)
+		orders = append(orders, o)
 	}
 	s.emitter.Emit(WSEventOrder, orders)
 }
@@ -165,6 +171,7 @@ func NewBybitWebSocket(params *Parameters) *BybitWebSocket {
 		wsURL = "wss://stream-testnet.bybit.com/realtime"
 	}
 	s := &BybitWebSocket{
+		params:  params,
 		emitter: emission.NewEmitter(),
 	}
 	cfg := &bws.Configuration{

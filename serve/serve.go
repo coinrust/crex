@@ -20,6 +20,7 @@ type ExchangeConfig struct {
 
 type ExchangeItem struct {
 	Name       string `yaml:"name"`
+	Debug_Mode bool   `yaml:"debug_mode"`
 	Access_Key string `yaml:"access_key"`
 	Secret_Key string `yaml:"secret_key"`
 	Testnet    bool   `yaml:"testnet"`
@@ -86,6 +87,7 @@ func SetupStrategyFromConfig(strategy Strategy) (err error) {
 	var exs []Exchange
 	for _, ex := range c.Exchanges {
 		exchange := exchanges.NewExchange(ex.Name,
+			ApiDebugModeOption(ex.Debug_Mode),
 			ApiAccessKeyOption(ex.Access_Key),
 			ApiSecretKeyOption(ex.Secret_Key),
 			ApiTestnetOption(ex.Testnet),

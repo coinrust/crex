@@ -405,7 +405,8 @@ func NewBybit(params *Parameters) *Bybit {
 	if params.Testnet {
 		baseUri = "https://api-testnet.bybit.com/"
 	}
-	client := rest.New(params.HttpClient, baseUri, params.AccessKey, params.SecretKey)
+	client := rest.New(params.HttpClient,
+		baseUri, params.AccessKey, params.SecretKey, params.DebugMode)
 	for i := 0; i < 3; i++ {
 		err := client.SetCorrectServerTime()
 		if err != nil {
