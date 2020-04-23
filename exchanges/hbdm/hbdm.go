@@ -400,7 +400,7 @@ func (b *Hbdm) convertOrder(symbol string, order *hbdm.Order) (result Order) {
 	result.Symbol = symbol
 	result.Price = order.Price
 	result.StopPx = 0
-	result.Size = order.Volume
+	result.Amount = order.Volume
 	result.Direction = b.orderDirection(order)
 	result.Type = b.orderType(order)
 	result.AvgPrice = order.TradeAvgPrice

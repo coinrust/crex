@@ -118,7 +118,7 @@ func (s *BybitWebSocket) handleOrder(data []*bws.Order) {
 		o.Price = v.Price
 		//o.AvgPrice = 0
 		// o.StopPx = 0
-		o.Size = v.Qty
+		o.Amount = v.Qty
 		o.FilledAmount = v.CumExecQty
 		if v.Side == "Buy" {
 			o.Direction = Buy

@@ -78,6 +78,7 @@ func ApiWebSocketOption(enabled bool) ApiOption {
 }
 
 type OrderParameter struct {
+	BasePrice  float64
 	StopPx     float64
 	PostOnly   bool
 	ReduceOnly bool
@@ -86,6 +87,13 @@ type OrderParameter struct {
 
 // 订单选项
 type OrderOption func(p *OrderParameter)
+
+// 基础价格选项(如: bybit 需要提供此参数)
+func OrderBasePriceOption(basePrice float64) OrderOption {
+	return func(p *OrderParameter) {
+		p.BasePrice = basePrice
+	}
+}
 
 // 触发价格选项
 func OrderStopPxOption(stopPx float64) OrderOption {

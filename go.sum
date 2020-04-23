@@ -126,6 +126,8 @@ github.com/frankrap/bybit-api v0.0.0-20200422082309-08575cd93e9b h1:/+g3X29mStDD
 github.com/frankrap/bybit-api v0.0.0-20200422082309-08575cd93e9b/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/bybit-api v1.0.0 h1:TuTvOeZLfh7WVSLu/bcbRpfy5bx9pjs/jFfH9eMPeIU=
 github.com/frankrap/bybit-api v1.0.0/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
+github.com/frankrap/bybit-api v1.0.1-0.20200423052133-cafda3eeb0bc h1:oIM1BqAZ0FKSq7O+VZdszSEzwB12u7lJI0jXAO7sUvU=
+github.com/frankrap/bybit-api v1.0.1-0.20200423052133-cafda3eeb0bc/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc h1:sT8tSFhw5Ui/E9P8nUvfn2bhJ/e1KQjcELBUYLfZYNw=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc/go.mod h1:O04S0Ua6eRjE2BQROBddsalhIqF5PzKBlF9+ANfIvBM=
 github.com/frankrap/deribit-api v1.0.1 h1:KdTmqMBBSsGiCf4UuaqQoXaCKRm5nL98pX4mbHfBhtk=

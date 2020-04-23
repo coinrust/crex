@@ -99,7 +99,7 @@ func (s *SwapWebSocket) ordersCallback(order *hbdmswap.WSOrder) {
 	o.Price = order.Price
 	o.AvgPrice = order.TradeAvgPrice
 	// o.StopPx = 0
-	o.Size = order.Volume
+	o.Amount = order.Volume
 	o.FilledAmount = order.TradeVolume
 	if order.Direction == "buy" {
 		o.Direction = Buy

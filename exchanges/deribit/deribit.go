@@ -275,7 +275,7 @@ func (b *Deribit) convertOrder(order *models.Order) (result Order) {
 	result.Symbol = order.InstrumentName
 	result.Price = order.Price.ToFloat64()
 	result.StopPx = order.StopPrice
-	result.Size = order.Amount
+	result.Amount = order.Amount
 	result.Direction = b.convertDirection(order.Direction)
 	result.Type = b.convertOrderType(order.OrderType)
 	result.AvgPrice = order.AveragePrice
@@ -396,7 +396,7 @@ func (b *Deribit) SubscribeOrders(market Market, callback func(orders []Order)) 
 				Symbol:       v.InstrumentName,
 				Price:        v.Price.ToFloat64(),
 				StopPx:       v.StopPrice,
-				Size:         v.Amount,
+				Amount:       v.Amount,
 				AvgPrice:     v.AveragePrice,
 				FilledAmount: v.FilledAmount,
 				Direction:    direction,

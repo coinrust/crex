@@ -106,7 +106,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 		ID:           id,
 		Symbol:       symbol,
 		Price:        price,
-		Size:         size,
+		Amount:       size,
 		AvgPrice:     0,
 		FilledAmount: 0,
 		Direction:    direction,
@@ -153,15 +153,15 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	// Invalid size - not multiple of contract size ($10)
 	// 数量必须是10的整数倍
 
-	if int(order.Size)%10 != 0 {
+	if int(order.Amount)%10 != 0 {
 		err = errors.New("Invalid size - not multiple of contract size ($10)")
 		return
 	}
 
 	position := b.getPosition(order.Symbol)
 
-	if int(position.Size+order.Size) > PositionSizeLimit ||
-		int(position.Size-order.Size) < -PositionSizeLimit {
+	if int(position.Size+order.Amount) > PositionSizeLimit ||
+		int(position.Size-order.Amount) < -PositionSizeLimit {
 		err = errors.New("Rejected, maximum size of future position is $1,000,000")
 		return
 	}
@@ -179,13 +179,13 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	// 市价成交
 	if order.Direction == Buy {
 		maxSize = margin * 100 * ob.AskPrice()
-		if order.Size > maxSize {
+		if order.Amount > maxSize {
 			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
 		price := ob.AskPrice()
-		size := order.Size
+		size := order.Amount
 
 		// trade fee
 		fee := size / price * b.takerFeeRate
@@ -197,13 +197,13 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 		b.updatePosition(order.Symbol, size, price)
 	} else if order.Direction == Sell {
 		maxSize = margin * 100 * ob.BidPrice()
-		if order.Size > maxSize {
+		if order.Amount > maxSize {
 			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
 		price := ob.BidPrice()
-		size := order.Size
+		size := order.Amount
 
 		// trade fee
 		fee := size / price * b.takerFeeRate
@@ -231,7 +231,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 			}
 
 			// match trade
-			size := order.Size
+			size := order.Amount
 			var fee float64
 
 			// trade fee
@@ -255,7 +255,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 			}
 
 			// match trade
-			size := order.Size
+			size := order.Amount
 			var fee float64
 
 			// trade fee

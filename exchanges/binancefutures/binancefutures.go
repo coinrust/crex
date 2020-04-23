@@ -303,7 +303,7 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result Order) {
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
 	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Size = util.ParseFloat64(order.OrigQuantity)
+	result.Amount = util.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
 	result.AvgPrice = util.ParseFloat64(order.AvgPrice)
@@ -321,7 +321,7 @@ func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (resu
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
 	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Size = util.ParseFloat64(order.OrigQuantity)
+	result.Amount = util.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
 	result.AvgPrice = util.ParseFloat64(order.AvgPrice)
@@ -339,7 +339,7 @@ func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (resu
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
 	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Size = util.ParseFloat64(order.OrigQuantity)
+	result.Amount = util.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
 	result.AvgPrice = 0

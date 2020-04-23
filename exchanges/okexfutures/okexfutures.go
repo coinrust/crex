@@ -388,7 +388,7 @@ func (b *OkexFutures) convertOrder(symbol string, order *okex.FuturesGetOrderRes
 	result.Symbol = symbol
 	result.Price = order.Price
 	result.StopPx = 0
-	result.Size = float64(order.Size)
+	result.Amount = float64(order.Size)
 	result.Direction = b.orderDirection(order)
 	result.Type = b.orderType(order)
 	result.AvgPrice = order.PriceAvg

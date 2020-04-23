@@ -14,6 +14,7 @@ func testExchange() Exchange {
 		SecretKey: testConfig.SecretKey,
 		Testnet:   testConfig.Testnet,
 		ProxyURL:  testConfig.ProxyURL,
+		DebugMode: true,
 	}
 	ex := NewBybit(params)
 	return ex
@@ -53,4 +54,20 @@ func TestBybit_GetRecords(t *testing.T) {
 	for _, v := range records {
 		t.Logf("%#v", v)
 	}
+}
+
+func TestBybit_PlaceOrder(t *testing.T) {
+	ex := testExchange()
+	// 市价止损单
+	order, err := ex.PlaceOrder("BTCUSD",
+		Sell, OrderTypeStopMarket, 0, 1,
+		OrderBasePriceOption(7135),
+		OrderStopPxOption(7090),
+		OrderReduceOnlyOption(true),
+	)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
 }

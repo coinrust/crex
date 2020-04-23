@@ -2,6 +2,7 @@ package bybit
 
 import (
 	"errors"
+	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/bybit-api/rest"
 	"log"
@@ -113,9 +114,19 @@ func (b *Bybit) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 	size float64, opts ...OrderOption) (result Order, err error) {
 	params := ParseOrderParameter(opts...)
 	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {
-		return b.placeOrder(symbol, direction, orderType, price, size, params.PostOnly, params.ReduceOnly)
+		return b.placeOrder(symbol,
+			direction, orderType, price, size, params.PostOnly, params.ReduceOnly)
 	} else if orderType == OrderTypeStopLimit || orderType == OrderTypeStopMarket {
-		return b.placeStopOrder(symbol, direction, orderType, price, params.StopPx, size, params.PostOnly, params.ReduceOnly)
+		if params.BasePrice <= 0 {
+			err = fmt.Errorf("base_price is required")
+			return
+		}
+		if orderType == OrderTypeStopLimit && price <= 0 {
+			err = fmt.Errorf("price is required")
+			return
+		}
+		return b.placeStopOrder(symbol,
+			direction, orderType, price, params.BasePrice, params.StopPx, size, params.PostOnly, params.ReduceOnly)
 	} else {
 		err = errors.New("error")
 		return
@@ -162,7 +173,7 @@ func (b *Bybit) placeOrder(symbol string, direction Direction, orderType OrderTy
 }
 
 func (b *Bybit) placeStopOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	basePrice float64, stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
 	var side string
 	var _orderType string
 	var timeInForce string
@@ -183,14 +194,13 @@ func (b *Bybit) placeStopOrder(symbol string, direction Direction, orderType Ord
 	} else {
 		timeInForce = "GoodTillCancel"
 	}
-	basePrice := stopPx // 触发价
 	var order rest.Order
 	order, err = b.client.CreateStopOrder(
 		side,
 		_orderType,
 		price,
 		basePrice,
-		0,
+		stopPx,
 		int(size),
 		"",
 		timeInForce,
@@ -280,11 +290,15 @@ func (b *Bybit) GetPositions(symbol string) (result []Position, err error) {
 }
 
 func (b *Bybit) convertOrder(order *rest.Order) (result Order) {
-	result.ID = order.OrderID
+	if order.StopOrderID != "" {
+		result.ID = order.StopOrderID
+	} else {
+		result.ID = order.OrderID
+	}
 	result.Symbol = order.Symbol
 	result.Price = order.Price
-	result.StopPx = 0
-	result.Size = order.Qty
+	result.StopPx, _ = order.StopPx.Float64()
+	result.Amount = order.Qty
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrderType)
 	if order.CumExecQty > 0 && order.CumExecValue > 0 {
@@ -306,7 +320,7 @@ func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
 	result.Symbol = order.Symbol
 	result.Price, _ = order.Price.Float64()
 	result.StopPx = 0
-	result.Size = order.Qty
+	result.Amount = order.Qty
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrderType)
 	cumExecValue, err := order.CumExecValue.Float64()

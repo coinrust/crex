@@ -34,7 +34,7 @@ func TestUpdateBalance(t *testing.T) {
 	*/
 
 	/*
-		Cross Liquidation Price =1/(1/Entry Price+Minimum Margin Balance/Position Size)
+		Cross Liquidation Price =1/(1/Entry Price+Minimum Margin Balance/Position Amount)
 
 		Minimum Margin Balance = Account Balance *(1- (Maintenance Margin + Taker Fees + Funding Rate))
 	*/

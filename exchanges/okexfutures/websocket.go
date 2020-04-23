@@ -101,7 +101,7 @@ func (s *FuturesWebSocket) convertOrder(order *okex.WSOrder) *Order {
 	o.Price = util.ParseFloat64(order.Price)
 	o.AvgPrice = util.ParseFloat64(order.PriceAvg)
 	// o.StopPx = 0
-	o.Size = util.ParseFloat64(order.Size)
+	o.Amount = util.ParseFloat64(order.Size)
 	o.FilledAmount = util.ParseFloat64(order.FilledQty)
 	switch order.Type {
 	case "1":

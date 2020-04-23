@@ -86,7 +86,7 @@ type Order struct {
 	Symbol       string      `json:"symbol"`        // 标
 	Price        float64     `json:"price"`         // 价格
 	StopPx       float64     `json:"stop_px"`       // 触发价
-	Size         float64     `json:"size"`          // 委托数量
+	Amount       float64     `json:"amount"`        // 委托数量
 	AvgPrice     float64     `json:"avg_price"`     // 平均成交价
 	FilledAmount float64     `json:"filled_amount"` // 成交数量
 	Direction    Direction   `json:"direction"`     // 委托方向
@@ -117,14 +117,6 @@ func (p *Position) Side() Direction {
 		return Sell
 	}
 	return Buy
-}
-
-// Amount 持仓量
-func (p *Position) Amount() float64 {
-	if p.IsLong() {
-		return p.Size
-	}
-	return -p.Size
 }
 
 // IsOpen 是否持仓

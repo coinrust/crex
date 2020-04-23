@@ -227,7 +227,7 @@ func (b *BitMEX) convertOrder(order *swagger.Order) (result Order) {
 	result.Symbol = order.Symbol
 	result.Price = order.Price
 	result.StopPx = order.StopPx
-	result.Size = float64(order.OrderQty)
+	result.Amount = float64(order.OrderQty)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrdType)
 	result.AvgPrice = order.AvgPx
