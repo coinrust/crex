@@ -4,6 +4,7 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/bitmex-api"
 	"github.com/frankrap/bitmex-api/swagger"
+	"sort"
 	"strings"
 	"time"
 )
@@ -11,6 +12,7 @@ import (
 // BitMEX the BitMEX exchange
 type BitMEX struct {
 	client *bitmex.BitMEX
+	params *Parameters
 	symbol string
 }
 
@@ -215,13 +217,7 @@ func (b *BitMEX) GetPositions(symbol string) (result []Position, err error) {
 		return
 	}
 	result = []Position{
-		{
-			Symbol:    symbol,
-			OpenTime:  time.Time{},
-			OpenPrice: ret.AvgEntryPrice,
-			Size:      float64(ret.CurrentQty),
-			AvgPrice:  ret.AvgCostPrice,
-		},
+		b.convertPosition(&ret),
 	}
 	return
 }
@@ -290,20 +286,123 @@ func (b *BitMEX) orderStatus(order *swagger.Order) OrderStatus {
 	}
 }
 
+func (b *BitMEX) convertPosition(position *swagger.Position) (result Position) {
+	result.Symbol = position.Symbol
+	result.OpenTime = time.Time{}
+	result.OpenPrice = position.AvgEntryPrice
+	result.Size = float64(position.CurrentQty)
+	result.AvgPrice = position.AvgCostPrice
+	return
+}
+
 func (b *BitMEX) SubscribeTrades(market Market, callback func(trades []Trade)) error {
-	return ErrNotImplemented
+	if !b.params.WebSocket {
+		return ErrWebSocketDisabled
+	}
+	b.client.On(bitmex.BitmexWSTrade, func(trades []*swagger.Trade, action string) {
+		var data []Trade
+		for _, v := range trades {
+			var direction Direction
+			if v.Side == bitmex.SIDE_BUY {
+				direction = Buy
+			} else if v.Side == bitmex.SIDE_SELL {
+				direction = Sell
+			}
+			data = append(data, Trade{
+				ID:        v.TrdMatchID,
+				Direction: direction,
+				Price:     v.Price,
+				Amount:    float64(v.Size),
+				Ts:        v.Timestamp.UnixNano() / int64(time.Millisecond),
+				Symbol:    v.Symbol,
+			})
+		}
+		callback(data)
+	})
+	subscribeInfos := []bitmex.SubscribeInfo{
+		{Op: bitmex.BitmexWSTrade, Param: market.Symbol},
+	}
+	err := b.client.Subscribe(subscribeInfos)
+	return err
 }
 
 func (b *BitMEX) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error {
-	return ErrNotImplemented
+	if !b.params.WebSocket {
+		return ErrWebSocketDisabled
+	}
+	b.client.On(bitmex.BitmexWSOrderBookL2, func(m bitmex.OrderBookDataL2, symbol string) {
+		var ob OrderBook
+
+		ob.Symbol = symbol
+		ob.Time = m.Timestamp
+
+		for _, v := range m.RawData {
+			switch v.Side {
+			case "Buy":
+				ob.Bids = append(ob.Bids, Item{
+					Price:  v.Price,
+					Amount: float64(v.Size),
+				})
+			case "Sell":
+				ob.Asks = append(ob.Asks, Item{
+					Price:  v.Price,
+					Amount: float64(v.Size),
+				})
+			}
+		}
+
+		sort.Slice(ob.Bids, func(i, j int) bool {
+			return ob.Bids[i].Price > ob.Bids[j].Price
+		})
+
+		sort.Slice(ob.Asks, func(i, j int) bool {
+			return ob.Asks[i].Price < ob.Asks[j].Price
+		})
+
+		callback(&ob)
+	})
+	subscribeInfos := []bitmex.SubscribeInfo{
+		{Op: bitmex.BitmexWSOrderBookL2, Param: market.Symbol},
+	}
+	err := b.client.Subscribe(subscribeInfos)
+	return err
 }
 
 func (b *BitMEX) SubscribeOrders(market Market, callback func(orders []Order)) error {
-	return ErrNotImplemented
+	if !b.params.WebSocket {
+		return ErrWebSocketDisabled
+	}
+	b.client.On(bitmex.BitmexWSOrder, func(m []*swagger.Order, action string) {
+		var orders []Order
+		for _, v := range m {
+			order := b.convertOrder(v)
+			orders = append(orders, order)
+		}
+		callback(orders)
+	})
+	subscribeInfos := []bitmex.SubscribeInfo{
+		{Op: bitmex.BitmexWSOrder, Param: market.Symbol},
+	}
+	err := b.client.Subscribe(subscribeInfos)
+	return err
 }
 
 func (b *BitMEX) SubscribePositions(market Market, callback func(positions []Position)) error {
-	return ErrNotImplemented
+	if !b.params.WebSocket {
+		return ErrWebSocketDisabled
+	}
+	b.client.On(bitmex.BitmexWSPosition, func(m []*swagger.Position, action string) {
+		var positions []Position
+		for _, v := range m {
+			positions = append(positions, b.convertPosition(v))
+		}
+		callback(positions)
+	})
+	subscribeInfos := []bitmex.SubscribeInfo{
+		{Op: bitmex.BitmexWSPosition, Param: market.Symbol},
+	}
+	err := b.client.Subscribe(subscribeInfos)
+	return err
 }
 
 func (b *BitMEX) RunEventLoopOnce() (err error) {
@@ -315,14 +414,19 @@ func NewBitMEX(params *Parameters) *BitMEX {
 	if params.Testnet {
 		baseUri = "testnet.bitmex.com"
 	}
-	client := bitmex.New(baseUri, params.AccessKey, params.SecretKey)
+	client := bitmex.New(params.HttpClient,
+		baseUri, params.AccessKey, params.SecretKey, params.DebugMode)
 	if strings.HasPrefix(params.ProxyURL, "socks5:") {
 		socks5Proxy := strings.ReplaceAll(params.ProxyURL, "socks5:", "")
 		client.SetProxy(socks5Proxy)
 	} else if strings.HasPrefix(params.ProxyURL, "http://") {
 		client.SetHttpProxy(params.ProxyURL)
 	}
+	if params.WebSocket {
+		client.StartWS()
+	}
 	return &BitMEX{
 		client: client,
+		params: params,
 	}
 }

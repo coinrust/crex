@@ -3,17 +3,24 @@ package bitmex
 import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/configtest"
+	"log"
 	"testing"
 	"time"
 )
 
 func testExchange() *BitMEX {
+	return testExchangeWS(false)
+}
+
+func testExchangeWS(websocket bool) *BitMEX {
 	testConfig := configtest.LoadTestConfig("bitmex")
 	params := &Parameters{
+		DebugMode: true,
 		AccessKey: testConfig.AccessKey,
 		SecretKey: testConfig.SecretKey,
 		Testnet:   testConfig.Testnet,
 		ProxyURL:  testConfig.ProxyURL,
+		WebSocket: websocket,
 	}
 	ex := NewBitMEX(params)
 	return ex
@@ -79,4 +86,31 @@ func TestBitMEX_GetOrder(t *testing.T) {
 		return
 	}
 	t.Logf("%#v", order)
+}
+
+func TestBitMEX_SubscribeTrades(t *testing.T) {
+	ex := testExchangeWS(true)
+	ex.SubscribeTrades(Market{Symbol: "XBTUSD"}, func(trades []Trade) {
+		log.Printf("trades=%#v", trades)
+	})
+
+	select {}
+}
+
+func TestBitMEX_SubscribeLevel2Snapshots(t *testing.T) {
+	ex := testExchangeWS(true)
+	ex.SubscribeLevel2Snapshots(Market{Symbol: "XBTUSD"}, func(ob *OrderBook) {
+		log.Printf("ob=%#v", ob)
+	})
+
+	select {}
+}
+
+func TestBitMEX_SubscribeOrders(t *testing.T) {
+	ex := testExchangeWS(true)
+	ex.SubscribeOrders(Market{Symbol: "XBTUSD"}, func(orders []Order) {
+		log.Printf("orders=%#v", orders)
+	})
+
+	select {}
 }

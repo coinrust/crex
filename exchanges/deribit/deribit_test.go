@@ -9,11 +9,17 @@ import (
 )
 
 func newForTest() Exchange {
+	return testExchange(false)
+}
+
+func testExchange(websocket bool) Exchange {
 	testConfig := configtest.LoadTestConfig("deribit")
 	params := &Parameters{
+		DebugMode: true,
 		AccessKey: testConfig.AccessKey,
 		SecretKey: testConfig.SecretKey,
 		Testnet:   testConfig.Testnet,
+		WebSocket: websocket,
 	}
 	b := NewDeribit(params)
 	return b
@@ -81,7 +87,7 @@ func TestDeribit_SubscribeTrades(t *testing.T) {
 }
 
 func TestDeribit_SubscribeLevel2Snapshots(t *testing.T) {
-	b := newForTest()
+	b := testExchange(true)
 	b.SubscribeLevel2Snapshots(Market{Symbol: "BTC-PERPETUAL"}, func(ob *OrderBook) {
 		log.Printf("ob: %#v", ob)
 	})
