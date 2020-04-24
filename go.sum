@@ -132,12 +132,16 @@ github.com/frankrap/bybit-api v1.0.1-0.20200423094337-80be56d868a1 h1:wQzZBVOVBT
 github.com/frankrap/bybit-api v1.0.1-0.20200423094337-80be56d868a1/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc h1:sT8tSFhw5Ui/E9P8nUvfn2bhJ/e1KQjcELBUYLfZYNw=
 github.com/frankrap/deribit-api v0.0.0-20200420090834-750b9a49b1fc/go.mod h1:O04S0Ua6eRjE2BQROBddsalhIqF5PzKBlF9+ANfIvBM=
+github.com/frankrap/deribit-api v0.0.0-20200424113636-9bf13c91533a h1:BQ6MgXIq0Idzc0skB3Q3lrEsawm7kWUC1NU0A/Nx7KA=
+github.com/frankrap/deribit-api v0.0.0-20200424113636-9bf13c91533a/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/deribit-api v1.0.1 h1:KdTmqMBBSsGiCf4UuaqQoXaCKRm5nL98pX4mbHfBhtk=
 github.com/frankrap/deribit-api v1.0.1/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/deribit-api v1.0.2-0.20200422145213-b28f510b5677 h1:viajbh/DC8J4syuSJlxdCKRXyRnpTAPmpxdsNqoQYog=
 github.com/frankrap/deribit-api v1.0.2-0.20200422145213-b28f510b5677/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/deribit-api v1.0.2 h1:iesDSQzAeQGGPxm3fMPHBGIACfv2uc97dz8LV5nuW2Q=
 github.com/frankrap/deribit-api v1.0.2/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
+github.com/frankrap/deribit-api v1.0.3 h1:dr99UrQ4nT4T7B2voPKPRyQwcihBjIg8VDZrImUGF20=
+github.com/frankrap/deribit-api v1.0.3/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/goalgo v0.0.0-20191222082958-86150f79a9c1/go.mod h1:pJdPSl0e2jgAlcWLWNvIEl/Y5OBF7khAqycENDdpvUc=
 github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5 h1:5xpEsWvHEk7y6NBa9iNzCIgjQ1swSkYkE4Q+YGT8TjI=
 github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=

@@ -6,12 +6,14 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/frankrap/deribit-api"
 	"github.com/frankrap/deribit-api/models"
+	"log"
 	"time"
 )
 
 // Deribit the deribit exchange
 type Deribit struct {
 	client *deribit.Client
+	params *Parameters
 	dobMap map[string]*DepthOrderBook
 }
 
@@ -138,7 +140,7 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 	}
 	if direction == Buy {
 		var ret models.BuyResponse
-		ret, err = b.client.Buy(&models.BuyParams{
+		buyParams := models.BuyParams{
 			InstrumentName: symbol,
 			Amount:         size,
 			Type:           _orderType,
@@ -151,14 +153,18 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 			StopPrice:  params.StopPx,
 			Trigger:    trigger,
 			//Advanced:       "",
-		})
+		}
+		if b.params.DebugMode {
+			log.Printf("Buy %#v", buyParams)
+		}
+		ret, err = b.client.Buy(&buyParams)
 		if err != nil {
 			return
 		}
 		result = b.convertOrder(&ret.Order)
 	} else if direction == Sell {
 		var ret models.SellResponse
-		ret, err = b.client.Sell(&models.SellParams{
+		sellParams := models.SellParams{
 			InstrumentName: symbol,
 			Amount:         size,
 			Type:           _orderType,
@@ -171,7 +177,11 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 			StopPrice:  params.StopPx,
 			Trigger:    trigger,
 			//Advanced:       "",
-		})
+		}
+		if b.params.DebugMode {
+			log.Printf("Sell %#v", sellParams)
+		}
+		ret, err = b.client.Sell(&sellParams)
 		if err != nil {
 			return
 		}
@@ -435,6 +445,7 @@ func NewDeribit(params *Parameters) *Deribit {
 	client := deribit.New(cfg)
 	return &Deribit{
 		client: client,
+		params: params,
 		dobMap: make(map[string]*DepthOrderBook),
 	}
 }

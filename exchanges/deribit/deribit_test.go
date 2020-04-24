@@ -45,6 +45,21 @@ func TestDiribit_GetRecords(t *testing.T) {
 	}
 }
 
+func TestDeribit_PlaceOrder(t *testing.T) {
+	b := newForTest()
+	order, err := b.PlaceOrder("BTC-PERPETUAL",
+		Buy,
+		OrderTypeMarket,
+		0,
+		1,
+		OrderReduceOnlyOption(false))
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
+}
+
 func TestDiribit_PlaceStopOrder(t *testing.T) {
 	b := newForTest()
 	order, err := b.PlaceOrder("BTC-PERPETUAL",
