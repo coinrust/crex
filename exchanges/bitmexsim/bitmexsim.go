@@ -99,8 +99,8 @@ func (b *BitMEXSim) CloseShort(symbol string, orderType OrderType, price float64
 }
 
 func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
@@ -370,7 +370,7 @@ func (b *BitMEXSim) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *BitMEXSim) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *BitMEXSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
 			result = append(result, *v)
@@ -379,7 +379,7 @@ func (b *BitMEXSim) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *BitMEXSim) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEXSim) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
@@ -389,7 +389,7 @@ func (b *BitMEXSim) GetOrder(symbol string, id string) (result Order, err error)
 	return
 }
 
-func (b *BitMEXSim) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEXSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -409,7 +409,7 @@ func (b *BitMEXSim) CancelOrder(symbol string, id string) (result Order, err err
 	return
 }
 
-func (b *BitMEXSim) CancelAllOrders(symbol string) (err error) {
+func (b *BitMEXSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	var idsToBeRemoved []string
 
 	for _, order := range b.openOrders {
@@ -432,7 +432,7 @@ func (b *BitMEXSim) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *BitMEXSim) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *BitMEXSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

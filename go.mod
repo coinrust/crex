@@ -7,7 +7,7 @@ require (
 	github.com/adshao/go-binance v0.0.0-20200326152909-7314295d8a33
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v1.0.0
-	github.com/frankrap/bybit-api v1.0.1-0.20200423052133-cafda3eeb0bc
+	github.com/frankrap/bybit-api v1.0.1-0.20200423094337-80be56d868a1
 	github.com/frankrap/deribit-api v1.0.2
 	github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5
 	github.com/frankrap/okex-api v0.0.0-20200422112408-a276dd807813

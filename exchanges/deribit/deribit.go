@@ -121,8 +121,8 @@ func (b *Deribit) CloseShort(symbol string, orderType OrderType, price float64, 
 }
 
 func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	var _orderType string
 	var trigger string
 	if orderType == OrderTypeLimit {
@@ -180,7 +180,7 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 	return
 }
 
-func (b *Deribit) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *Deribit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	var ret []models.Order
 	ret, err = b.client.GetOpenOrdersByInstrument(&models.GetOpenOrdersByInstrumentParams{
 		InstrumentName: symbol,
@@ -195,7 +195,7 @@ func (b *Deribit) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *Deribit) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *Deribit) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret models.Order
 	ret, err = b.client.GetOrderState(&models.GetOrderStateParams{
 		OrderID: id,
@@ -207,7 +207,7 @@ func (b *Deribit) GetOrder(symbol string, id string) (result Order, err error) {
 	return
 }
 
-func (b *Deribit) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *Deribit) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var order models.Order
 	order, err = b.client.Cancel(&models.CancelParams{OrderID: id})
 	if err != nil {
@@ -217,14 +217,14 @@ func (b *Deribit) CancelOrder(symbol string, id string) (result Order, err error
 	return
 }
 
-func (b *Deribit) CancelAllOrders(symbol string) (err error) {
+func (b *Deribit) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	_, err = b.client.CancelAllByInstrument(&models.CancelAllByInstrumentParams{
 		InstrumentName: symbol,
 	})
 	return
 }
 
-func (b *Deribit) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *Deribit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	params := &models.EditParams{
 		OrderID:   id,
 		Amount:    0,

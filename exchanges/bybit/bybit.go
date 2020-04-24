@@ -111,8 +111,8 @@ func (b *Bybit) CloseShort(symbol string, orderType OrderType, price float64, si
 }
 
 func (b *Bybit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {
 		return b.placeOrder(symbol,
 			direction, orderType, price, size, params.PostOnly, params.ReduceOnly)
@@ -214,7 +214,7 @@ func (b *Bybit) placeStopOrder(symbol string, direction Direction, orderType Ord
 	return
 }
 
-func (b *Bybit) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *Bybit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	limit := 10
 	orderStatus := "Created,NewBybit,PartiallyFilled,PendingCancel"
 	for page := 1; page <= 5; page++ {
@@ -235,7 +235,26 @@ func (b *Bybit) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *Bybit) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *Bybit) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+	p := ParseOrderParameter(opts...)
+	if p.Stop { // 止损委托
+		var ret rest.GetStopOrdersResult
+		ret, err = b.client.GetStopOrders(id, "", "", "", 0, 1, symbol)
+		if err != nil {
+			return
+		}
+		orders := ret.Result.Data
+		if len(orders) == 0 {
+			err = fmt.Errorf("not found")
+			return
+		}
+		if len(orders) > 1 {
+			err = fmt.Errorf("error orders=%#v", orders)
+			return
+		}
+		result = b.convertStopOrder(&orders[0])
+		return
+	}
 	var ret rest.OrderV2
 	ret, err = b.client.GetOrderByID(id, "", symbol)
 	if err != nil {
@@ -245,7 +264,17 @@ func (b *Bybit) GetOrder(symbol string, id string) (result Order, err error) {
 	return
 }
 
-func (b *Bybit) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *Bybit) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+	p := ParseOrderParameter(opts...)
+	if p.Stop {
+		var order rest.Order
+		order, err = b.client.CancelStopOrder(id, symbol)
+		if err != nil {
+			return
+		}
+		result = b.convertOrder(&order)
+		return
+	}
 	var order rest.OrderV2
 	order, err = b.client.CancelOrderV2(id, "", symbol)
 	if err != nil {
@@ -255,12 +284,17 @@ func (b *Bybit) CancelOrder(symbol string, id string) (result Order, err error) 
 	return
 }
 
-func (b *Bybit) CancelAllOrders(symbol string) (err error) {
+func (b *Bybit) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
+	p := ParseOrderParameter(opts...)
+	if p.Stop {
+		_, err = b.client.CancelAllStopOrders(symbol)
+		return
+	}
 	_, err = b.client.CancelAllOrder(symbol)
 	return
 }
 
-func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	var order rest.Order
 	order, err = b.client.ReplaceOrder(symbol, id, int(size), price)
 	if err != nil {
@@ -290,14 +324,10 @@ func (b *Bybit) GetPositions(symbol string) (result []Position, err error) {
 }
 
 func (b *Bybit) convertOrder(order *rest.Order) (result Order) {
-	if order.StopOrderID != "" {
-		result.ID = order.StopOrderID
-	} else {
-		result.ID = order.OrderID
-	}
+	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
-	result.StopPx, _ = order.StopPx.Float64()
+	result.StopPx = 0
 	result.Amount = order.Qty
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.OrderType)
@@ -332,6 +362,24 @@ func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
 		result.PostOnly = true
 	}
 	result.Status = b.orderStatus(order.OrderStatus)
+	return
+}
+
+func (b *Bybit) convertStopOrder(order *rest.StopOrder) (result Order) {
+	result.ID = order.StopOrderID
+	result.Symbol = order.Symbol
+	result.Price = order.Price
+	result.StopPx = order.StopPx
+	result.Amount = order.Qty
+	result.Direction = b.convertDirection(order.Side)
+	result.Type = b.convertOrderType(order.OrderType)
+	if strings.Contains(order.TimeInForce, "PostOnly") {
+		result.PostOnly = true
+	}
+	//if order.ExtFields != nil {
+	//	result.ReduceOnly = order.ExtFields.ReduceOnly
+	//}
+	result.Status = b.orderStatus(order.StopOrderStatus)
 	return
 }
 

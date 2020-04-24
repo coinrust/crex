@@ -78,6 +78,28 @@ func ApiWebSocketOption(enabled bool) ApiOption {
 }
 
 type OrderParameter struct {
+	Stop bool // 是否是触发委托
+}
+
+// 订单选项
+type OrderOption func(p *OrderParameter)
+
+// 触发委托选项
+func OrderStopOption(stop bool) OrderOption {
+	return func(p *OrderParameter) {
+		p.Stop = stop
+	}
+}
+
+func ParseOrderParameter(opts ...OrderOption) *OrderParameter {
+	p := &OrderParameter{}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
+}
+
+type PlaceOrderParameter struct {
 	BasePrice  float64
 	StopPx     float64
 	PostOnly   bool
@@ -86,41 +108,49 @@ type OrderParameter struct {
 }
 
 // 订单选项
-type OrderOption func(p *OrderParameter)
+type PlaceOrderOption func(p *PlaceOrderParameter)
 
 // 基础价格选项(如: bybit 需要提供此参数)
-func OrderBasePriceOption(basePrice float64) OrderOption {
-	return func(p *OrderParameter) {
+func OrderBasePriceOption(basePrice float64) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
 		p.BasePrice = basePrice
 	}
 }
 
 // 触发价格选项
-func OrderStopPxOption(stopPx float64) OrderOption {
-	return func(p *OrderParameter) {
+func OrderStopPxOption(stopPx float64) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
 		p.StopPx = stopPx
 	}
 }
 
 // 被动委托选项
-func OrderPostOnlyOption(postOnly bool) OrderOption {
-	return func(p *OrderParameter) {
+func OrderPostOnlyOption(postOnly bool) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
 		p.PostOnly = postOnly
 	}
 }
 
 // 只减仓选项
-func OrderReduceOnlyOption(reduceOnly bool) OrderOption {
-	return func(p *OrderParameter) {
+func OrderReduceOnlyOption(reduceOnly bool) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
 		p.ReduceOnly = reduceOnly
 	}
 }
 
 // OrderPriceType 选项
-func OrderPriceTypeOption(priceType string) OrderOption {
-	return func(p *OrderParameter) {
+func OrderPriceTypeOption(priceType string) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
 		p.PriceType = priceType
 	}
+}
+
+func ParsePlaceOrderParameter(opts ...PlaceOrderOption) *PlaceOrderParameter {
+	p := &PlaceOrderParameter{}
+	for _, opt := range opts {
+		opt(p)
+	}
+	return p
 }
 
 // Exchange 交易所接口
@@ -164,22 +194,22 @@ type Exchange interface {
 
 	// 下单
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, size float64,
-		opts ...OrderOption) (result Order, err error)
+		opts ...PlaceOrderOption) (result Order, err error)
 
 	// 获取活跃委托单列表
-	GetOpenOrders(symbol string) (result []Order, err error)
+	GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error)
 
 	// 获取委托信息
-	GetOrder(symbol string, id string) (result Order, err error)
+	GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error)
 
 	// 撤销全部委托单
-	CancelAllOrders(symbol string) (err error)
+	CancelAllOrders(symbol string, opts ...OrderOption) (err error)
 
 	// 撤销单个委托单
-	CancelOrder(symbol string, id string) (result Order, err error)
+	CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error)
 
 	// 修改委托
-	AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error)
+	AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error)
 
 	// 获取持仓
 	GetPositions(symbol string) (result []Position, err error)
@@ -201,16 +231,4 @@ type Exchange interface {
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
-}
-
-func ParseOrderParameter(opts ...OrderOption) *OrderParameter {
-	p := &OrderParameter{
-		StopPx:     0,
-		PostOnly:   false,
-		ReduceOnly: false,
-	}
-	for _, opt := range opts {
-		opt(p)
-	}
-	return p
 }

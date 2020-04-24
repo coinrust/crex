@@ -178,8 +178,8 @@ func (b *HbdmSwap) CloseShort(symbol string, orderType OrderType, price float64,
 // "optimal_10_fok"：最优10档-FOK下单
 // "optimal_20_fok"：最优20档-FOK下单
 func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter()
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter()
 	var orderResult hbdmswap.OrderResult
 	var _direction string
 	var offset string
@@ -226,30 +226,10 @@ func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 	result.Symbol = symbol
 	result.ID = fmt.Sprint(orderResult.Data.OrderID)
 	result.Status = OrderStatusNew
-	//var order hbdmswap.OrderInfoResult
-	//order, err = b.client.OrderInfo(
-	//	symbol,
-	//	orderResult.Data.OrderID,
-	//	0,
-	//)
-	//if err != nil {
-	//	return
-	//}
-	//if order.Status != StatusOK {
-	//	err = fmt.Errorf("error code=%v msg=%v",
-	//		orderResult.ErrCode,
-	//		orderResult.ErrMsg)
-	//	return
-	//}
-	//if len(order.Data) != 1 {
-	//	err = fmt.Errorf("missing data")
-	//	return
-	//}
-	//result = b.convertOrder(symbol, &order.Data[0])
 	return
 }
 
-func (b *HbdmSwap) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *HbdmSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	var ret hbdmswap.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
 		symbol,
@@ -271,7 +251,7 @@ func (b *HbdmSwap) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *HbdmSwap) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *HbdmSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret hbdmswap.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.OrderInfo(symbol, _id, 0)
@@ -292,7 +272,7 @@ func (b *HbdmSwap) GetOrder(symbol string, id string) (result Order, err error) 
 	return
 }
 
-func (b *HbdmSwap) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *HbdmSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret hbdmswap.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.Cancel(symbol, _id, 0)
@@ -310,11 +290,11 @@ func (b *HbdmSwap) CancelOrder(symbol string, id string) (result Order, err erro
 	return
 }
 
-func (b *HbdmSwap) CancelAllOrders(symbol string) (err error) {
+func (b *HbdmSwap) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	return
 }
 
-func (b *HbdmSwap) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *HbdmSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

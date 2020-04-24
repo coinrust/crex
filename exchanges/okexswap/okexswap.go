@@ -186,8 +186,8 @@ func (b *OkexSwap) CloseShort(symbol string, orderType OrderType, price float64,
 }
 
 func (b *OkexSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	var pType int
 	if direction == Buy {
 		if params.ReduceOnly {
@@ -238,7 +238,7 @@ func (b *OkexSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 	return
 }
 
-func (b *OkexSwap) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *OkexSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
 	var ret *okex.SwapOrdersInfo
@@ -255,7 +255,7 @@ func (b *OkexSwap) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *OkexSwap) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *OkexSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret okex.BaseOrderInfo
 	ret, err = b.client.GetSwapOrderById(symbol, id)
 	if err != nil {
@@ -265,7 +265,7 @@ func (b *OkexSwap) GetOrder(symbol string, id string) (result Order, err error) 
 	return
 }
 
-func (b *OkexSwap) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *OkexSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret okex.SwapCancelOrderResult
 	var resp []byte
 	resp, ret, err = b.client.PostSwapCancelOrder(symbol, id)
@@ -284,11 +284,11 @@ func (b *OkexSwap) CancelOrder(symbol string, id string) (result Order, err erro
 	return
 }
 
-func (b *OkexSwap) CancelAllOrders(symbol string) (err error) {
+func (b *OkexSwap) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	return
 }
 
-func (b *OkexSwap) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *OkexSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

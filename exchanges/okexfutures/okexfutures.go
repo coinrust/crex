@@ -216,8 +216,8 @@ func (b *OkexFutures) CloseShort(symbol string, orderType OrderType, price float
 }
 
 func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	var pType int
 	if direction == Buy {
 		if params.ReduceOnly {
@@ -271,7 +271,7 @@ func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType O
 	return
 }
 
-func (b *OkexFutures) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *OkexFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
 	var ret okex.FuturesGetOrdersResult
@@ -285,7 +285,7 @@ func (b *OkexFutures) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *OkexFutures) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *OkexFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret okex.FuturesGetOrderResult
 	ret, err = b.client.GetFuturesOrder(symbol, id)
 	if err != nil {
@@ -297,7 +297,7 @@ func (b *OkexFutures) GetOrder(symbol string, id string) (result Order, err erro
 	return
 }
 
-func (b *OkexFutures) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *OkexFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret okex.FuturesCancelInstrumentOrderResult
 	var resp []byte
 	resp, ret, err = b.client.CancelFuturesInstrumentOrder(symbol, id)
@@ -316,11 +316,11 @@ func (b *OkexFutures) CancelOrder(symbol string, id string) (result Order, err e
 	return
 }
 
-func (b *OkexFutures) CancelAllOrders(symbol string) (err error) {
+func (b *OkexFutures) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	return
 }
 
-func (b *OkexFutures) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *OkexFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

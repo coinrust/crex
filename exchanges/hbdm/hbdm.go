@@ -219,8 +219,8 @@ func (b *Hbdm) CloseShort(symbol string, orderType OrderType, price float64, siz
 // "limit":限价，"post_only":只做maker单 需要传价格
 // "fok"：全部成交或立即取消，"ioc":立即成交并取消剩余。
 func (b *Hbdm) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	var orderResult hbdm.OrderResult
 	var _direction string
 	var offset string
@@ -270,30 +270,10 @@ func (b *Hbdm) PlaceOrder(symbol string, direction Direction, orderType OrderTyp
 	result.Symbol = symbol
 	result.ID = fmt.Sprint(orderResult.Data.OrderID)
 	result.Status = OrderStatusNew
-	//var order hbdm.OrderInfoResult
-	//order, err = b.client.OrderInfo(
-	//	b.pair,
-	//	orderResult.Data.OrderID,
-	//	0,
-	//)
-	//if err != nil {
-	//	return
-	//}
-	//if order.Status != StatusOK {
-	//	err = fmt.Errorf("error code=%v msg=%v",
-	//		orderResult.ErrCode,
-	//		orderResult.ErrMsg)
-	//	return
-	//}
-	//if len(order.Data) != 1 {
-	//	err = fmt.Errorf("missing data")
-	//	return
-	//}
-	//result = b.convertOrder(symbol, &order.Data[0])
 	return
 }
 
-func (b *Hbdm) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *Hbdm) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	var ret hbdm.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
 		b.pair,
@@ -315,7 +295,7 @@ func (b *Hbdm) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *Hbdm) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *Hbdm) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret hbdm.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.OrderInfo(b.pair, _id, 0)
@@ -336,7 +316,7 @@ func (b *Hbdm) GetOrder(symbol string, id string) (result Order, err error) {
 	return
 }
 
-func (b *Hbdm) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *Hbdm) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret hbdm.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.Cancel(b.pair, _id, 0)
@@ -354,11 +334,11 @@ func (b *Hbdm) CancelOrder(symbol string, id string) (result Order, err error) {
 	return
 }
 
-func (b *Hbdm) CancelAllOrders(symbol string) (err error) {
+func (b *Hbdm) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	return
 }
 
-func (b *Hbdm) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *Hbdm) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

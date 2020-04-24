@@ -98,8 +98,8 @@ func (b *DeribitSim) CloseShort(symbol string, orderType OrderType, price float6
 }
 
 func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
@@ -375,7 +375,7 @@ func (b *DeribitSim) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *DeribitSim) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *DeribitSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
 			result = append(result, *v)
@@ -384,7 +384,7 @@ func (b *DeribitSim) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *DeribitSim) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *DeribitSim) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
@@ -394,7 +394,7 @@ func (b *DeribitSim) GetOrder(symbol string, id string) (result Order, err error
 	return
 }
 
-func (b *DeribitSim) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -414,7 +414,7 @@ func (b *DeribitSim) CancelOrder(symbol string, id string) (result Order, err er
 	return
 }
 
-func (b *DeribitSim) CancelAllOrders(symbol string) (err error) {
+func (b *DeribitSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	var idsToBeRemoved []string
 
 	for _, order := range b.openOrders {
@@ -437,7 +437,7 @@ func (b *DeribitSim) CancelAllOrders(symbol string) (err error) {
 	return
 }
 
-func (b *DeribitSim) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *DeribitSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

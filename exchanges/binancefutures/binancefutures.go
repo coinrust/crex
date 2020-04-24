@@ -169,8 +169,8 @@ func (b *BinanceFutures) CloseShort(symbol string, orderType OrderType, price fl
 }
 
 func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
 		Quantity(fmt.Sprint(size)).
@@ -210,7 +210,7 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	return
 }
 
-func (b *BinanceFutures) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *BinanceFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	service := b.client.NewListOpenOrdersService().
 		Symbol(symbol)
 	var res []*futures.Order
@@ -224,7 +224,7 @@ func (b *BinanceFutures) GetOpenOrders(symbol string) (result []Order, err error
 	return
 }
 
-func (b *BinanceFutures) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *BinanceFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var orderID int64
 	orderID, err = strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -242,7 +242,7 @@ func (b *BinanceFutures) GetOrder(symbol string, id string) (result Order, err e
 	return
 }
 
-func (b *BinanceFutures) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *BinanceFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var orderID int64
 	orderID, err = strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -260,14 +260,14 @@ func (b *BinanceFutures) CancelOrder(symbol string, id string) (result Order, er
 	return
 }
 
-func (b *BinanceFutures) CancelAllOrders(symbol string) (err error) {
+func (b *BinanceFutures) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	err = b.client.NewCancelAllOpenOrdersService().
 		Symbol(symbol).
 		Do(context.Background())
 	return
 }
 
-func (b *BinanceFutures) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *BinanceFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	return
 }
 

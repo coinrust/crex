@@ -125,8 +125,8 @@ func (b *BitMEX) CloseShort(symbol string, orderType OrderType, price float64, s
 }
 
 func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...OrderOption) (result Order, err error) {
-	params := ParseOrderParameter(opts...)
+	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	params := ParsePlaceOrderParameter(opts...)
 	var side string
 	var _orderType string
 	if direction == Buy {
@@ -163,7 +163,7 @@ func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderT
 	return
 }
 
-func (b *BitMEX) GetOpenOrders(symbol string) (result []Order, err error) {
+func (b *BitMEX) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
 	var ret []swagger.Order
 	ret, err = b.client.GetOrders(symbol)
 	if err != nil {
@@ -175,7 +175,7 @@ func (b *BitMEX) GetOpenOrders(symbol string) (result []Order, err error) {
 	return
 }
 
-func (b *BitMEX) GetOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEX) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var ret swagger.Order
 	ret, err = b.client.GetOrder(id, symbol)
 	if err != nil {
@@ -185,7 +185,7 @@ func (b *BitMEX) GetOrder(symbol string, id string) (result Order, err error) {
 	return
 }
 
-func (b *BitMEX) CancelOrder(symbol string, id string) (result Order, err error) {
+func (b *BitMEX) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
 	var order swagger.Order
 	order, err = b.client.CancelOrder(id)
 	if err != nil {
@@ -195,12 +195,12 @@ func (b *BitMEX) CancelOrder(symbol string, id string) (result Order, err error)
 	return
 }
 
-func (b *BitMEX) CancelAllOrders(symbol string) (err error) {
+func (b *BitMEX) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	_, err = b.client.CancelAllOrders(symbol)
 	return
 }
 
-func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float64) (result Order, err error) {
+func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
 	var resp swagger.Order
 	resp, err = b.client.AmendOrder2(id, "", "", 0, float32(size), 0, 0, price, 0, 0, "")
 	if err != nil {
