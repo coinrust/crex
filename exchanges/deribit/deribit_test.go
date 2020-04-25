@@ -25,12 +25,12 @@ func testExchange(websocket bool) Exchange {
 	return b
 }
 
-func TestDiribit_GetOrderBook(t *testing.T) {
+func TestDeribit_GetOrderBook(t *testing.T) {
 	b := newForTest()
 	b.GetOrderBook("BTC-PERPETUAL", 10)
 }
 
-func TestDiribit_GetRecords(t *testing.T) {
+func TestDeribit_GetRecords(t *testing.T) {
 	b := newForTest()
 	start := time.Now().Add(-time.Hour)
 	end := time.Now().UnixNano() / int64(time.Millisecond)
@@ -60,7 +60,7 @@ func TestDeribit_PlaceOrder(t *testing.T) {
 	t.Logf("%#v", order)
 }
 
-func TestDiribit_PlaceStopOrder(t *testing.T) {
+func TestDeribit_PlaceStopOrder(t *testing.T) {
 	b := newForTest()
 	order, err := b.PlaceOrder("BTC-PERPETUAL",
 		Buy,
@@ -76,7 +76,7 @@ func TestDiribit_PlaceStopOrder(t *testing.T) {
 	t.Logf("Status: %v", order.Status.String())
 }
 
-func TestDiribit_GetOpenOrders(t *testing.T) {
+func TestDeribit_GetOpenOrders(t *testing.T) {
 	b := newForTest()
 	orders, err := b.GetOpenOrders("BTC-PERPETUAL")
 	if err != nil {

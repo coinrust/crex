@@ -25,6 +25,9 @@
 ## 实盘
 示例 [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/main.go)
 
+## 开源策略
+[https://github.com/coinrust/trading-strategies](https://github.com/coinrust/trading-strategies)
+
 ## 主要特性
 * 使用简单
 * Tick级别回测

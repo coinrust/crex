@@ -25,6 +25,9 @@ See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/m
 ### Live trading
 See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/main.go)
 
+## Open-source trading strategies
+[https://github.com/coinrust/trading-strategies](https://github.com/coinrust/trading-strategies)
+
 ### Main Features
 * Ease of use.
 * Tick-level backtesting.
