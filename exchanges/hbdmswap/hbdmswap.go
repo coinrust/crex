@@ -23,6 +23,20 @@ func (b *HbdmSwap) GetName() (name string) {
 	return "hbdmswap"
 }
 
+func (b *HbdmSwap) GetTime() (tm int64, err error) {
+	var heartbeat hbdmswap.HeartbeatResult
+	heartbeat, err = b.client.Heartbeat()
+	if err != nil {
+		return
+	}
+	if heartbeat.Status != StatusOK {
+		err = fmt.Errorf("%v", heartbeat.Status)
+		return
+	}
+	tm = heartbeat.Ts
+	return
+}
+
 func (b *HbdmSwap) GetBalance(currency string) (result Balance, err error) {
 	var account hbdmswap.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)
@@ -434,6 +448,9 @@ func (b *HbdmSwap) RunEventLoopOnce() (err error) {
 
 func NewHbdmSwap(params *Parameters) *HbdmSwap {
 	baseUri := "https://api.hbdm.com"
+	if params.ApiURL != "" {
+		baseUri = params.ApiURL
+	}
 	apiParams := &hbdmswap.ApiParameter{
 		Debug:              false,
 		AccessKey:          params.AccessKey,

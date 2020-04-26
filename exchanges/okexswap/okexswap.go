@@ -3,6 +3,7 @@ package okexswap
 import (
 	"fmt"
 	"github.com/coinrust/crex/util"
+	"github.com/spf13/cast"
 	"strconv"
 	"strings"
 	"time"
@@ -25,6 +26,17 @@ type OkexSwap struct {
 
 func (b *OkexSwap) GetName() (name string) {
 	return "okexswap"
+}
+
+func (b *OkexSwap) GetTime() (tm int64, err error) {
+	var serverTime okex.ServerTime
+	serverTime, err = b.client.GetServerTime()
+	if err != nil {
+		return
+	}
+	// 1420674445.201
+	tm = cast.ToInt64(cast.ToFloat64(serverTime.Epoch) * 1000)
+	return
 }
 
 func (b *OkexSwap) GetBalance(currency string) (result Balance, err error) {
@@ -434,9 +446,14 @@ func (b *OkexSwap) RunEventLoopOnce() (err error) {
 }
 
 func NewOkexSwap(params *Parameters) *OkexSwap {
-	baseUri := "https://www.okex.com"
-	if params.Testnet {
-		baseUri = "https://testnet.okex.me"
+	var baseUri string
+	if params.ApiURL != "" {
+		baseUri = params.ApiURL
+	} else {
+		baseUri = "https://www.okex.com"
+		if params.Testnet {
+			baseUri = "https://testnet.okex.com"
+		}
 	}
 	config := okex.Config{
 		Endpoint:      baseUri,

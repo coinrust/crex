@@ -15,7 +15,18 @@ func testExchange() Exchange {
 	params.SecretKey = testConfig.SecretKey
 	params.ProxyURL = testConfig.ProxyURL
 	params.Testnet = testConfig.Testnet
+	params.ApiURL = "https://api.btcgateway.pro" // https://api.hbdm.com
 	return NewHbdmSwap(params)
+}
+
+func TestHbdmSwap_GetTime(t *testing.T) {
+	ex := testExchange()
+	tm, err := ex.GetTime()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", tm)
 }
 
 func TestHbdmSwap_GetRecords(t *testing.T) {

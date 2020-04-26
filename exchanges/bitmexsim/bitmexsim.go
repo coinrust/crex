@@ -40,6 +40,11 @@ func (b *BitMEXSim) GetName() (name string) {
 	return "bitmex"
 }
 
+func (b *BitMEXSim) GetTime() (tm int64, err error) {
+	err = ErrNotImplemented
+	return
+}
+
 func (b *BitMEXSim) GetBalance(currency string) (result Balance, err error) {
 	result.Available = b.balance
 	var symbol string

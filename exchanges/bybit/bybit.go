@@ -22,6 +22,11 @@ func (b *Bybit) GetName() (name string) {
 	return "bybit"
 }
 
+func (b *Bybit) GetTime() (tm int64, err error) {
+	tm, err = b.client.GetServerTime()
+	return
+}
+
 func (b *Bybit) GetBalance(currency string) (result Balance, err error) {
 	var balance rest.Balance
 	balance, err = b.client.GetWalletBalance(currency)

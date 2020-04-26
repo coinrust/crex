@@ -38,6 +38,11 @@ func (b *DeribitSim) GetName() (name string) {
 	return "deribit"
 }
 
+func (b *DeribitSim) GetTime() (tm int64, err error) {
+	err = ErrNotImplemented
+	return
+}
+
 func (b *DeribitSim) GetBalance(currency string) (result Balance, err error) {
 	result.Available = b.balance
 	var symbol string

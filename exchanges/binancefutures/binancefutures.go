@@ -22,6 +22,12 @@ func (b *BinanceFutures) GetName() (name string) {
 	return "binancefutures"
 }
 
+func (b *BinanceFutures) GetTime() (tm int64, err error) {
+	tm, err = b.client.NewServerTimeService().
+		Do(context.Background())
+	return
+}
+
 // SetProxy ...
 // proxyURL: http://127.0.0.1:1080
 func (b *BinanceFutures) SetProxy(proxyURL string) error {

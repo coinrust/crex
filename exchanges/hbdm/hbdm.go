@@ -27,6 +27,11 @@ func (b *Hbdm) GetName() (name string) {
 	return "hbdm"
 }
 
+func (b *Hbdm) GetTime() (tm int64, err error) {
+	err = ErrNotImplemented
+	return
+}
+
 func (b *Hbdm) GetBalance(currency string) (result Balance, err error) {
 	var account hbdm.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)
@@ -518,6 +523,9 @@ func (b *Hbdm) RunEventLoopOnce() (err error) {
 
 func NewHbdm(params *Parameters) *Hbdm {
 	baseUri := "https://api.hbdm.com"
+	if params.ApiURL != "" {
+		baseUri = params.ApiURL
+	}
 	apiParams := &hbdm.ApiParameter{
 		Debug:              false,
 		AccessKey:          params.AccessKey,

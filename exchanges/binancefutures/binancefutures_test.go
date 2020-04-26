@@ -19,6 +19,16 @@ func testExchange() Exchange {
 	return ex
 }
 
+func TestBinanceFutures_GetTime(t *testing.T) {
+	ex := testExchange()
+	tm, err := ex.GetTime()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", tm)
+}
+
 func TestBinanceFutures_GetBalance(t *testing.T) {
 	ex := testExchange()
 	balance, err := ex.GetBalance("USDT")

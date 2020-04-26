@@ -159,6 +159,9 @@ type Exchange interface {
 	// 获取 Exchange 名称
 	GetName() (name string)
 
+	// 获取交易所时间(ms)
+	GetTime() (tm int64, err error)
+
 	// 获取账号余额
 	GetBalance(currency string) (result Balance, err error)
 

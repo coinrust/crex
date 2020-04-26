@@ -21,6 +21,11 @@ func (b *Deribit) GetName() (name string) {
 	return "deribit"
 }
 
+func (b *Deribit) GetTime() (tm int64, err error) {
+	tm, err = b.client.GetTime()
+	return
+}
+
 func (b *Deribit) GetBalance(currency string) (result Balance, err error) {
 	params := &models.GetAccountSummaryParams{
 		Currency: currency,

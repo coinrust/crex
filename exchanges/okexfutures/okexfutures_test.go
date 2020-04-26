@@ -18,7 +18,18 @@ func testExchange() Exchange {
 	params.Passphrase = testConfig.Passphrase
 	params.Testnet = testConfig.Testnet
 	params.ProxyURL = testConfig.ProxyURL
+	params.ApiURL = "https://www.okex.me"
 	return NewOkexFutures(params)
+}
+
+func TestOkexFutures_GetTime(t *testing.T) {
+	ex := testExchange()
+	tm, err := ex.GetTime()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", tm)
 }
 
 func TestOkexFutures_GetBalance(t *testing.T) {

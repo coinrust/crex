@@ -20,6 +20,16 @@ func (b *BitMEX) GetName() (name string) {
 	return "bitmex"
 }
 
+func (b *BitMEX) GetTime() (tm int64, err error) {
+	var version bitmex.Version
+	version, _, err = b.client.GetVersion()
+	if err != nil {
+		return
+	}
+	tm = version.Timestamp
+	return
+}
+
 func (b *BitMEX) GetBalance(currency string) (result Balance, err error) {
 	var margin swagger.Margin
 	margin, err = b.client.GetMargin()

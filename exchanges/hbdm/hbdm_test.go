@@ -19,6 +19,16 @@ func testExchange(websocket bool) *Hbdm {
 	return NewHbdm(params)
 }
 
+func TestHbdm_GetTime(t *testing.T) {
+	ex := testExchange(false)
+	tm, err := ex.GetTime()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%v", tm)
+}
+
 func TestHbdm_GetBalance(t *testing.T) {
 	ex := testExchange(false)
 	balance, err := ex.GetBalance("BTC")
