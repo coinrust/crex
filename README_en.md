@@ -115,7 +115,7 @@ func main() {
 
 	s.OnInit()
 	s.Run()
-	s.OnDeinit()
+	s.OnExit()
 }
 ```
 
