@@ -69,7 +69,7 @@ func Serve(strategy Strategy) (err error) {
 	if err != nil {
 		return
 	}
-	err = strategy.OnDeinit()
+	err = strategy.OnExit()
 	return
 }
 

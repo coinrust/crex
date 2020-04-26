@@ -30,7 +30,7 @@ type Strategy interface {
 	Run() error
 	OnInit() error
 	OnTick() error
-	OnDeinit() error
+	OnExit() error
 }
 
 // StrategyBase Strategy base class

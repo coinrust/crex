@@ -2,7 +2,7 @@ package backtest
 
 import (
 	. "github.com/coinrust/crex"
-	data "github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/data"
 	"log"
 	"time"
 )
@@ -46,8 +46,8 @@ func (b *Backtest) Run() {
 		}
 	}
 
-	// Deinit
-	b.strategy.OnDeinit()
+	// Exit
+	b.strategy.OnExit()
 }
 
 func (b *Backtest) runEventLoopOnce() {
