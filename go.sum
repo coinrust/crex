@@ -117,8 +117,8 @@ github.com/frankrap/bybit-api v1.0.1-0.20200423094337-80be56d868a1 h1:wQzZBVOVBT
 github.com/frankrap/bybit-api v1.0.1-0.20200423094337-80be56d868a1/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/deribit-api v1.0.3 h1:dr99UrQ4nT4T7B2voPKPRyQwcihBjIg8VDZrImUGF20=
 github.com/frankrap/deribit-api v1.0.3/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
-github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5 h1:5xpEsWvHEk7y6NBa9iNzCIgjQ1swSkYkE4Q+YGT8TjI=
-github.com/frankrap/huobi-api v0.0.0-20200420011222-6e786f2797a5/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
+github.com/frankrap/huobi-api v1.0.0 h1:xJ/p7/gZLXAZhG+pI2VCr/nxJrkhzCJwWgJBKNVGorE=
+github.com/frankrap/huobi-api v1.0.0/go.mod h1:qVwcC8rD0J/YJblSPQqFD1TEMumT8Up9B6pUPnAws0g=
 github.com/frankrap/okex-api v0.0.0-20200422112408-a276dd807813 h1:sntKgQSgbmkKO68ZNjqQfplstf1C2i0XTBKJFWu6LrU=
 github.com/frankrap/okex-api v0.0.0-20200422112408-a276dd807813/go.mod h1:RLK/99FeDBeDANLmZG/BEzqg2RjwVNk5935XjUT2hUs=
 github.com/fsnotify/fsnotify v1.4.7 h1:IXs+QLmnXW2CcXuY+8Mzv/fWEsPGWxqefPtCP5CnV9I=

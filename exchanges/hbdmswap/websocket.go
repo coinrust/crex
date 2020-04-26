@@ -12,6 +12,7 @@ import (
 type SwapWebSocket struct {
 	ws      *hbdmswap.WS
 	nws     *hbdmswap.NWS
+	dobMap  map[string]*DepthOrderBook
 	emitter *emission.Emitter
 }
 
@@ -23,7 +24,8 @@ func (s *SwapWebSocket) SubscribeTrades(market Market, callback func(trades []Tr
 
 func (s *SwapWebSocket) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error {
 	s.emitter.On(WSEventL2Snapshot, callback)
-	s.ws.SubscribeDepth("depth_1", market.Symbol)
+	//s.ws.SubscribeDepth("depth_1", market.Symbol)
+	s.ws.SubscribeDepthHF("depth_1", market.Symbol, 20, "incremental")
 	return nil
 }
 
@@ -67,6 +69,22 @@ func (s *SwapWebSocket) depthCallback(depth *hbdmswap.WSDepth) {
 		})
 	}
 	s.emitter.Emit(WSEventL2Snapshot, ob)
+}
+
+func (s *SwapWebSocket) depthHFCallback(depth *hbdmswap.WSDepthHF) {
+	// ch: market.BTC_USD.depth.size_20.high_freq
+	symbol := depth.Ch
+	if v, ok := s.dobMap[symbol]; ok {
+		v.Update(depth)
+		ob := v.GetOrderBook(20)
+		s.emitter.Emit(WSEventL2Snapshot, &ob)
+	} else {
+		dob := NewDepthOrderBook(symbol)
+		dob.Update(depth)
+		s.dobMap[symbol] = dob
+		ob := dob.GetOrderBook(20)
+		s.emitter.Emit(WSEventL2Snapshot, &ob)
+	}
 }
 
 func (s *SwapWebSocket) tradeCallback(trade *hbdmswap.WSTrade) {
@@ -168,14 +186,19 @@ func (s *SwapWebSocket) positionsCallback(positions *hbdmswap.WSPositions) {
 
 func NewSwapWebSocket(params *Parameters) *SwapWebSocket {
 	wsURL := "wss://api.hbdm.com/swap-ws"
+	if params.WsURL != "" {
+		wsURL = params.WsURL
+	}
 	s := &SwapWebSocket{
+		dobMap:  make(map[string]*DepthOrderBook),
 		emitter: emission.NewEmitter(),
 	}
-	ws := hbdmswap.NewWS(wsURL, params.AccessKey, params.SecretKey)
+	ws := hbdmswap.NewWS(wsURL, params.AccessKey, params.SecretKey, params.DebugMode)
 	if params.ProxyURL != "" {
 		ws.SetProxy(params.ProxyURL)
 	}
 	ws.SetDepthCallback(s.depthCallback)
+	ws.SetDepthHFCallback(s.depthHFCallback)
 	ws.SetTradeCallback(s.tradeCallback)
 	ws.Start()
 	s.ws = ws

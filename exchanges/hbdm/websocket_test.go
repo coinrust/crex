@@ -15,6 +15,7 @@ func testWebSocket() *HbdmWebSocket {
 	params.SecretKey = testConfig.SecretKey
 	params.ProxyURL = testConfig.ProxyURL
 	params.Testnet = testConfig.Testnet
+	params.WsURL = "wss://api.btcgateway.pro/ws"
 	ws := NewHbdmWebSocket(params)
 	return ws
 }
