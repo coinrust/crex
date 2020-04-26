@@ -98,7 +98,7 @@ func (s *BasicStrategy) Run() error {
 	return nil
 }
 
-func (s *BasicStrategy) OnDeinit() error {
+func (s *BasicStrategy) OnExit() error {
 	return nil
 }
 
