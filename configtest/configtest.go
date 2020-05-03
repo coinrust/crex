@@ -1,43 +1,58 @@
 package configtest
 
 import (
-	"github.com/spf13/viper"
+	"github.com/BurntSushi/toml"
 	"log"
+	"path/filepath"
 )
 
+var (
+	testDataDir = "../../testdata/"
+)
+
+type Config struct {
+	BinanceFutures TestConfig `toml:"binancefutures"`
+	Bitmex         TestConfig `toml:"bitmex"`
+	Bybit          TestConfig `toml:"bybit"`
+	Deribit        TestConfig `toml:"deribit"`
+	Hbdm           TestConfig `toml:"hbdm"`
+	HbdmSwap       TestConfig `toml:"hbdmswap"`
+	OkexFutures    TestConfig `toml:"okexfutures"`
+	OkexSwap       TestConfig `toml:"okexswap"`
+}
+
 type TestConfig struct {
-	AccessKey  string
-	SecretKey  string
-	Passphrase string
-	Testnet    bool
-	ProxyURL   string
+	AccessKey  string `toml:"access_key"`
+	SecretKey  string `toml:"secret_key"`
+	Passphrase string `toml:"passphrase"`
+	Testnet    bool   `toml:"testnet"`
+	ProxyURL   string `toml:"proxy_url"`
 }
 
 func LoadTestConfig(name string) *TestConfig {
-	viper.SetConfigName("configtest")
-	viper.AddConfigPath("../../testdata")
-	err := viper.ReadInConfig()
-	if err != nil {
+	fPath := filepath.Join(testDataDir, "configtest.toml")
+	var cfg Config
+	if _, err := toml.DecodeFile(fPath, &cfg); err != nil {
 		log.Panic(err)
 	}
-	cfg := &TestConfig{}
-	items := viper.GetStringMapString(name)
-	if len(items) == 0 {
-		log.Panic("test config not found [configtest.yaml]")
+	tCfg := &TestConfig{}
+	switch name {
+	case "binancefutures":
+		tCfg = &cfg.BinanceFutures
+	case "bitmex":
+		tCfg = &cfg.Bitmex
+	case "bybit":
+		tCfg = &cfg.Bybit
+	case "deribit":
+		tCfg = &cfg.Deribit
+	case "hbdm":
+		tCfg = &cfg.Hbdm
+	case "hbdmswap":
+		tCfg = &cfg.HbdmSwap
+	case "okexfutures":
+		tCfg = &cfg.OkexFutures
+	case "okexswap":
+		tCfg = &cfg.OkexSwap
 	}
-	for key, value := range items {
-		switch key {
-		case "access_key":
-			cfg.AccessKey = value
-		case "secret_key":
-			cfg.SecretKey = value
-		case "passphrase":
-			cfg.Passphrase = value
-		case "testnet":
-			cfg.Testnet = value == "true"
-		case "proxy_url":
-			cfg.ProxyURL = value
-		}
-	}
-	return cfg
+	return tCfg
 }

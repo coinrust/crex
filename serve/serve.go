@@ -3,53 +3,33 @@ package serve
 import (
 	"flag"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/exchanges"
-	"github.com/spf13/viper"
-	"path/filepath"
-	"strings"
 )
 
 var (
 	configFile string
 )
 
-type ExchangeConfig struct {
-	Exchanges []ExchangeItem `yaml:"exchanges"`
+type SConfig struct {
+	Exchanges []SExchange            `toml:"exchange"`
+	Options   map[string]interface{} `toml:"option"`
 }
 
-type ExchangeItem struct {
-	Name       string `yaml:"name"`
-	Debug_Mode bool   `yaml:"debug_mode"`
-	Access_Key string `yaml:"access_key"`
-	Secret_Key string `yaml:"secret_key"`
-	Testnet    bool   `yaml:"testnet"`
-	WebSocket  bool   `yaml:"websocket"`
+type SExchange struct {
+	Name      string `toml:"name"`
+	DebugMode bool   `toml:"debug_mode"`
+	AccessKey string `toml:"access_key"`
+	SecretKey string `toml:"secret_key"`
+	Testnet   bool   `toml:"testnet"`
+	WebSocket bool   `toml:"websocket"`
 }
 
 // Serve 加载策略并执行
 func Serve(strategy Strategy) (err error) {
-	flag.StringVar(&configFile, "c", "config.yaml", "")
+	flag.StringVar(&configFile, "c", "config.toml", "")
 	flag.Parse()
-
-	base := filepath.Base(configFile)
-	ext := filepath.Ext(configFile)
-	var configType string
-	if strings.HasPrefix(ext, ".") {
-		configType = ext[1:]
-	} else {
-		err = fmt.Errorf("wrong configuration file")
-		return
-	}
-
-	viper.SetConfigType(configType)
-	viper.SetConfigName(base)
-	viper.AddConfigPath(".")
-
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
-	}
 
 	err = strategy.SetSelf(strategy)
 	if err != nil {
@@ -75,9 +55,8 @@ func Serve(strategy Strategy) (err error) {
 
 // SetupStrategyFromConfig 根据配置文件设置策略参数
 func SetupStrategyFromConfig(strategy Strategy) (err error) {
-	c := ExchangeConfig{}
-	err = viper.Unmarshal(&c)
-	if err != nil {
+	c := SConfig{}
+	if _, err = toml.DecodeFile(configFile, &c); err != nil {
 		return
 	}
 	if len(c.Exchanges) == 0 {
@@ -87,19 +66,17 @@ func SetupStrategyFromConfig(strategy Strategy) (err error) {
 	var exs []Exchange
 	for _, ex := range c.Exchanges {
 		exchange := exchanges.NewExchange(ex.Name,
-			ApiDebugModeOption(ex.Debug_Mode),
-			ApiAccessKeyOption(ex.Access_Key),
-			ApiSecretKeyOption(ex.Secret_Key),
+			ApiDebugModeOption(ex.DebugMode),
+			ApiAccessKeyOption(ex.AccessKey),
+			ApiSecretKeyOption(ex.SecretKey),
 			ApiTestnetOption(ex.Testnet),
 			ApiWebSocketOption(ex.WebSocket))
 		exs = append(exs, exchange)
 	}
-	err = strategy.Setup(TradeModeLiveTrading, exs...)
-	if err != nil {
+	if err = strategy.Setup(TradeModeLiveTrading, exs...); err != nil {
 		return
 	}
-	options := viper.GetStringMap("options")
 	//log.Printf("options: %#v", options)
-	err = strategy.SetOptions(options)
+	err = strategy.SetOptions(c.Options)
 	return
 }

@@ -1,0 +1,53 @@
+# example:
+# proxy_url = "socks5://127.0.0.1:1080"
+
+[binancefutures]
+access_key = ""
+secret_key = ""
+testnet = true
+proxy_url = ""
+
+[bitmex]
+access_key = ""
+secret_key = ""
+testnet = true
+proxy_url = ""
+
+[bybit]
+access_key = ""
+secret_key = ""
+testnet = true
+proxy_url = ""
+
+[deribit]
+access_key = ""
+secret_key = ""
+testnet = true
+proxy_url = ""
+
+[hbdm]
+access_key = ""
+secret_key = ""
+testnet = false
+proxy_url = "socks5://127.0.0.1:1080"
+
+[hbdmswap]
+access_key = ""
+secret_key = ""
+testnet = false
+proxy_url = "socks5://127.0.0.1:1080"
+
+[okexfutures]
+access_key = ""
+secret_key = ""
+passphrase = ""
+testnet = false
+proxy_url = ""
+
+okexswap:
+  access_key: ""
+  secret_key: ""
+  passphrase: ""
+  testnet: false
+  proxy_url: ""
+
