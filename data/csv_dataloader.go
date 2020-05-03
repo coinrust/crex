@@ -39,11 +39,7 @@ func (l *CsvDataLoader) ReadData() (result []*OrderBook) {
 
 		line := strings.TrimSpace(string(rawLine))
 		tick, ok := l.readLine(line)
-		if !ok {
-			l.close()
-			break
-		}
-		if tick == nil {
+		if !ok || tick == nil {
 			continue
 		}
 		result = append(result, tick)
