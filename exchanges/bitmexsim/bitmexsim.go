@@ -214,6 +214,7 @@ func (b *BitMEXSim) matchMarketOrder(order *Order) (err error) {
 		// Update position
 		b.updatePosition(order.Symbol, -size, price)
 	}
+	order.Status = OrderStatusFilled
 	return
 }
 
