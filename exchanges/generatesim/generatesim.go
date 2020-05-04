@@ -156,6 +156,7 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 	}
 
 	s.orders[id] = order
+	result = *order
 	return
 }
 
@@ -181,7 +182,7 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 	if order.Direction == Buy {
 		size := order.Amount
 		price := ob.AskAvePrice(size)
-		if price < 0 {
+		if price <= 0 {
 			return
 		}
 
@@ -338,7 +339,7 @@ func (s *GenerateSim) addPosition(position *Position, size float64, price float6
 
 	position.AvgPrice = avgPrice
 	position.Size += size
-
+	amount = math.Abs(size)
 	return
 }
 
@@ -348,10 +349,10 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		err = errors.New("当前无持仓")
 		return
 	}
-	if position.Size > 0 && size > 0 || position.Size < 0 && size < 0 {
-		err = errors.New("方向错误")
-		return
-	}
+	//if position.Size > 0 && size > 0 || position.Size < 0 && size < 0 {
+	//	err = errors.New("方向错误")
+	//	return
+	//}
 	remaining := math.Abs(size) - math.Abs(position.Size)
 	if isReduce {
 		remaining = 0

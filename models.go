@@ -54,7 +54,6 @@ func avePrice(items []Item, size float64) float64 {
 
 	for i := 0; i < n; i++ {
 		if lSize >= items[i].Amount {
-			// size := asks[i].Amount
 			totalSize += items[i].Amount
 			totalValue += items[i].Amount * items[i].Price
 			lSize -= items[i].Amount
@@ -70,7 +69,7 @@ func avePrice(items []Item, size float64) float64 {
 	}
 
 	if lSize != 0 || totalSize == 0 {
-		return 0
+		return -1
 	}
 	return totalValue / totalSize
 
