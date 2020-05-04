@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -99,10 +100,10 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 	bidOffset := nDepth * 2
 
 	for i := 0; i < nDepth; i++ {
-		ask, _ := strconv.ParseFloat(ss[1+i], 64)
-		askAmount, _ := strconv.ParseFloat(ss[2+i], 64)
-		bid, _ := strconv.ParseFloat(ss[1+i+bidOffset], 64)
-		bidAmount, _ := strconv.ParseFloat(ss[2+i+bidOffset], 64)
+		ask, _ := strconv.ParseFloat(ss[1+2*i], 64)
+		askAmount, _ := strconv.ParseFloat(ss[2+2*i], 64)
+		bid, _ := strconv.ParseFloat(ss[1+2*i+bidOffset], 64)
+		bidAmount, _ := strconv.ParseFloat(ss[2+2*i+bidOffset], 64)
 		asks = append(asks, Item{
 			Price:  ask,
 			Amount: askAmount,
@@ -110,6 +111,17 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 		bids = append(bids, Item{
 			Price:  bid,
 			Amount: bidAmount,
+		})
+	}
+
+	if asks[0].Price > asks[1].Price {
+		sort.Slice(asks, func(i, j int) bool {
+			return asks[i].Price < asks[j].Price
+		})
+	}
+	if bids[0].Price < bids[1].Price {
+		sort.Slice(bids, func(i, j int) bool {
+			return bids[i].Price > bids[j].Price
 		})
 	}
 
