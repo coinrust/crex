@@ -12,6 +12,8 @@ require (
 	github.com/frankrap/deribit-api v1.0.3
 	github.com/frankrap/huobi-api v1.0.0
 	github.com/frankrap/okex-api v1.0.0
+	github.com/go-echarts/go-echarts v0.0.0-20190915064101-cbb3b43ade5d
+	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.3.1

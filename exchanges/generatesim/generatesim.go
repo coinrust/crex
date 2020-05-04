@@ -11,10 +11,6 @@ import (
 	"time"
 )
 
-const (
-	PositionSizeLimit = 1000000 // Position size limit
-)
-
 type MarginInfo struct {
 	Leverage              float64
 	MaintMargin           float64
@@ -22,7 +18,7 @@ type MarginInfo struct {
 	LiquidationPriceShort float64
 }
 
-// GenerateSim the deribit exchange for backtest
+// GenerateSim the generate/common exchange for backtest
 type GenerateSim struct {
 	data               *data.Data
 	makerFeeRate       float64 // -0.00025	// Maker fee rate

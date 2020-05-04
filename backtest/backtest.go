@@ -3,7 +3,9 @@ package backtest
 import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/data"
+	"github.com/go-echarts/go-echarts/charts"
 	"log"
+	"os"
 	"time"
 )
 
@@ -13,6 +15,8 @@ type Backtest struct {
 	exchanges []Exchange
 	logs      LogItems
 }
+
+const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 
 // NewBacktest Create backtest
 // data: The data
@@ -139,5 +143,47 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 
 // Plot Output backtest results
 func (b *Backtest) Plot() {
+	line := charts.NewLine()
+	line.SetGlobalOptions(
+		charts.InitOpts{PageTitle: "回测", Width: "1270px", Height: "600px"},
+		charts.ToolboxOpts{Show: true},
+		charts.ToolboxOpts{Show: true},
+		charts.TitleOpts{Title: "回测"},
+		charts.TooltipOpts{Show: true, Trigger: "axis", TriggerOn: "mousemove|click"},
+		charts.DataZoomOpts{Type: "slider", Start: 0, End: 100},
+		//charts.LegendOpts{Right: "80%"},
+		//charts.SplitLineOpts{Show: true},
+		//charts.SplitAreaOpts{Show: true},
+	)
+	nameItems := make([]string, 0)
+	prices := make([]float64, 0)
+	equities := make([]float64, 0)
 
+	for _, v := range b.logs {
+		nameItems = append(nameItems, v.Time.Format(SimpleDateTimeFormat))
+		prices = append(prices, v.Price())
+		equities = append(equities, v.TotalEquity())
+	}
+
+	line.AddXAxis(nameItems)
+	line.AddYAxis("price", prices,
+		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
+		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
+		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
+		charts.LineOpts{Smooth: true, YAxisIndex: 0})
+
+	line.AddYAxis("equity", equities,
+		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
+		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
+		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
+		charts.LineOpts{Smooth: true, YAxisIndex: 0})
+
+	line.SetSeriesOptions()
+	line.SetGlobalOptions(charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}})
+
+	f, err := os.Create("result.html")
+	if err != nil {
+		log.Println(err)
+	}
+	line.Render(f)
 }
