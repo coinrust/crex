@@ -486,12 +486,7 @@ func (s *GenerateSim) AmendOrder(symbol string, id string, price float64, size f
 }
 
 func (s *GenerateSim) GetPositions(symbol string) (result []Position, err error) {
-	position, ok := s.positions[symbol]
-	if !ok {
-		err = errors.New("not found")
-		return
-	}
-	result = position
+	result = s.getPosition(symbol)
 	return
 }
 
