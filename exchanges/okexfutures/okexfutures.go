@@ -211,24 +211,24 @@ func (b *OkexFutures) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *OkexFutures) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexFutures) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *OkexFutures) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexFutures) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *OkexFutures) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexFutures) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *OkexFutures) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexFutures) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	var pType int
 	if direction == Buy {
@@ -275,6 +275,7 @@ func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType O
 			string(resp))
 		return
 	}
+	result = &Order{}
 	result.Symbol = symbol
 	result.ID = ret.OrderId
 	result.Status = OrderStatusNew
@@ -283,7 +284,7 @@ func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType O
 	return
 }
 
-func (b *OkexFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *OkexFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
 	var ret okex.FuturesGetOrdersResult
@@ -297,7 +298,7 @@ func (b *OkexFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result 
 	return
 }
 
-func (b *OkexFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *OkexFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret okex.FuturesGetOrderResult
 	ret, err = b.client.GetFuturesOrder(symbol, id)
 	if err != nil {
@@ -309,7 +310,7 @@ func (b *OkexFutures) GetOrder(symbol string, id string, opts ...OrderOption) (r
 	return
 }
 
-func (b *OkexFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *OkexFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret okex.FuturesCancelInstrumentOrderResult
 	var resp []byte
 	resp, ret, err = b.client.CancelFuturesInstrumentOrder(symbol, id)
@@ -324,6 +325,7 @@ func (b *OkexFutures) CancelOrder(symbol string, id string, opts ...OrderOption)
 			string(resp))
 		return
 	}
+	result = &Order{}
 	result.ID = ret.OrderId
 	return
 }
@@ -332,11 +334,11 @@ func (b *OkexFutures) CancelAllOrders(symbol string, opts ...OrderOption) (err e
 	return
 }
 
-func (b *OkexFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *OkexFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *OkexFutures) GetPositions(symbol string) (result []Position, err error) {
+func (b *OkexFutures) GetPositions(symbol string) (result []*Position, err error) {
 	var ret okex.FuturesPosition
 	ret, err = b.client.GetFuturesInstrumentPosition(symbol)
 	if err != nil {
@@ -367,7 +369,7 @@ func (b *OkexFutures) GetPositions(symbol string) (result []Position, err error)
 				position.AvgPrice = v.ShortAvgCost
 				position.OpenTime = createAt
 			}
-			result = append(result, position)
+			result = append(result, &position)
 		}
 	} else {
 		for _, v := range ret.FixedPosition {
@@ -389,13 +391,14 @@ func (b *OkexFutures) GetPositions(symbol string) (result []Position, err error)
 				position.AvgPrice = v.ShortAvgCost
 				position.OpenTime = createAt
 			}
-			result = append(result, position)
+			result = append(result, &position)
 		}
 	}
 	return
 }
 
-func (b *OkexFutures) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result Order) {
+func (b *OkexFutures) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderId
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -467,7 +470,7 @@ func (b *OkexFutures) orderStatus(order *okex.FuturesGetOrderResult) OrderStatus
 	}
 }
 
-func (b *OkexFutures) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *OkexFutures) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -481,14 +484,14 @@ func (b *OkexFutures) SubscribeLevel2Snapshots(market Market, callback func(ob *
 	return b.ws.SubscribeLevel2Snapshots(market, callback)
 }
 
-func (b *OkexFutures) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *OkexFutures) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
 	return b.ws.SubscribeOrders(market, callback)
 }
 
-func (b *OkexFutures) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *OkexFutures) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}

@@ -86,24 +86,24 @@ func (b *DeribitSim) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *DeribitSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *DeribitSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *DeribitSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *DeribitSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *DeribitSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *DeribitSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *DeribitSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *DeribitSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
@@ -133,6 +133,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 	}
 
 	b.orders[id] = order
+	result = order
 	return
 }
 
@@ -381,26 +382,26 @@ func (b *DeribitSim) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *DeribitSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *DeribitSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
-			result = append(result, *v)
+			result = append(result, v)
 		}
 	}
 	return
 }
 
-func (b *DeribitSim) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *DeribitSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = *order
+	result = order
 	return
 }
 
-func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -409,7 +410,7 @@ func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) 
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
-			result = *order
+			result = order
 			delete(b.openOrders, id)
 		default:
 			err = errors.New("error")
@@ -443,21 +444,21 @@ func (b *DeribitSim) CancelAllOrders(symbol string, opts ...OrderOption) (err er
 	return
 }
 
-func (b *DeribitSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *DeribitSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *DeribitSim) GetPositions(symbol string) (result []Position, err error) {
+func (b *DeribitSim) GetPositions(symbol string) (result []*Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = []Position{*position}
+	result = []*Position{position}
 	return
 }
 
-func (b *DeribitSim) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *DeribitSim) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	return nil
 }
 
@@ -465,11 +466,11 @@ func (b *DeribitSim) SubscribeLevel2Snapshots(market Market, callback func(ob *O
 	return nil
 }
 
-func (b *DeribitSim) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *DeribitSim) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	return nil
 }
 
-func (b *DeribitSim) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *DeribitSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
 }
 

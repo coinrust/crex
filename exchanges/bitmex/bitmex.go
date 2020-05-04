@@ -118,24 +118,24 @@ func (b *BitMEX) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *BitMEX) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEX) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *BitMEX) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEX) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *BitMEX) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEX) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *BitMEX) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEX) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	var side string
 	var _orderType string
@@ -173,7 +173,7 @@ func (b *BitMEX) PlaceOrder(symbol string, direction Direction, orderType OrderT
 	return
 }
 
-func (b *BitMEX) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *BitMEX) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	var ret []swagger.Order
 	ret, err = b.client.GetOrders(symbol)
 	if err != nil {
@@ -185,7 +185,7 @@ func (b *BitMEX) GetOpenOrders(symbol string, opts ...OrderOption) (result []Ord
 	return
 }
 
-func (b *BitMEX) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEX) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret swagger.Order
 	ret, err = b.client.GetOrder(id, symbol)
 	if err != nil {
@@ -195,7 +195,7 @@ func (b *BitMEX) GetOrder(symbol string, id string, opts ...OrderOption) (result
 	return
 }
 
-func (b *BitMEX) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEX) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var order swagger.Order
 	order, err = b.client.CancelOrder(id)
 	if err != nil {
@@ -210,7 +210,7 @@ func (b *BitMEX) CancelAllOrders(symbol string, opts ...OrderOption) (err error)
 	return
 }
 
-func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	var resp swagger.Order
 	resp, err = b.client.AmendOrder2(id, "", "", 0, float32(size), 0, 0, price, 0, 0, "")
 	if err != nil {
@@ -220,19 +220,20 @@ func (b *BitMEX) AmendOrder(symbol string, id string, price float64, size float6
 	return
 }
 
-func (b *BitMEX) GetPositions(symbol string) (result []Position, err error) {
+func (b *BitMEX) GetPositions(symbol string) (result []*Position, err error) {
 	var ret swagger.Position
 	ret, err = b.client.GetPosition(symbol)
 	if err != nil {
 		return
 	}
-	result = []Position{
+	result = []*Position{
 		b.convertPosition(&ret),
 	}
 	return
 }
 
-func (b *BitMEX) convertOrder(order *swagger.Order) (result Order) {
+func (b *BitMEX) convertOrder(order *swagger.Order) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
@@ -296,7 +297,8 @@ func (b *BitMEX) orderStatus(order *swagger.Order) OrderStatus {
 	}
 }
 
-func (b *BitMEX) convertPosition(position *swagger.Position) (result Position) {
+func (b *BitMEX) convertPosition(position *swagger.Position) (result *Position) {
+	result = &Position{}
 	result.Symbol = position.Symbol
 	result.OpenTime = time.Time{}
 	result.OpenPrice = position.AvgEntryPrice
@@ -305,12 +307,12 @@ func (b *BitMEX) convertPosition(position *swagger.Position) (result Position) {
 	return
 }
 
-func (b *BitMEX) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *BitMEX) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if !b.params.WebSocket {
 		return ErrWebSocketDisabled
 	}
 	b.client.On(bitmex.BitmexWSTrade, func(trades []*swagger.Trade, action string) {
-		var data []Trade
+		var data []*Trade
 		for _, v := range trades {
 			var direction Direction
 			if v.Side == bitmex.SIDE_BUY {
@@ -318,7 +320,7 @@ func (b *BitMEX) SubscribeTrades(market Market, callback func(trades []Trade)) e
 			} else if v.Side == bitmex.SIDE_SELL {
 				direction = Sell
 			}
-			data = append(data, Trade{
+			data = append(data, &Trade{
 				ID:        v.TrdMatchID,
 				Direction: direction,
 				Price:     v.Price,
@@ -378,12 +380,12 @@ func (b *BitMEX) SubscribeLevel2Snapshots(market Market, callback func(ob *Order
 	return err
 }
 
-func (b *BitMEX) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *BitMEX) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if !b.params.WebSocket {
 		return ErrWebSocketDisabled
 	}
 	b.client.On(bitmex.BitmexWSOrder, func(m []*swagger.Order, action string) {
-		var orders []Order
+		var orders []*Order
 		for _, v := range m {
 			order := b.convertOrder(v)
 			orders = append(orders, order)
@@ -397,12 +399,12 @@ func (b *BitMEX) SubscribeOrders(market Market, callback func(orders []Order)) e
 	return err
 }
 
-func (b *BitMEX) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *BitMEX) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if !b.params.WebSocket {
 		return ErrWebSocketDisabled
 	}
 	b.client.On(bitmex.BitmexWSPosition, func(m []*swagger.Position, action string) {
-		var positions []Position
+		var positions []*Position
 		for _, v := range m {
 			positions = append(positions, b.convertPosition(v))
 		}

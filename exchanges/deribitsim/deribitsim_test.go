@@ -1,9 +1,14 @@
 package deribitsim
 
 import (
+	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/math"
 	"testing"
 )
+
+func testExchange() Exchange {
+	return NewDeribitSim(nil, 10000, 0, 0)
+}
 
 // 计算公式:
 // https://www.reddit.com/r/DeribitExchange/

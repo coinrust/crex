@@ -145,15 +145,15 @@ func main() {
 		log.Printf("%#v", ob)
 	})
 	// 订阅成交记录
-	ws.SubscribeTrades(market, func(trades []Trade) {
+	ws.SubscribeTrades(market, func(trades []*Trade) {
 		log.Printf("%#v", trades)
 	})
 	// 订阅订单成交信息
-	ws.SubscribeOrders(market, func(orders []Order) {
+	ws.SubscribeOrders(market, func(orders []*Order) {
 		log.Printf("%#v", orders)
 	})
 	// 订阅持仓信息
-	ws.SubscribePositions(market, func(positions []Position) {
+	ws.SubscribePositions(market, func(positions []*Position) {
 		log.Printf("%#v", positions)
 	})
 

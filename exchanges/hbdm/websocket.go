@@ -16,7 +16,7 @@ type HbdmWebSocket struct {
 	emitter *emission.Emitter
 }
 
-func (s *HbdmWebSocket) SubscribeTrades(symbol string, contractType string, callback func(trades []Trade)) error {
+func (s *HbdmWebSocket) SubscribeTrades(symbol string, contractType string, callback func(trades []*Trade)) error {
 	s.emitter.On(WSEventTrade, callback)
 	s.ws.SubscribeTrade("trade_1",
 		s.convertToSymbol(symbol, contractType))
@@ -31,7 +31,7 @@ func (s *HbdmWebSocket) SubscribeLevel2Snapshots(symbol string, contractType str
 	return nil
 }
 
-func (s *HbdmWebSocket) SubscribeOrders(symbol string, contractType string, callback func(orders []Order)) error {
+func (s *HbdmWebSocket) SubscribeOrders(symbol string, contractType string, callback func(orders []*Order)) error {
 	if s.nws == nil {
 		return ErrApiKeysRequired
 	}
@@ -40,7 +40,7 @@ func (s *HbdmWebSocket) SubscribeOrders(symbol string, contractType string, call
 	return nil
 }
 
-func (s *HbdmWebSocket) SubscribePositions(symbol string, contractType string, callback func(positions []Position)) error {
+func (s *HbdmWebSocket) SubscribePositions(symbol string, contractType string, callback func(positions []*Position)) error {
 	if s.nws == nil {
 		return ErrApiKeysRequired
 	}
@@ -104,7 +104,7 @@ func (s *HbdmWebSocket) depthHFCallback(depth *hbdm.WSDepthHF) {
 
 func (s *HbdmWebSocket) tradeCallback(trade *hbdm.WSTrade) {
 	// log.Printf("tradeCallback")
-	var trades []Trade
+	var trades []*Trade
 	for _, v := range trade.Tick.Data {
 		var direction Direction
 		if v.Direction == "buy" {
@@ -120,7 +120,7 @@ func (s *HbdmWebSocket) tradeCallback(trade *hbdm.WSTrade) {
 			Ts:        v.Ts,
 			Symbol:    "",
 		}
-		trades = append(trades, t)
+		trades = append(trades, &t)
 	}
 	s.emitter.Emit(WSEventTrade, trades)
 }
@@ -177,12 +177,12 @@ func (s *HbdmWebSocket) ordersCallback(order *hbdm.WSOrder) {
 	default:
 		o.Status = OrderStatusCreated
 	}
-	s.emitter.Emit(WSEventOrder, []Order{o})
+	s.emitter.Emit(WSEventOrder, []*Order{&o})
 }
 
 func (s *HbdmWebSocket) positionsCallback(positions *hbdm.WSPositions) {
 	//log.Printf("positionsCallback")
-	var eventData []Position
+	var eventData []*Position
 	for _, v := range positions.Data {
 		var o Position
 		o.Symbol = v.Symbol
@@ -195,7 +195,7 @@ func (s *HbdmWebSocket) positionsCallback(positions *hbdm.WSPositions) {
 			o.Size = -v.Volume
 		}
 		o.AvgPrice = v.CostHold
-		eventData = append(eventData, o)
+		eventData = append(eventData, &o)
 	}
 	s.emitter.Emit(WSEventPosition, eventData)
 }

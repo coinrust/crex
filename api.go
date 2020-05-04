@@ -184,41 +184,41 @@ type Exchange interface {
 	SetLeverRate(value float64) (err error)
 
 	// 开多
-	OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+	OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
 	// 开空
-	OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+	OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
 	// 平多
-	CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+	CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
 	// 平空
-	CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error)
+	CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
 	// 下单
 	PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64, size float64,
-		opts ...PlaceOrderOption) (result Order, err error)
+		opts ...PlaceOrderOption) (result *Order, err error)
 
 	// 获取活跃委托单列表
-	GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error)
+	GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error)
 
 	// 获取委托信息
-	GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error)
+	GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error)
 
 	// 撤销全部委托单
 	CancelAllOrders(symbol string, opts ...OrderOption) (err error)
 
 	// 撤销单个委托单
-	CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error)
+	CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error)
 
 	// 修改委托
-	AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error)
+	AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error)
 
 	// 获取持仓
-	GetPositions(symbol string) (result []Position, err error)
+	GetPositions(symbol string) (result []*Position, err error)
 
 	// 订阅成交记录
-	SubscribeTrades(market Market, callback func(trades []Trade)) error
+	SubscribeTrades(market Market, callback func(trades []*Trade)) error
 
 	// 订阅L2 OrderBook
 	SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error
@@ -227,10 +227,10 @@ type Exchange interface {
 	//SubscribeBalances(market Market, callback func(balance *Balance)) error
 
 	// 订阅委托
-	SubscribeOrders(market Market, callback func(orders []Order)) error
+	SubscribeOrders(market Market, callback func(orders []*Order)) error
 
 	// 订阅持仓
-	SubscribePositions(market Market, callback func(positions []Position)) error
+	SubscribePositions(market Market, callback func(positions []*Position)) error
 
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only

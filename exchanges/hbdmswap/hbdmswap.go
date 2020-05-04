@@ -155,19 +155,19 @@ func (b *HbdmSwap) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *HbdmSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *HbdmSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *HbdmSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *HbdmSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *HbdmSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *HbdmSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *HbdmSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *HbdmSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
@@ -192,7 +192,7 @@ func (b *HbdmSwap) CloseShort(symbol string, orderType OrderType, price float64,
 // "optimal_10_fok"：最优10档-FOK下单
 // "optimal_20_fok"：最优20档-FOK下单
 func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter()
 	var orderResult hbdmswap.OrderResult
 	var _direction string
@@ -237,13 +237,14 @@ func (b *HbdmSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 			orderResult.ErrMsg)
 		return
 	}
+	result = &Order{}
 	result.Symbol = symbol
 	result.ID = fmt.Sprint(orderResult.Data.OrderID)
 	result.Status = OrderStatusNew
 	return
 }
 
-func (b *HbdmSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *HbdmSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	var ret hbdmswap.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
 		symbol,
@@ -265,7 +266,7 @@ func (b *HbdmSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []O
 	return
 }
 
-func (b *HbdmSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *HbdmSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret hbdmswap.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.OrderInfo(symbol, _id, 0)
@@ -286,7 +287,7 @@ func (b *HbdmSwap) GetOrder(symbol string, id string, opts ...OrderOption) (resu
 	return
 }
 
-func (b *HbdmSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *HbdmSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret hbdmswap.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.Cancel(symbol, _id, 0)
@@ -300,6 +301,7 @@ func (b *HbdmSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (r
 		return
 	}
 	orderID := ret.Data.Successes
+	result = &Order{}
 	result.ID = orderID
 	return
 }
@@ -308,11 +310,11 @@ func (b *HbdmSwap) CancelAllOrders(symbol string, opts ...OrderOption) (err erro
 	return
 }
 
-func (b *HbdmSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *HbdmSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *HbdmSwap) GetPositions(symbol string) (result []Position, err error) {
+func (b *HbdmSwap) GetPositions(symbol string) (result []*Position, err error) {
 	var ret hbdmswap.PositionInfoResult
 	ret, err = b.client.GetPositionInfo(symbol)
 	if err != nil {
@@ -340,12 +342,13 @@ func (b *HbdmSwap) GetPositions(symbol string) (result []Position, err error) {
 		}
 		position.AvgPrice = v.CostHold
 		position.OpenPrice = v.CostOpen
-		result = append(result, position)
+		result = append(result, &position)
 	}
 	return
 }
 
-func (b *HbdmSwap) convertOrder(symbol string, order *hbdmswap.Order) (result Order) {
+func (b *HbdmSwap) convertOrder(symbol string, order *hbdmswap.Order) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderIDStr
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -414,7 +417,7 @@ func (b *HbdmSwap) orderStatus(order *hbdmswap.Order) OrderStatus {
 	}
 }
 
-func (b *HbdmSwap) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *HbdmSwap) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -428,14 +431,14 @@ func (b *HbdmSwap) SubscribeLevel2Snapshots(market Market, callback func(ob *Ord
 	return b.ws.SubscribeLevel2Snapshots(market, callback)
 }
 
-func (b *HbdmSwap) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *HbdmSwap) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
 	return b.ws.SubscribeOrders(market, callback)
 }
 
-func (b *HbdmSwap) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *HbdmSwap) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}

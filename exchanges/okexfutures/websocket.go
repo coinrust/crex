@@ -13,7 +13,7 @@ type FuturesWebSocket struct {
 	emitter *emission.Emitter
 }
 
-func (s *FuturesWebSocket) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (s *FuturesWebSocket) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	s.emitter.On(WSEventTrade, callback)
 	s.ws.SubscribeTrade("trade_1", market.Symbol)
 	return nil
@@ -25,13 +25,13 @@ func (s *FuturesWebSocket) SubscribeLevel2Snapshots(market Market, callback func
 	return nil
 }
 
-func (s *FuturesWebSocket) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (s *FuturesWebSocket) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	s.emitter.On(WSEventOrder, callback)
 	s.ws.SubscribeOrder("order_1", market.Symbol)
 	return nil
 }
 
-func (s *FuturesWebSocket) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (s *FuturesWebSocket) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	s.emitter.On(WSEventPosition, callback)
 	s.ws.SubscribePosition("position_1", market.Symbol)
 	return nil
@@ -63,7 +63,7 @@ func (s *FuturesWebSocket) depth20SnapshotCallback(obRaw *okex.OrderBook) {
 
 func (s *FuturesWebSocket) tradeCallback(_trades []okex.WSTrade) {
 	// log.Printf("tradeCallback")
-	var result []Trade
+	var result []*Trade
 	for _, v := range _trades {
 		var direction Direction
 		if v.Side == "buy" {
@@ -79,16 +79,16 @@ func (s *FuturesWebSocket) tradeCallback(_trades []okex.WSTrade) {
 			Ts:        v.Timestamp.UnixNano() / int64(time.Millisecond),
 			Symbol:    v.InstrumentID,
 		}
-		result = append(result, t)
+		result = append(result, &t)
 	}
 	s.emitter.Emit(WSEventTrade, result)
 }
 
 func (s *FuturesWebSocket) ordersCallback(orders []okex.WSOrder) {
 	//log.Printf("ordersCallback")
-	var eventData []Order
+	var eventData []*Order
 	for _, v := range orders {
-		o := *s.convertOrder(&v)
+		o := s.convertOrder(&v)
 		eventData = append(eventData, o)
 	}
 	s.emitter.Emit(WSEventOrder, eventData)
@@ -167,7 +167,7 @@ func (s *FuturesWebSocket) convertOrder(order *okex.WSOrder) *Order {
 
 func (s *FuturesWebSocket) positionsCallback(positions []okex.WSFuturesPosition) {
 	//log.Printf("positionsCallback")
-	var eventData []Position
+	var eventData []*Position
 	for _, v := range positions {
 		longQty := util.ParseFloat64(v.LongQty)
 		shortQty := util.ParseFloat64(v.ShortQty)
@@ -178,7 +178,7 @@ func (s *FuturesWebSocket) positionsCallback(positions []okex.WSFuturesPosition)
 			o.Size = longQty
 			o.OpenPrice = util.ParseFloat64(v.LongAvgCost)
 			o.AvgPrice = o.OpenPrice
-			eventData = append(eventData, o)
+			eventData = append(eventData, &o)
 		} else if shortQty > 0 {
 			var o Position
 			o.Symbol = v.InstrumentID
@@ -186,7 +186,7 @@ func (s *FuturesWebSocket) positionsCallback(positions []okex.WSFuturesPosition)
 			o.Size = -shortQty
 			o.OpenPrice = util.ParseFloat64(v.ShortAvgCost)
 			o.AvgPrice = o.OpenPrice
-			eventData = append(eventData, o)
+			eventData = append(eventData, &o)
 		}
 	}
 	s.emitter.Emit(WSEventPosition, eventData)

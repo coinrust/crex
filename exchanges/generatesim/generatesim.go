@@ -105,24 +105,24 @@ func (s *GenerateSim) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (s *GenerateSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (s *GenerateSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return s.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (s *GenerateSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (s *GenerateSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return s.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (s *GenerateSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (s *GenerateSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return s.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (s *GenerateSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (s *GenerateSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return s.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	if size == 0 {
 		err = errors.New("size is zero")
 		return
@@ -156,7 +156,7 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 	}
 
 	s.orders[id] = order
-	result = *order
+	result = order
 	return
 }
 
@@ -420,26 +420,26 @@ func (s *GenerateSim) getPosition(symbol string) []Position {
 	}
 }
 
-func (s *GenerateSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (s *GenerateSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	for _, v := range s.openOrders {
 		if v.Symbol == symbol {
-			result = append(result, *v)
+			result = append(result, v)
 		}
 	}
 	return
 }
 
-func (s *GenerateSim) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (s *GenerateSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	order, ok := s.orders[id]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = *order
+	result = order
 	return
 }
 
-func (s *GenerateSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (s *GenerateSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	if order, ok := s.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -448,7 +448,7 @@ func (s *GenerateSim) CancelOrder(symbol string, id string, opts ...OrderOption)
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
-			result = *order
+			result = order
 			delete(s.openOrders, id)
 		default:
 			err = errors.New("error")
@@ -482,16 +482,20 @@ func (s *GenerateSim) CancelAllOrders(symbol string, opts ...OrderOption) (err e
 	return
 }
 
-func (s *GenerateSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (s *GenerateSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (s *GenerateSim) GetPositions(symbol string) (result []Position, err error) {
-	result = s.getPosition(symbol)
+func (s *GenerateSim) GetPositions(symbol string) (result []*Position, err error) {
+	ret := s.getPosition(symbol)
+	for _, v := range ret {
+		o := v
+		result = append(result, &o)
+	}
 	return
 }
 
-func (s *GenerateSim) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (s *GenerateSim) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	return nil
 }
 
@@ -499,11 +503,11 @@ func (s *GenerateSim) SubscribeLevel2Snapshots(market Market, callback func(ob *
 	return nil
 }
 
-func (s *GenerateSim) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (s *GenerateSim) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	return nil
 }
 
-func (s *GenerateSim) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (s *GenerateSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
 }
 

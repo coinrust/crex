@@ -108,7 +108,7 @@ func TestBitMEX_SubscribeLevel2Snapshots(t *testing.T) {
 
 func TestBitMEX_SubscribeOrders(t *testing.T) {
 	ex := testExchangeWS(true)
-	ex.SubscribeOrders(Market{Symbol: "XBTUSD"}, func(orders []Order) {
+	ex.SubscribeOrders(Market{Symbol: "XBTUSD"}, func(orders []*Order) {
 		log.Printf("orders=%#v", orders)
 	})
 

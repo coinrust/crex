@@ -183,19 +183,19 @@ func (b *Hbdm) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *Hbdm) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Hbdm) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *Hbdm) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Hbdm) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *Hbdm) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Hbdm) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *Hbdm) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Hbdm) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
@@ -224,7 +224,7 @@ func (b *Hbdm) CloseShort(symbol string, orderType OrderType, price float64, siz
 // "limit":限价，"post_only":只做maker单 需要传价格
 // "fok"：全部成交或立即取消，"ioc":立即成交并取消剩余。
 func (b *Hbdm) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	var orderResult hbdm.OrderResult
 	var _direction string
@@ -272,13 +272,14 @@ func (b *Hbdm) PlaceOrder(symbol string, direction Direction, orderType OrderTyp
 			orderResult.ErrMsg)
 		return
 	}
+	result = &Order{}
 	result.Symbol = symbol
 	result.ID = fmt.Sprint(orderResult.Data.OrderID)
 	result.Status = OrderStatusNew
 	return
 }
 
-func (b *Hbdm) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *Hbdm) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	var ret hbdm.OpenOrdersResult
 	ret, err = b.client.GetOpenOrders(
 		b.pair,
@@ -300,7 +301,7 @@ func (b *Hbdm) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order
 	return
 }
 
-func (b *Hbdm) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Hbdm) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret hbdm.OrderInfoResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.OrderInfo(b.pair, _id, 0)
@@ -321,7 +322,7 @@ func (b *Hbdm) GetOrder(symbol string, id string, opts ...OrderOption) (result O
 	return
 }
 
-func (b *Hbdm) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Hbdm) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret hbdm.CancelResult
 	var _id, _ = strconv.ParseInt(id, 10, 64)
 	ret, err = b.client.Cancel(b.pair, _id, 0)
@@ -335,6 +336,7 @@ func (b *Hbdm) CancelOrder(symbol string, id string, opts ...OrderOption) (resul
 		return
 	}
 	orderID := ret.Data.Successes
+	result = &Order{}
 	result.ID = orderID
 	return
 }
@@ -343,11 +345,11 @@ func (b *Hbdm) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	return
 }
 
-func (b *Hbdm) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *Hbdm) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *Hbdm) GetPositions(symbol string) (result []Position, err error) {
+func (b *Hbdm) GetPositions(symbol string) (result []*Position, err error) {
 	var ret hbdm.PositionInfoResult
 	ret, err = b.client.GetPositionInfo(b.pair)
 	if err != nil {
@@ -375,12 +377,13 @@ func (b *Hbdm) GetPositions(symbol string) (result []Position, err error) {
 		}
 		position.AvgPrice = v.CostHold
 		position.OpenPrice = v.CostOpen
-		result = append(result, position)
+		result = append(result, &position)
 	}
 	return
 }
 
-func (b *Hbdm) convertOrder(symbol string, order *hbdm.Order) (result Order) {
+func (b *Hbdm) convertOrder(symbol string, order *hbdm.Order) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderIDStr
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -473,7 +476,7 @@ func (b *Hbdm) GetContractInfo(symbol string) (rawSymbol string, contractType st
 	return
 }
 
-func (b *Hbdm) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *Hbdm) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -495,7 +498,7 @@ func (b *Hbdm) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBo
 	return b.ws.SubscribeLevel2Snapshots(rawSymbol, contractType, callback)
 }
 
-func (b *Hbdm) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *Hbdm) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -506,7 +509,7 @@ func (b *Hbdm) SubscribeOrders(market Market, callback func(orders []Order)) err
 	return b.ws.SubscribeOrders(rawSymbol, contractType, callback)
 }
 
-func (b *Hbdm) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *Hbdm) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}

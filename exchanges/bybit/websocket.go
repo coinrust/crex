@@ -15,7 +15,7 @@ type BybitWebSocket struct {
 	emitter *emission.Emitter
 }
 
-func (s *BybitWebSocket) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (s *BybitWebSocket) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	s.emitter.On(WSEventTrade, callback)
 	var arg = bws.WSTrade
 	if market.Symbol != "" {
@@ -32,13 +32,13 @@ func (s *BybitWebSocket) SubscribeLevel2Snapshots(market Market, callback func(o
 	return nil
 }
 
-func (s *BybitWebSocket) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (s *BybitWebSocket) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	s.emitter.On(WSEventOrder, callback)
 	s.ws.Subscribe(bws.WSOrder)
 	return nil
 }
 
-func (s *BybitWebSocket) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (s *BybitWebSocket) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	s.emitter.On(WSEventPosition, callback)
 	s.ws.Subscribe(bws.WSPosition)
 	return nil
@@ -66,7 +66,7 @@ func (s *BybitWebSocket) handleOrderBook(symbol string, data bws.OrderBook) {
 }
 
 func (s *BybitWebSocket) handleTrade(symbol string, data []*bws.Trade) {
-	var trades []Trade
+	var trades []*Trade
 	for _, v := range data {
 		var direction Direction
 		if v.Side == "Buy" {
@@ -74,7 +74,7 @@ func (s *BybitWebSocket) handleTrade(symbol string, data []*bws.Trade) {
 		} else if v.Side == "Sell" {
 			direction = Sell
 		}
-		trades = append(trades, Trade{
+		trades = append(trades, &Trade{
 			ID:        v.TradeID,
 			Direction: direction,
 			Price:     v.Price,
@@ -87,7 +87,7 @@ func (s *BybitWebSocket) handleTrade(symbol string, data []*bws.Trade) {
 }
 
 func (s *BybitWebSocket) handlePosition(data []*bws.Position) {
-	var eventData []Position
+	var eventData []*Position
 	now := time.Now()
 	for _, v := range data {
 		var o Position
@@ -101,7 +101,7 @@ func (s *BybitWebSocket) handlePosition(data []*bws.Position) {
 			o.Size = -v.Size
 		}
 		o.AvgPrice = v.EntryPrice
-		eventData = append(eventData, o)
+		eventData = append(eventData, &o)
 	}
 	s.emitter.Emit(WSEventPosition, eventData)
 }
@@ -110,7 +110,7 @@ func (s *BybitWebSocket) handleOrder(data []*bws.Order) {
 	if s.params.DebugMode {
 		log.Printf("handleOrder data=%#v", data)
 	}
-	var orders []Order
+	var orders []*Order
 	for _, v := range data {
 		var o Order
 		o.ID = fmt.Sprint(v.OrderID)
@@ -135,7 +135,7 @@ func (s *BybitWebSocket) handleOrder(data []*bws.Order) {
 			o.PostOnly = true
 		}
 		o.Status = s.orderStatus(v.OrderStatus)
-		orders = append(orders, o)
+		orders = append(orders, &o)
 	}
 	s.emitter.Emit(WSEventOrder, orders)
 }

@@ -99,24 +99,24 @@ func (b *Bybit) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *Bybit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Bybit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *Bybit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Bybit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *Bybit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Bybit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *Bybit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Bybit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *Bybit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	if orderType == OrderTypeLimit || orderType == OrderTypeMarket {
 		return b.placeOrder(symbol,
@@ -139,7 +139,7 @@ func (b *Bybit) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 }
 
 func (b *Bybit) placeOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	size float64, postOnly bool, reduceOnly bool) (result *Order, err error) {
 	var side string
 	var _orderType string
 	var timeInForce string
@@ -178,7 +178,7 @@ func (b *Bybit) placeOrder(symbol string, direction Direction, orderType OrderTy
 }
 
 func (b *Bybit) placeStopOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	basePrice float64, stopPx float64, size float64, postOnly bool, reduceOnly bool) (result Order, err error) {
+	basePrice float64, stopPx float64, size float64, postOnly bool, reduceOnly bool) (result *Order, err error) {
 	var side string
 	var _orderType string
 	var timeInForce string
@@ -219,7 +219,7 @@ func (b *Bybit) placeStopOrder(symbol string, direction Direction, orderType Ord
 	return
 }
 
-func (b *Bybit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *Bybit) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	limit := 10
 	orderStatus := "Created,NewBybit,PartiallyFilled,PendingCancel"
 	for page := 1; page <= 5; page++ {
@@ -240,7 +240,7 @@ func (b *Bybit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Orde
 	return
 }
 
-func (b *Bybit) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Bybit) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	p := ParseOrderParameter(opts...)
 	if p.Stop { // 止损委托
 		var ret rest.GetStopOrdersResult
@@ -269,7 +269,7 @@ func (b *Bybit) GetOrder(symbol string, id string, opts ...OrderOption) (result 
 	return
 }
 
-func (b *Bybit) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Bybit) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	p := ParseOrderParameter(opts...)
 	if p.Stop {
 		var order rest.Order
@@ -299,7 +299,7 @@ func (b *Bybit) CancelAllOrders(symbol string, opts ...OrderOption) (err error) 
 	return
 }
 
-func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	var order rest.Order
 	order, err = b.client.ReplaceOrder(symbol, id, int(size), price)
 	if err != nil {
@@ -310,13 +310,13 @@ func (b *Bybit) AmendOrder(symbol string, id string, price float64, size float64
 	return
 }
 
-func (b *Bybit) GetPositions(symbol string) (result []Position, err error) {
+func (b *Bybit) GetPositions(symbol string) (result []*Position, err error) {
 	var ret rest.Position
 	ret, err = b.client.GetPosition(symbol)
 	if err != nil {
 		return
 	}
-	result = []Position{
+	result = []*Position{
 		{
 			Symbol:    symbol,
 			OpenTime:  time.Time{},
@@ -328,7 +328,8 @@ func (b *Bybit) GetPositions(symbol string) (result []Position, err error) {
 	return
 }
 
-func (b *Bybit) convertOrder(order *rest.Order) (result Order) {
+func (b *Bybit) convertOrder(order *rest.Order) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
@@ -350,7 +351,8 @@ func (b *Bybit) convertOrder(order *rest.Order) (result Order) {
 	return
 }
 
-func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
+func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderID
 	result.Symbol = order.Symbol
 	result.Price, _ = order.Price.Float64()
@@ -360,9 +362,9 @@ func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
 	result.Type = b.convertOrderType(order.OrderType)
 	cumExecValue, err := order.CumExecValue.Float64()
 	if err == nil && order.CumExecQty > 0 && cumExecValue > 0 {
-		result.AvgPrice = float64(order.CumExecQty) / cumExecValue
+		result.AvgPrice = order.CumExecQty / cumExecValue
 	}
-	result.FilledAmount = float64(order.CumExecQty)
+	result.FilledAmount = order.CumExecQty
 	if strings.Contains(order.TimeInForce, "PostOnly") {
 		result.PostOnly = true
 	}
@@ -370,7 +372,8 @@ func (b *Bybit) convertOrderV2(order *rest.OrderV2) (result Order) {
 	return
 }
 
-func (b *Bybit) convertStopOrder(order *rest.StopOrder) (result Order) {
+func (b *Bybit) convertStopOrder(order *rest.StopOrder) (result *Order) {
+	result = &Order{}
 	result.ID = order.StopOrderID
 	result.Symbol = order.Symbol
 	result.Price = order.Price
@@ -435,7 +438,7 @@ func (b *Bybit) orderStatus(orderStatus string) OrderStatus {
 	}
 }
 
-func (b *Bybit) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *Bybit) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -449,14 +452,14 @@ func (b *Bybit) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderB
 	return b.ws.SubscribeLevel2Snapshots(market, callback)
 }
 
-func (b *Bybit) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *Bybit) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
 	return b.ws.SubscribeOrders(market, callback)
 }
 
-func (b *Bybit) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *Bybit) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}

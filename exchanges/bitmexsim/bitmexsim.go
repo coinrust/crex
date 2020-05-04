@@ -87,24 +87,24 @@ func (b *BitMEXSim) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *BitMEXSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEXSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *BitMEXSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEXSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *BitMEXSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEXSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *BitMEXSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BitMEXSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	_id, _ := util.NextID()
 	id := fmt.Sprintf("%v", _id)
@@ -134,6 +134,7 @@ func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType Ord
 	}
 
 	b.orders[id] = order
+	result = order
 	return
 }
 
@@ -376,26 +377,26 @@ func (b *BitMEXSim) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *BitMEXSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *BitMEXSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
-			result = append(result, *v)
+			result = append(result, v)
 		}
 	}
 	return
 }
 
-func (b *BitMEXSim) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEXSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = *order
+	result = order
 	return
 }
 
-func (b *BitMEXSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEXSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -404,7 +405,7 @@ func (b *BitMEXSim) CancelOrder(symbol string, id string, opts ...OrderOption) (
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
-			result = *order
+			result = order
 			delete(b.openOrders, id)
 		default:
 			err = errors.New("error")
@@ -438,21 +439,21 @@ func (b *BitMEXSim) CancelAllOrders(symbol string, opts ...OrderOption) (err err
 	return
 }
 
-func (b *BitMEXSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *BitMEXSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *BitMEXSim) GetPositions(symbol string) (result []Position, err error) {
+func (b *BitMEXSim) GetPositions(symbol string) (result []*Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = []Position{*position}
+	result = []*Position{position}
 	return
 }
 
-func (b *BitMEXSim) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *BitMEXSim) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	return nil
 }
 
@@ -460,11 +461,11 @@ func (b *BitMEXSim) SubscribeLevel2Snapshots(market Market, callback func(ob *Or
 	return nil
 }
 
-func (b *BitMEXSim) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *BitMEXSim) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	return nil
 }
 
-func (b *BitMEXSim) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *BitMEXSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
 }
 

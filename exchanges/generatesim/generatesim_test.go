@@ -1,9 +1,14 @@
 package generatesim
 
 import (
+	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/math"
 	"testing"
 )
+
+func testExchange() Exchange {
+	return NewGenerateSim(nil, 10000, 0, 0, true)
+}
 
 func TestUpdateBalance(t *testing.T) {
 	// 5.07045231

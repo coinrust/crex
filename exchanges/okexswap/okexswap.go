@@ -181,24 +181,24 @@ func (b *OkexSwap) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *OkexSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexSwap) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *OkexSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexSwap) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *OkexSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexSwap) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *OkexSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *OkexSwap) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *OkexSwap) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	var pType int
 	if direction == Buy {
@@ -244,13 +244,14 @@ func (b *OkexSwap) PlaceOrder(symbol string, direction Direction, orderType Orde
 	}
 	//log.Printf("%v", string(resp))
 	//result, err = b.GetOrder(symbol, ret.OrderId)
+	result = &Order{}
 	result.Symbol = symbol
 	result.ID = ret.OrderId
 	result.Status = OrderStatusNew
 	return
 }
 
-func (b *OkexSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *OkexSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	// 6: 未完成（等待成交+部分成交）
 	// 7: 已完成（撤单成功+完全成交）
 	var ret *okex.SwapOrdersInfo
@@ -267,7 +268,7 @@ func (b *OkexSwap) GetOpenOrders(symbol string, opts ...OrderOption) (result []O
 	return
 }
 
-func (b *OkexSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *OkexSwap) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret okex.BaseOrderInfo
 	ret, err = b.client.GetSwapOrderById(symbol, id)
 	if err != nil {
@@ -277,7 +278,7 @@ func (b *OkexSwap) GetOrder(symbol string, id string, opts ...OrderOption) (resu
 	return
 }
 
-func (b *OkexSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *OkexSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret okex.SwapCancelOrderResult
 	var resp []byte
 	resp, ret, err = b.client.PostSwapCancelOrder(symbol, id)
@@ -292,6 +293,7 @@ func (b *OkexSwap) CancelOrder(symbol string, id string, opts ...OrderOption) (r
 			string(resp))
 		return
 	}
+	result = &Order{}
 	result.ID = ret.OrderId
 	return
 }
@@ -300,11 +302,11 @@ func (b *OkexSwap) CancelAllOrders(symbol string, opts ...OrderOption) (err erro
 	return
 }
 
-func (b *OkexSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *OkexSwap) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *OkexSwap) GetPositions(symbol string) (result []Position, err error) {
+func (b *OkexSwap) GetPositions(symbol string) (result []*Position, err error) {
 	var ret okex.SwapPosition
 	ret, err = b.client.GetSwapPositionByInstrument(symbol)
 	if err != nil {
@@ -335,13 +337,14 @@ func (b *OkexSwap) GetPositions(symbol string) (result []Position, err error) {
 				position.AvgPrice, _ = strconv.ParseFloat(v.AvgCost, 64)
 				position.OpenTime = timestamp
 			}
-			result = append(result, position)
+			result = append(result, &position)
 		}
 	}
 	return
 }
 
-func (b *OkexSwap) convertOrder(symbol string, order *okex.BaseOrderInfo) (result Order) {
+func (b *OkexSwap) convertOrder(symbol string, order *okex.BaseOrderInfo) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderId
 	result.Symbol = symbol
 	result.Price = order.Price
@@ -413,7 +416,7 @@ func (b *OkexSwap) orderStatus(order *okex.BaseOrderInfo) OrderStatus {
 	}
 }
 
-func (b *OkexSwap) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *OkexSwap) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
@@ -427,14 +430,14 @@ func (b *OkexSwap) SubscribeLevel2Snapshots(market Market, callback func(ob *Ord
 	return b.ws.SubscribeLevel2Snapshots(market, callback)
 }
 
-func (b *OkexSwap) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *OkexSwap) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}
 	return b.ws.SubscribeOrders(market, callback)
 }
 
-func (b *OkexSwap) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *OkexSwap) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	if b.ws == nil {
 		return ErrWebSocketDisabled
 	}

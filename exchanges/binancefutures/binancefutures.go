@@ -158,24 +158,24 @@ func (b *BinanceFutures) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *BinanceFutures) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BinanceFutures) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *BinanceFutures) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BinanceFutures) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *BinanceFutures) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BinanceFutures) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *BinanceFutures) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *BinanceFutures) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
@@ -216,7 +216,7 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	return
 }
 
-func (b *BinanceFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *BinanceFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	service := b.client.NewListOpenOrdersService().
 		Symbol(symbol)
 	var res []*futures.Order
@@ -230,7 +230,7 @@ func (b *BinanceFutures) GetOpenOrders(symbol string, opts ...OrderOption) (resu
 	return
 }
 
-func (b *BinanceFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BinanceFutures) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var orderID int64
 	orderID, err = strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -248,7 +248,7 @@ func (b *BinanceFutures) GetOrder(symbol string, id string, opts ...OrderOption)
 	return
 }
 
-func (b *BinanceFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *BinanceFutures) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var orderID int64
 	orderID, err = strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -273,11 +273,11 @@ func (b *BinanceFutures) CancelAllOrders(symbol string, opts ...OrderOption) (er
 	return
 }
 
-func (b *BinanceFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *BinanceFutures) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *BinanceFutures) GetPositions(symbol string) (result []Position, err error) {
+func (b *BinanceFutures) GetPositions(symbol string) (result []*Position, err error) {
 	var res []*futures.PositionRisk
 	res, err = b.client.NewGetPositionRiskService().
 		Do(context.Background())
@@ -291,7 +291,7 @@ func (b *BinanceFutures) GetPositions(symbol string) (result []Position, err err
 		if useFilter && v.Symbol != symbol {
 			continue
 		}
-		position := Position{}
+		position := &Position{}
 		position.Symbol = v.Symbol
 		size := util.ParseFloat64(v.PositionAmt)
 		if size != 0 {
@@ -304,7 +304,8 @@ func (b *BinanceFutures) GetPositions(symbol string) (result []Position, err err
 	return
 }
 
-func (b *BinanceFutures) convertOrder(order *futures.Order) (result Order) {
+func (b *BinanceFutures) convertOrder(order *futures.Order) (result *Order) {
+	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
@@ -322,7 +323,8 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result Order) {
 	return
 }
 
-func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (result Order) {
+func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (result *Order) {
+	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
@@ -340,7 +342,8 @@ func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (resu
 	return
 }
 
-func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (result Order) {
+func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (result *Order) {
+	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
 	result.Price = util.ParseFloat64(order.Price)
@@ -407,7 +410,7 @@ func (b *BinanceFutures) orderStatus(status futures.OrderStatusType) OrderStatus
 	}
 }
 
-func (b *BinanceFutures) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *BinanceFutures) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	return ErrNotImplemented
 }
 
@@ -415,11 +418,11 @@ func (b *BinanceFutures) SubscribeLevel2Snapshots(market Market, callback func(o
 	return ErrNotImplemented
 }
 
-func (b *BinanceFutures) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *BinanceFutures) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	return ErrNotImplemented
 }
 
-func (b *BinanceFutures) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *BinanceFutures) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return ErrNotImplemented
 }
 

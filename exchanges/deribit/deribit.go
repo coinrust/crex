@@ -111,24 +111,24 @@ func (b *Deribit) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *Deribit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Deribit) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *Deribit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Deribit) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *Deribit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Deribit) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *Deribit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result Order, err error) {
+func (b *Deribit) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
-	size float64, opts ...PlaceOrderOption) (result Order, err error) {
+	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	var _orderType string
 	var trigger string
@@ -195,7 +195,7 @@ func (b *Deribit) PlaceOrder(symbol string, direction Direction, orderType Order
 	return
 }
 
-func (b *Deribit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Order, err error) {
+func (b *Deribit) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	var ret []models.Order
 	ret, err = b.client.GetOpenOrdersByInstrument(&models.GetOpenOrdersByInstrumentParams{
 		InstrumentName: symbol,
@@ -210,7 +210,7 @@ func (b *Deribit) GetOpenOrders(symbol string, opts ...OrderOption) (result []Or
 	return
 }
 
-func (b *Deribit) GetOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Deribit) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var ret models.Order
 	ret, err = b.client.GetOrderState(&models.GetOrderStateParams{
 		OrderID: id,
@@ -222,7 +222,7 @@ func (b *Deribit) GetOrder(symbol string, id string, opts ...OrderOption) (resul
 	return
 }
 
-func (b *Deribit) CancelOrder(symbol string, id string, opts ...OrderOption) (result Order, err error) {
+func (b *Deribit) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	var order models.Order
 	order, err = b.client.Cancel(&models.CancelParams{OrderID: id})
 	if err != nil {
@@ -239,7 +239,7 @@ func (b *Deribit) CancelAllOrders(symbol string, opts ...OrderOption) (err error
 	return
 }
 
-func (b *Deribit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result Order, err error) {
+func (b *Deribit) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	params := &models.EditParams{
 		OrderID:   id,
 		Amount:    0,
@@ -267,13 +267,13 @@ func (b *Deribit) AmendOrder(symbol string, id string, price float64, size float
 	return
 }
 
-func (b *Deribit) GetPositions(symbol string) (result []Position, err error) {
+func (b *Deribit) GetPositions(symbol string) (result []*Position, err error) {
 	var ret models.Position
 	ret, err = b.client.GetPosition(&models.GetPositionParams{InstrumentName: symbol})
 	if err != nil {
 		return
 	}
-	result = []Position{
+	result = []*Position{
 		{
 			Symbol:    symbol,
 			OpenTime:  time.Time{},
@@ -285,7 +285,8 @@ func (b *Deribit) GetPositions(symbol string) (result []Position, err error) {
 	return
 }
 
-func (b *Deribit) convertOrder(order *models.Order) (result Order) {
+func (b *Deribit) convertOrder(order *models.Order) (result *Order) {
+	result = &Order{}
 	result.ID = order.OrderID
 	result.Symbol = order.InstrumentName
 	result.Price = order.Price.ToFloat64()
@@ -348,11 +349,11 @@ func (b *Deribit) orderStatus(order *models.Order) OrderStatus {
 	}
 }
 
-func (b *Deribit) SubscribeTrades(market Market, callback func(trades []Trade)) error {
+func (b *Deribit) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	// "trades.BTC-PERPETUAL.raw"
 	ch := fmt.Sprintf("trades.%v.raw", market.Symbol)
 	b.client.On(ch, func(e *models.TradesNotification) {
-		var trades []Trade
+		var trades []*Trade
 		for _, v := range *e {
 			var direction Direction
 			if v.Direction == "buy" {
@@ -360,7 +361,7 @@ func (b *Deribit) SubscribeTrades(market Market, callback func(trades []Trade)) 
 			} else if v.Direction == "sell" {
 				direction = Sell
 			}
-			trades = append(trades, Trade{
+			trades = append(trades, &Trade{
 				ID:        v.TradeID,
 				Direction: direction,
 				Price:     v.Price,
@@ -395,10 +396,10 @@ func (b *Deribit) SubscribeLevel2Snapshots(market Market, callback func(ob *Orde
 	return nil
 }
 
-func (b *Deribit) SubscribeOrders(market Market, callback func(orders []Order)) error {
+func (b *Deribit) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	ch := fmt.Sprintf("user.orders.%v.raw", market.Symbol)
 	b.client.On(ch, func(e *models.UserOrderNotification) {
-		var orders []Order
+		var orders []*Order
 		for _, v := range *e {
 			var direction Direction
 			if v.Direction == "buy" {
@@ -406,7 +407,7 @@ func (b *Deribit) SubscribeOrders(market Market, callback func(orders []Order)) 
 			} else if v.Direction == "sell" {
 				direction = Sell
 			}
-			orders = append(orders, Order{
+			orders = append(orders, &Order{
 				ID:           v.OrderID,
 				Symbol:       v.InstrumentName,
 				Price:        v.Price.ToFloat64(),
@@ -427,7 +428,7 @@ func (b *Deribit) SubscribeOrders(market Market, callback func(orders []Order)) 
 	return nil
 }
 
-func (b *Deribit) SubscribePositions(market Market, callback func(positions []Position)) error {
+func (b *Deribit) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return ErrNotImplemented
 }
 
