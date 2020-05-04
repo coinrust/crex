@@ -45,6 +45,44 @@ func (o *OrderBook) AskPrice() (result float64) {
 	return
 }
 
+func avePrice(items []Item, size float64) float64 {
+	var totalSize = 0.0
+	var totalValue = 0.0
+
+	var lSize = size
+	var n = len(items)
+
+	for i := 0; i < n; i++ {
+		if lSize >= items[i].Amount {
+			// size := asks[i].Amount
+			totalSize += items[i].Amount
+			totalValue += items[i].Amount * items[i].Price
+			lSize -= items[i].Amount
+		} else {
+			// size := lSize
+			totalSize += lSize
+			totalValue += lSize * items[i].Price
+			lSize = 0
+		}
+		if lSize <= 0 {
+			break
+		}
+	}
+
+	if lSize != 0 || totalSize == 0 {
+		return 0
+	}
+	return totalValue / totalSize
+
+}
+func (o *OrderBook) AskAvePrice(size float64) float64 {
+	return avePrice(o.Asks, size)
+}
+
+func (o *OrderBook) BidAvePrice(size float64) float64 {
+	return avePrice(o.Bids, size)
+}
+
 // BidPrice 买一价
 func (o *OrderBook) BidPrice() (result float64) {
 	if len(o.Bids) > 0 {
