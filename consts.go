@@ -26,8 +26,10 @@ func (t TradeMode) String() string {
 type Direction int
 
 const (
-	Buy  Direction = iota // 做多
-	Sell                  // 做空
+	Buy       Direction = iota // 做多
+	Sell                       // 做空
+	CloseBuy                   // 平多
+	CloseSell                  // 平空
 )
 
 func (d Direction) String() string {
