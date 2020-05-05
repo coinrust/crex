@@ -153,6 +153,14 @@ func ParsePlaceOrderParameter(opts ...PlaceOrderOption) *PlaceOrderParameter {
 	return p
 }
 
+// ExchangeSim 模拟交易所接口
+type ExchangeSim interface {
+	Exchange
+
+	// 运行一次(回测系统调用)
+	RunEventLoopOnce() (err error) // Run sim match for backtest only
+}
+
 // Exchange 交易所接口
 type Exchange interface {
 
@@ -231,7 +239,4 @@ type Exchange interface {
 
 	// 订阅持仓
 	SubscribePositions(market Market, callback func(positions []*Position)) error
-
-	// 运行一次(回测系统调用)
-	RunEventLoopOnce() (err error) // Run sim match for backtest only
 }

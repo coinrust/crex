@@ -447,10 +447,6 @@ func (b *HbdmSwap) SubscribePositions(market Market, callback func(positions []*
 	return b.ws.SubscribePositions(market, callback)
 }
 
-func (b *HbdmSwap) RunEventLoopOnce() (err error) {
-	return
-}
-
 func NewHbdmSwap(params *Parameters) *HbdmSwap {
 	baseUri := "https://api.hbdm.com"
 	if params.ApiURL != "" {

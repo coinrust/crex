@@ -434,10 +434,6 @@ func (b *Deribit) SubscribePositions(market Market, callback func(positions []*P
 	return ErrNotImplemented
 }
 
-func (b *Deribit) RunEventLoopOnce() (err error) {
-	return
-}
-
 func NewDeribit(params *Parameters) *Deribit {
 	baseUri := "wss://www.deribit.com/ws/api/v2/"
 	if params.Testnet {
