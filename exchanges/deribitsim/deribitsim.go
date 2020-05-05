@@ -43,15 +43,15 @@ func (b *DeribitSim) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *DeribitSim) GetBalance(currency string) (result *Balance, err error) {
+func (b *DeribitSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	var symbol string
-	if currency == "BTC" {
-		symbol = "BTC-PERPETUAL"
-	} else if currency == "ETH" {
-		symbol = "ETH-PERPETUAL"
-	}
+	//var symbol string
+	//if currency == "BTC" {
+	//	symbol = "BTC-PERPETUAL"
+	//} else if currency == "ETH" {
+	//	symbol = "ETH-PERPETUAL"
+	//}
 	position := b.getPosition(symbol)
 	var price float64
 	ob := b.data.GetOrderBook()
