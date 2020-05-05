@@ -1,7 +1,6 @@
 package crex
 
 import (
-	"github.com/coinrust/crex/data"
 	"net/http"
 )
 
@@ -159,7 +158,7 @@ func ParsePlaceOrderParameter(opts ...PlaceOrderOption) *PlaceOrderParameter {
 // ExchangeSim 模拟交易所接口
 type ExchangeSim interface {
 	Exchange
-	SetData(data *data.Data)
+	//SetData(data *data.Data)
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
 }

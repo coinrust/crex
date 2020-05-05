@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/util"
 	"math"
 	"time"
@@ -12,7 +12,7 @@ import (
 
 // GenerateSim the generate/common exchange for backtest
 type GenerateSim struct {
-	data               *data.Data
+	data               *dataloader.Data
 	makerFeeRate       float64 // -0.00025	// Maker fee rate
 	takerFeeRate       float64 // 0.00075	// Taker fee rate
 	balance            float64
@@ -31,7 +31,7 @@ type GenerateSim struct {
 	positionWinCnt     float64
 }
 
-func NewGenerateSim(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64, isForwardContract bool, posMode ...bool) *GenerateSim {
+func NewGenerateSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, isForwardContract bool, posMode ...bool) *GenerateSim {
 	isDualSidePosition := false
 	if len(posMode) > 0 {
 		isDualSidePosition = posMode[0]
@@ -56,6 +56,10 @@ func (s *GenerateSim) GetName() (name string) {
 
 func (s *GenerateSim) GetTime() (tm int64, err error) {
 	return time.Now().UnixNano() / (int64(time.Millisecond)), nil
+}
+
+func (s *GenerateSim) SetData(data *dataloader.Data) {
+	s.data = data
 }
 
 func (s *GenerateSim) GetBalance(symbol string) (result *Balance, err error) {
@@ -406,7 +410,7 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		} else {
 			s.shortCnt++
 		}
-
+		fmt.Printf("close [%s] position, profit:%v\n", position.Side(), pnl)
 		s.positionCnt++
 
 		position.AvgPrice = 0

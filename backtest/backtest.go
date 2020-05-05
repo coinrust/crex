@@ -2,7 +2,7 @@ package backtest
 
 import (
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/dataloader"
 	"github.com/go-echarts/go-echarts/charts"
 	"log"
 	"os"
@@ -10,7 +10,7 @@ import (
 )
 
 type Backtest struct {
-	data      *data.Data
+	data      *dataloader.Data
 	symbol    string
 	strategy  Strategy
 	exchanges []ExchangeSim
@@ -21,7 +21,7 @@ const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 
 // NewBacktest Create backtest
 // data: The data
-func NewBacktest(data *data.Data, symbol string, strategy Strategy, exchanges []ExchangeSim) *Backtest {
+func NewBacktest(data *dataloader.Data, symbol string, strategy Strategy, exchanges []ExchangeSim) *Backtest {
 	b := &Backtest{
 		data:     data,
 		symbol:   symbol,
@@ -38,7 +38,7 @@ func NewBacktest(data *data.Data, symbol string, strategy Strategy, exchanges []
 }
 
 // SetData Set data for backtest
-func (b *Backtest) SetData(data *data.Data) {
+func (b *Backtest) SetData(data *dataloader.Data) {
 	b.data = data
 }
 

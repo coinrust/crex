@@ -1,4 +1,4 @@
-package data
+package dataloader
 
 import (
 	. "github.com/coinrust/crex"

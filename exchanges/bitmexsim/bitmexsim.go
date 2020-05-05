@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/util"
 	"log"
 	"math"
@@ -24,7 +24,7 @@ type MarginInfo struct {
 
 // BitMEXSim the BitMEX exchange for backtest
 type BitMEXSim struct {
-	data          *data.Data
+	data          *dataloader.Data
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
 	balance       float64
@@ -477,7 +477,7 @@ func (b *BitMEXSim) RunEventLoopOnce() (err error) {
 	return
 }
 
-func NewBitMEXSim(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *BitMEXSim {
+func NewBitMEXSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *BitMEXSim {
 	return &BitMEXSim{
 		data:          data,
 		balance:       cash,

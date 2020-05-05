@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/data"
+	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/util"
 	"log"
 	"math"
@@ -24,7 +24,7 @@ type MarginInfo struct {
 
 // DeribitSim the deribit exchange for backtest
 type DeribitSim struct {
-	data          *data.Data
+	data          *dataloader.Data
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
 	balance       float64
@@ -482,7 +482,7 @@ func (b *DeribitSim) RunEventLoopOnce() (err error) {
 	return
 }
 
-func NewDeribitSim(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *DeribitSim {
+func NewDeribitSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *DeribitSim {
 	return &DeribitSim{
 		data:          data,
 		balance:       cash,
