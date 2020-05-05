@@ -43,13 +43,14 @@ func (s *BasicStrategy) OnExit() error {
 
 func main() {
 	data := data.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
-	var exchanges []Exchange
+	var exchanges []ExchangeSim
 	for i := 0; i < 2; i++ {
 		ex := deribitsim.NewDeribitSim(data, 5.0, -0.00025, 0.00075)
 		exchanges = append(exchanges, ex)
 	}
 	s := &BasicStrategy{}
 	bt := backtest.NewBacktest(data,
+		"BTC",
 		s,
 		exchanges)
 	bt.Run()

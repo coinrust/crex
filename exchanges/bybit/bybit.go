@@ -468,10 +468,6 @@ func (b *Bybit) SubscribePositions(market Market, callback func(positions []*Pos
 	return b.ws.SubscribePositions(market, callback)
 }
 
-func (b *Bybit) RunEventLoopOnce() (err error) {
-	return
-}
-
 func NewBybit(params *Parameters) *Bybit {
 	baseUri := "https://api.bybit.com/"
 	if params.Testnet {

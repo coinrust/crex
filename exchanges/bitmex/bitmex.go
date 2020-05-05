@@ -419,10 +419,6 @@ func (b *BitMEX) SubscribePositions(market Market, callback func(positions []*Po
 	return err
 }
 
-func (b *BitMEX) RunEventLoopOnce() (err error) {
-	return
-}
-
 func NewBitMEX(params *Parameters) *BitMEX {
 	baseUri := "www.bitmex.com"
 	if params.Testnet {

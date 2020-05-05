@@ -13,7 +13,7 @@ type Backtest struct {
 	data      *data.Data
 	symbol    string
 	strategy  Strategy
-	exchanges []Exchange
+	exchanges []ExchangeSim
 	logs      LogItems
 }
 
@@ -21,14 +21,18 @@ const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 
 // NewBacktest Create backtest
 // data: The data
-func NewBacktest(data *data.Data, symbol string, strategy Strategy, exchanges []Exchange) *Backtest {
+func NewBacktest(data *data.Data, symbol string, strategy Strategy, exchanges []ExchangeSim) *Backtest {
 	b := &Backtest{
 		data:     data,
 		symbol:   symbol,
 		strategy: strategy,
 	}
 	b.exchanges = exchanges
-	strategy.Setup(TradeModeBacktest, b.exchanges...)
+	var exs []Exchange
+	for _, v := range exchanges {
+		exs = append(exs, v)
+	}
+	strategy.Setup(TradeModeBacktest, exs...)
 	b.logs = LogItems{}
 	return b
 }
@@ -101,7 +105,7 @@ func (b *Backtest) addItemStats() {
 func (b *Backtest) fetchItemStats(item *LogItem) {
 	n := len(b.exchanges)
 	for i := 0; i < n; i++ {
-		balance, err := b.exchanges[i].GetBalance(b.symbol)
+		balance, err := b.exchanges[i].GetBalance("BTC")
 		if err != nil {
 			log.Fatal(err)
 		}
