@@ -426,6 +426,15 @@ func (s *GenerateSim) GetOpenOrders(symbol string, opts ...OrderOption) (result 
 	return
 }
 
+func (s *GenerateSim) GetOrderHistory(symbol string, opts ...OrderOption) (result []*Order, err error) {
+	for _, v := range s.historyOrders {
+		if v.Symbol == symbol {
+			result = append(result, v)
+		}
+	}
+	return
+}
+
 func (s *GenerateSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	order, ok := s.orders[id]
 	if !ok {
