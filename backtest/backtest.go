@@ -170,16 +170,17 @@ func (b *Backtest) Plot() {
 		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
 		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
 		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
-		charts.LineOpts{Smooth: true, YAxisIndex: 0})
+	//charts.LineOpts{Smooth: true, YAxisIndex: 0},
+	)
 
 	line.AddYAxis("equity", equities,
 		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
 		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
 		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
-		charts.LineOpts{Smooth: true, YAxisIndex: 0})
+	//charts.LineOpts{Smooth: true, YAxisIndex: 0},
+	)
 
-	line.SetSeriesOptions()
-	line.SetGlobalOptions(charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}})
+	line.SetGlobalOptions(charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}, Scale: true})
 
 	f, err := os.Create("result.html")
 	if err != nil {
