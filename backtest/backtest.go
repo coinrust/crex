@@ -37,6 +37,11 @@ func NewBacktest(data *data.Data, symbol string, strategy Strategy, exchanges []
 	return b
 }
 
+// SetData Set data for backtest
+func (b *Backtest) SetData(data *data.Data) {
+	b.data = data
+}
+
 // Run Run backtest
 func (b *Backtest) Run() {
 	b.data.Reset()
