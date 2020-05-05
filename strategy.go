@@ -23,6 +23,8 @@ type StrategyOption struct {
 
 // Strategy interface
 type Strategy interface {
+	Name() string
+	SetName(name string)
 	SetSelf(self Strategy) error
 	Setup(mode TradeMode, exchanges ...Exchange) error
 	TradeMode() TradeMode
@@ -36,6 +38,7 @@ type Strategy interface {
 // StrategyBase Strategy base class
 type StrategyBase struct {
 	self      interface{}
+	name      string
 	tradeMode TradeMode
 	Exchanges []Exchange
 	Exchange  Exchange
@@ -241,4 +244,12 @@ func (s *StrategyBase) getDefaultValue(kind reflect.Kind, value string) interfac
 
 func (s *StrategyBase) TradeMode() TradeMode {
 	return s.tradeMode
+}
+
+func (s *StrategyBase) SetName(name string) {
+	s.name = name
+}
+
+func (s *StrategyBase) Name() string {
+	return s.name
 }
