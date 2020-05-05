@@ -6,7 +6,6 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/data"
 	"github.com/coinrust/crex/util"
-	"log"
 	"math"
 	"time"
 )
@@ -311,15 +310,15 @@ func (s *GenerateSim) updatePosition(symbol string, size float64, price float64,
 	} else {
 		if size < 0 {
 			if isReduce {
-				return s.closePosition(&position[1], size, price, isReduce)
+				return s.closePosition(&position[0], size, price, isReduce) // 平多
 			} else {
-				return s.addPosition(&position[1], size, price)
+				return s.addPosition(&position[1], size, price) // 开空
 			}
 		} else if size > 0 {
 			if isReduce {
-				return s.closePosition(&position[0], size, price, isReduce)
+				return s.closePosition(&position[1], size, price, isReduce) // 平空
 			} else {
-				return s.addPosition(&position[0], size, price)
+				return s.addPosition(&position[0], size, price) // 开多
 			}
 		}
 	}
@@ -344,7 +343,7 @@ func (s *GenerateSim) addPosition(position *Position, size float64, price float6
 		totalCost := positionCost + newPositionCost
 
 		totalSize := math.Abs(position.Size + size)
-		position.AvgPrice = totalSize / totalCost
+		position.AvgPrice = totalCost / totalSize
 		position.Size += size
 		amount = math.Abs(size)
 	} else {
@@ -360,7 +359,8 @@ func (s *GenerateSim) addPosition(position *Position, size float64, price float6
 		position.Size += size
 		amount = math.Abs(size)
 	}
-
+	position.OpenTime = s.data.GetOrderBook().Time
+	position.OpenPrice = position.AvgPrice
 	return
 }
 
@@ -392,8 +392,6 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		// 完全平仓
 		pnl := CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, s.isForwardContract)
 		s.addPnl(pnl)
-		position.AvgPrice = 0
-		position.Size = 0
 
 		if pnl > 0 {
 			if position.Side() == Buy {
@@ -410,6 +408,9 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		}
 
 		s.positionCnt++
+
+		position.AvgPrice = 0
+		position.Size = 0
 	} else {
 		// 部分平仓
 		pnl := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, s.isForwardContract)
@@ -509,7 +510,7 @@ func (s *GenerateSim) CancelAllOrders(symbol string, opts ...OrderOption) (err e
 
 	for _, order := range s.openOrders {
 		if !order.IsOpen() {
-			log.Printf("Order error: %#v", order)
+			fmt.Printf("Order error: %#v\n", order)
 			continue
 		}
 		switch order.Status {
