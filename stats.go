@@ -21,15 +21,16 @@ type Stats struct {
 }
 
 func (s *Stats) PrintResult() {
-	fmt.Printf("Start: %v\n", s.Start)
-	fmt.Printf("End: %v\n", s.End)
-	fmt.Printf("Duration: %v(min)\n", s.Duration.Minutes())
-	fmt.Printf("EntryPrice: %v\n", s.EntryPrice)
-	fmt.Printf("ExitPrice: %v\n", s.ExitPrice)
-	fmt.Printf("EntryEquity: %v\n", s.EntryEquity)
-	fmt.Printf("ExitEquity: %v\n", s.ExitEquity)
-	fmt.Printf("Buy & Hold Return: %v\n", s.BaHReturn)
-	fmt.Printf("Buy & Hold Return Pnt: %v%%\n", s.BaHReturnPnt*100)
-	fmt.Printf("EquityReturn: %v\n", s.EquityReturn)
-	fmt.Printf("EquityReturnPnt: %v%%\n", s.EquityReturnPnt*100)
+	fmt.Printf("======================== RESULT ========================\n")
+	fmt.Printf("Start: \t\t\t%v\n", s.Start)
+	fmt.Printf("End: \t\t\t%v\n", s.End)
+	fmt.Printf("Duration: \t\t%v(min)\n", s.Duration.Minutes())
+	fmt.Printf("EntryPrice: \t\t%v\n", s.EntryPrice)
+	fmt.Printf("ExitPrice: \t\t%v\n", s.ExitPrice)
+	fmt.Printf("EntryEquity: \t\t%v\n", s.EntryEquity)
+	fmt.Printf("ExitEquity: \t\t%v\n", s.ExitEquity)
+	fmt.Printf("Buy & Hold Return: \t%.8f\n", s.BaHReturn)
+	fmt.Printf("Buy & Hold Return Pnt: \t%.4f%%\n", s.BaHReturnPnt*100)
+	fmt.Printf("EquityReturn: \t\t%.8f\n", s.EquityReturn)
+	fmt.Printf("EquityReturnPnt: \t%.4f%%\n", s.EquityReturnPnt*100)
 }

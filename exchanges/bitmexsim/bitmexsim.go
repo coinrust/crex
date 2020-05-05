@@ -45,13 +45,13 @@ func (b *BitMEXSim) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *BitMEXSim) GetBalance(currency string) (result *Balance, err error) {
+func (b *BitMEXSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	var symbol string
-	if currency == "XBT" || currency == "BTC" {
-		symbol = "XBTUSD"
-	}
+	//var symbol string
+	//if currency == "XBT" || currency == "BTC" {
+	//	symbol = "XBTUSD"
+	//}
 	position := b.getPosition(symbol)
 	var price float64
 	ob := b.data.GetOrderBook()

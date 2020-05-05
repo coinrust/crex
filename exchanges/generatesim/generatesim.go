@@ -11,13 +11,6 @@ import (
 	"time"
 )
 
-type MarginInfo struct {
-	Leverage              float64
-	MaintMargin           float64
-	LiquidationPriceLong  float64
-	LiquidationPriceShort float64
-}
-
 // GenerateSim the generate/common exchange for backtest
 type GenerateSim struct {
 	data               *data.Data
@@ -29,7 +22,14 @@ type GenerateSim struct {
 	historyOrders      map[string]*Order     // History orders
 	positions          map[string][]Position // Position key: symbol, index:0, long; 1, short, when dual side mode, its size is 2, otherwise size is 1
 	isDualSidePosition bool                  // dual side position
-	isForwardContract  bool                  // forward contract, otherwise reverse contract, UNUSED, TBD
+	isForwardContract  bool                  // forward contract, otherwise reverse contract
+	totalFee           float64
+	shortCnt           float64
+	shortWinCnt        float64
+	longCnt            float64
+	longWinCnt         float64
+	positionCnt        float64
+	positionWinCnt     float64
 }
 
 func NewGenerateSim(data *data.Data, cash float64, makerFeeRate float64, takerFeeRate float64, isForwardContract bool, posMode ...bool) *GenerateSim {
@@ -74,8 +74,7 @@ func (s *GenerateSim) GetBalance(symbol string) (result *Balance, err error) {
 		} else if side == Sell {
 			price = ob.BidPrice()
 		}
-		pnl2, _ := CalcPnl(side, math.Abs(pos.Size), pos.AvgPrice, price)
-		pnl += pnl2
+		pnl = CalcPnl(side, math.Abs(pos.Size), pos.AvgPrice, price, s.isForwardContract)
 	}
 	result.Equity = result.Available + pnl
 	return
@@ -192,7 +191,13 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 			return
 		}
 		// trade fee
-		fee := size / price * s.takerFeeRate
+		fee := 0.0
+		if s.isForwardContract {
+			fee = size * price * s.takerFeeRate
+		} else {
+			fee = size / price * s.takerFeeRate
+		}
+		s.totalFee += fee
 		order.FilledAmount = size
 		order.AvgPrice = price
 		// Update balance
@@ -210,8 +215,14 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 			return
 		}
 
-		// trade fee
-		fee := size / price * s.takerFeeRate
+		fee := 0.0
+		if s.isForwardContract {
+			fee = size * price * s.takerFeeRate
+		} else {
+			fee = size / price * s.takerFeeRate
+		}
+		s.totalFee += fee
+
 		order.FilledAmount = size
 		order.AvgPrice = price
 
@@ -246,6 +257,7 @@ func (s *GenerateSim) matchLimitOrder(order *Order, immediate bool) (err error) 
 			} else {
 				fee = size / order.Price * s.makerFeeRate
 			}
+			s.totalFee += fee
 
 			// Update balance
 			s.addBalance(-fee)
@@ -270,6 +282,7 @@ func (s *GenerateSim) matchLimitOrder(order *Order, immediate bool) (err error) 
 			} else {
 				fee = size / order.Price * s.makerFeeRate
 			}
+			s.totalFee += fee
 
 			// Update balance
 			s.addBalance(-fee)
@@ -320,23 +333,34 @@ func (s *GenerateSim) addPosition(position *Position, size float64, price float6
 		err = errors.New("方向错误")
 		return
 	}
-	// 平均成交价
-	// total_quantity / ((quantity_1 / price_1) + (quantity_2 / price_2)) = entry_price
 	// 增加持仓
 	var positionCost float64
-	if position.Size != 0 && position.AvgPrice != 0 {
-		positionCost = math.Abs(position.Size) / position.AvgPrice
+	if s.isForwardContract {
+		if position.Size != 0 && position.AvgPrice != 0 {
+			positionCost = math.Abs(position.Size) * position.AvgPrice
+		}
+
+		newPositionCost := math.Abs(size) * price
+		totalCost := positionCost + newPositionCost
+
+		totalSize := math.Abs(position.Size + size)
+		position.AvgPrice = totalSize / totalCost
+		position.Size += size
+		amount = math.Abs(size)
+	} else {
+		if position.Size != 0 && position.AvgPrice != 0 {
+			positionCost = math.Abs(position.Size) / position.AvgPrice
+		}
+
+		newPositionCost := math.Abs(size) / price
+		totalCost := positionCost + newPositionCost
+
+		totalSize := math.Abs(position.Size + size)
+		position.AvgPrice = totalSize / totalCost
+		position.Size += size
+		amount = math.Abs(size)
 	}
 
-	newPositionCost := math.Abs(size) / price
-	totalCost := positionCost + newPositionCost
-
-	totalSize := math.Abs(position.Size + size)
-	avgPrice := totalSize / totalCost
-
-	position.AvgPrice = avgPrice
-	position.Size += size
-	amount = math.Abs(size)
 	return
 }
 
@@ -346,13 +370,12 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		err = errors.New("当前无持仓")
 		return
 	}
-	//if position.Size > 0 && size > 0 || position.Size < 0 && size < 0 {
-	//	err = errors.New("方向错误")
-	//	return
-	//}
+
 	remaining := math.Abs(size) - math.Abs(position.Size)
 	if isReduce {
-		remaining = 0
+		if remaining > 0 {
+			remaining = 0
+		}
 		amount = math.Abs(position.Size)
 	} else {
 		amount = math.Abs(size)
@@ -361,19 +384,35 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 	if remaining > 0 {
 		// 先平掉原有持仓
 		// 计算盈利
-		pnl, _ := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
+		pnl := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, s.isForwardContract)
 		s.addPnl(pnl)
 		position.AvgPrice = price
 		position.Size = position.Size + size
 	} else if remaining == 0 {
 		// 完全平仓
-		pnl, _ := CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price)
+		pnl := CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, s.isForwardContract)
 		s.addPnl(pnl)
 		position.AvgPrice = 0
 		position.Size = 0
+
+		if pnl > 0 {
+			if position.Side() == Buy {
+				s.longWinCnt++
+			} else {
+				s.shortWinCnt++
+			}
+			s.positionWinCnt++
+		}
+		if position.Side() == Buy {
+			s.longCnt++
+		} else {
+			s.shortCnt++
+		}
+
+		s.positionCnt++
 	} else {
 		// 部分平仓
-		pnl, _ := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
+		pnl := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, s.isForwardContract)
 		s.addPnl(pnl)
 		//position.AvgPrice = position.AvgPrice
 		position.Size = position.Size + size
@@ -419,6 +458,15 @@ func (s *GenerateSim) getPosition(symbol string) []Position {
 
 func (s *GenerateSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	for _, v := range s.openOrders {
+		if v.Symbol == symbol {
+			result = append(result, v)
+		}
+	}
+	return
+}
+
+func (s *GenerateSim) GetOrderHistory(symbol string, opts ...OrderOption) (result []*Order, err error) {
+	for _, v := range s.historyOrders {
 		if v.Symbol == symbol {
 			result = append(result, v)
 		}
@@ -513,4 +561,12 @@ func (s *GenerateSim) RunEventLoopOnce() (err error) {
 		s.matchOrder(order, false)
 	}
 	return
+}
+
+func (s *GenerateSim) GetWinRate() (longWinRate, shortWinRate, totalWinRate float64) {
+	return s.longWinCnt / s.longCnt, s.shortWinCnt / s.shortCnt, s.positionWinCnt / s.positionCnt
+}
+
+func (s *GenerateSim) GetFee() (fee float64) {
+	return s.totalFee
 }
