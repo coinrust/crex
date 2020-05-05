@@ -39,13 +39,14 @@ func (b *OkexSwap) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *OkexSwap) GetBalance(currency string) (result Balance, err error) {
+func (b *OkexSwap) GetBalance(currency string) (result *Balance, err error) {
 	var account okex.SwapAccount
 	account, err = b.client.GetSwapAccount(currency)
 	if err != nil {
 		return
 	}
 
+	result = &Balance{}
 	result.Equity, _ = strconv.ParseFloat(account.Info.Equity, 64)
 	result.Available, _ = strconv.ParseFloat(account.Info.TotalAvailBalance, 64)
 	result.RealizedPnl, _ = strconv.ParseFloat(account.Info.RealizedPnl, 64)
@@ -54,7 +55,7 @@ func (b *OkexSwap) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *OkexSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *OkexSwap) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
 	params := map[string]string{}
 	params["size"] = fmt.Sprintf("%v", depth) // "10"
 	//params["depth"] = fmt.Sprintf("%v", 0.01) // BTC: "0.1"
@@ -64,6 +65,8 @@ func (b *OkexSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err
 	if err != nil {
 		return
 	}
+
+	result = &OrderBook{}
 
 	for _, v := range ret.Asks {
 		result.Asks = append(result.Asks, Item{
@@ -85,7 +88,7 @@ func (b *OkexSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err
 	return
 }
 
-func (b *OkexSwap) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *OkexSwap) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	var granularity int64
 	var intervalValue string
 	var intervalF int64
@@ -153,7 +156,7 @@ func (b *OkexSwap) GetRecords(symbol string, period string, from int64, end int6
 		if err != nil {
 			return
 		}
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: timestamp.Local(),
 			Open:      util.ParseFloat64(v[1]),

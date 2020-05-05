@@ -39,13 +39,14 @@ func (b *OkexFutures) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *OkexFutures) GetBalance(currency string) (result Balance, err error) {
+func (b *OkexFutures) GetBalance(currency string) (result *Balance, err error) {
 	var account okex.FuturesCurrencyAccount
 	account, err = b.client.GetFuturesAccountsByCurrency(currency)
 	if err != nil {
 		return
 	}
 
+	result = &Balance{}
 	result.Equity = account.Equity
 	result.Available = account.TotalAvailBalance
 	result.RealizedPnl = account.RealizedPnl
@@ -54,7 +55,7 @@ func (b *OkexFutures) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *OkexFutures) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *OkexFutures) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
 	params := map[string]string{}
 	params["size"] = fmt.Sprintf("%v", depth) // "10"
 	//params["depth"] = fmt.Sprintf("%v", 0.01) // BTC: "0.1"
@@ -64,6 +65,8 @@ func (b *OkexFutures) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	if err != nil {
 		return
 	}
+
+	result = &OrderBook{}
 
 	for _, v := range ret.Asks {
 		result.Asks = append(result.Asks, Item{
@@ -85,7 +88,7 @@ func (b *OkexFutures) GetOrderBook(symbol string, depth int) (result OrderBook, 
 	return
 }
 
-func (b *OkexFutures) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *OkexFutures) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	var granularity int64
 	var intervalValue string
 	var intervalF int64
@@ -153,7 +156,7 @@ func (b *OkexFutures) GetRecords(symbol string, period string, from int64, end i
 		if err != nil {
 			return
 		}
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: timestamp.Local(),
 			Open:      util.ParseFloat64(v[1]),

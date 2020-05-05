@@ -45,7 +45,8 @@ func (b *BitMEXSim) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *BitMEXSim) GetBalance(currency string) (result Balance, err error) {
+func (b *BitMEXSim) GetBalance(currency string) (result *Balance, err error) {
+	result = &Balance{}
 	result.Available = b.balance
 	var symbol string
 	if currency == "XBT" || currency == "BTC" {
@@ -65,12 +66,12 @@ func (b *BitMEXSim) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *BitMEXSim) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
-	result = *b.data.GetOrderBook()
+func (b *BitMEXSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = b.data.GetOrderBook()
 	return
 }
 
-func (b *BitMEXSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BitMEXSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	return
 }
 

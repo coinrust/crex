@@ -47,13 +47,14 @@ func (b *BinanceFutures) SetProxy(proxyURL string) error {
 }
 
 // currency: USDT
-func (b *BinanceFutures) GetBalance(currency string) (result Balance, err error) {
+func (b *BinanceFutures) GetBalance(currency string) (result *Balance, err error) {
 	var res []*futures.Balance
 	res, err = b.client.NewGetBalanceService().
 		Do(context.Background())
 	if err != nil {
 		return
 	}
+	result = &Balance{}
 	for _, v := range res {
 		if v.Asset == currency { // USDT
 			value := util.ParseFloat64(v.Balance)
@@ -65,7 +66,8 @@ func (b *BinanceFutures) GetBalance(currency string) (result Balance, err error)
 	return
 }
 
-func (b *BinanceFutures) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *BinanceFutures) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = &OrderBook{}
 	if depth <= 5 {
 		depth = 5
 	} else if depth <= 10 {
@@ -105,7 +107,7 @@ func (b *BinanceFutures) GetOrderBook(symbol string, depth int) (result OrderBoo
 	return
 }
 
-func (b *BinanceFutures) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BinanceFutures) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	var res []*futures.Kline
 	service := b.client.NewKlinesService().
 		Symbol(symbol).
@@ -122,7 +124,7 @@ func (b *BinanceFutures) GetRecords(symbol string, period string, from int64, en
 		return
 	}
 	for _, v := range res {
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: time.Unix(0, v.OpenTime*int64(time.Millisecond)),
 			Open:      util.ParseFloat64(v.Open),

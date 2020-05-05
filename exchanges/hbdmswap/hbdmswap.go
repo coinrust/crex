@@ -37,7 +37,7 @@ func (b *HbdmSwap) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *HbdmSwap) GetBalance(currency string) (result Balance, err error) {
+func (b *HbdmSwap) GetBalance(currency string) (result *Balance, err error) {
 	var account hbdmswap.AccountInfoResult
 	account, err = b.client.GetAccountInfo(currency)
 	if err != nil {
@@ -51,6 +51,7 @@ func (b *HbdmSwap) GetBalance(currency string) (result Balance, err error) {
 		return
 	}
 
+	result = &Balance{}
 	for _, v := range account.Data {
 		if v.Symbol == currency {
 			result.Equity = v.MarginBalance
@@ -64,7 +65,7 @@ func (b *HbdmSwap) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *HbdmSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *HbdmSwap) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
 	var ret hbdmswap.MarketDepthResult
 
 	var _type = "step0" // 使用step0时，不合并深度获取150档数据
@@ -81,6 +82,7 @@ func (b *HbdmSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err
 			ret.ErrMsg)
 		return
 	}
+	result = &OrderBook{}
 	for _, v := range ret.Tick.Asks {
 		result.Asks = append(result.Asks, Item{
 			Price:  v[0],
@@ -97,7 +99,7 @@ func (b *HbdmSwap) GetOrderBook(symbol string, depth int) (result OrderBook, err
 	return
 }
 
-func (b *HbdmSwap) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *HbdmSwap) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	var _period string
 	if strings.HasSuffix(period, "m") {
 		_period = period[:len(period)-1] + "min"
@@ -127,7 +129,7 @@ func (b *HbdmSwap) GetRecords(symbol string, period string, from int64, end int6
 		return
 	}
 	for _, v := range ret.Data {
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: time.Unix(int64(v.ID), 0),
 			Open:      v.Open,

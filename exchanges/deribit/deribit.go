@@ -26,7 +26,7 @@ func (b *Deribit) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *Deribit) GetBalance(currency string) (result Balance, err error) {
+func (b *Deribit) GetBalance(currency string) (result *Balance, err error) {
 	params := &models.GetAccountSummaryParams{
 		Currency: currency,
 		Extended: false,
@@ -36,6 +36,7 @@ func (b *Deribit) GetBalance(currency string) (result Balance, err error) {
 	if err != nil {
 		return
 	}
+	result = &Balance{}
 	result.Equity = ret.Equity
 	result.Available = ret.Balance
 	result.RealizedPnl = ret.SessionRpl
@@ -43,7 +44,7 @@ func (b *Deribit) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *Deribit) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *Deribit) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
 	params := &models.GetOrderBookParams{
 		InstrumentName: symbol,
 		Depth:          depth,
@@ -53,6 +54,7 @@ func (b *Deribit) GetOrderBook(symbol string, depth int) (result OrderBook, err 
 	if err != nil {
 		return
 	}
+	result = &OrderBook{}
 	for _, v := range ret.Asks {
 		result.Asks = append(result.Asks, Item{
 			Price:  v[0],
@@ -69,7 +71,7 @@ func (b *Deribit) GetOrderBook(symbol string, depth int) (result OrderBook, err 
 	return
 }
 
-func (b *Deribit) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *Deribit) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	if end == 0 {
 		end = time.Now().Unix()
 	}
@@ -86,7 +88,7 @@ func (b *Deribit) GetRecords(symbol string, period string, from int64, end int64
 	}
 	n := len(resp.Ticks)
 	for i := 0; i < n; i++ {
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: time.Unix(0, resp.Ticks[i]*int64(time.Millisecond)),
 			Open:      resp.Open[i],

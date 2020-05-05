@@ -59,7 +59,8 @@ func (s *GenerateSim) GetTime() (tm int64, err error) {
 	return time.Now().UnixNano() / (int64(time.Millisecond)), nil
 }
 
-func (s *GenerateSim) GetBalance(symbol string) (result Balance, err error) {
+func (s *GenerateSim) GetBalance(symbol string) (result *Balance, err error) {
+	result = &Balance{}
 	result.Available = s.balance
 
 	position := s.getPosition(symbol)
@@ -80,12 +81,12 @@ func (s *GenerateSim) GetBalance(symbol string) (result Balance, err error) {
 	return
 }
 
-func (s *GenerateSim) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
-	result = *s.data.GetOrderBook()
+func (s *GenerateSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = s.data.GetOrderBook()
 	return
 }
 
-func (s *GenerateSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (s *GenerateSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	return
 }
 

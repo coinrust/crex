@@ -27,13 +27,14 @@ func (b *Bybit) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *Bybit) GetBalance(currency string) (result Balance, err error) {
+func (b *Bybit) GetBalance(currency string) (result *Balance, err error) {
 	var balance rest.Balance
 	balance, err = b.client.GetWalletBalance(currency)
 	if err != nil {
 		return
 	}
 
+	result = &Balance{}
 	result.Equity = balance.Equity
 	result.Available = balance.AvailableBalance
 	result.RealizedPnl = balance.RealisedPnl
@@ -41,7 +42,8 @@ func (b *Bybit) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *Bybit) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *Bybit) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = &OrderBook{}
 	var ob rest.OrderBook
 	ob, err = b.client.GetOrderBook(symbol)
 	if err != nil {
@@ -66,14 +68,14 @@ func (b *Bybit) GetOrderBook(symbol string, depth int) (result OrderBook, err er
 	return
 }
 
-func (b *Bybit) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *Bybit) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	var values []rest.OHLC
 	values, err = b.client.GetKLine(symbol, period, from, limit)
 	if err != nil {
 		return
 	}
 	for _, v := range values {
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    v.Symbol,
 			Timestamp: time.Unix(v.OpenTime, 0),
 			Open:      v.Open,

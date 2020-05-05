@@ -30,12 +30,13 @@ func (b *BitMEX) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *BitMEX) GetBalance(currency string) (result Balance, err error) {
+func (b *BitMEX) GetBalance(currency string) (result *Balance, err error) {
 	var margin swagger.Margin
 	margin, err = b.client.GetMargin()
 	if err != nil {
 		return
 	}
+	result = &Balance{}
 	result.Equity = float64(margin.MarginBalance)
 	result.Available = float64(margin.AvailableMargin)
 	result.RealizedPnl = float64(margin.RealisedPnl)
@@ -43,7 +44,8 @@ func (b *BitMEX) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *BitMEX) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
+func (b *BitMEX) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = &OrderBook{}
 	var ret bitmex.OrderBook
 	ret, err = b.client.GetOrderBook(depth, symbol)
 	if err != nil {
@@ -65,7 +67,7 @@ func (b *BitMEX) GetOrderBook(symbol string, depth int) (result OrderBook, err e
 	return
 }
 
-func (b *BitMEX) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *BitMEX) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	//@param "binSize" (string) Time interval to bucket by. Available options: [1m,5m,1h,1d].
 	var binSize string
 	if strings.HasSuffix(period, "m") {
@@ -92,7 +94,7 @@ func (b *BitMEX) GetRecords(symbol string, period string, from int64, end int64,
 		return
 	}
 	for _, v := range o {
-		records = append(records, Record{
+		records = append(records, &Record{
 			Symbol:    v.Symbol,
 			Timestamp: v.Timestamp,
 			Open:      v.Open,

@@ -43,7 +43,8 @@ func (b *DeribitSim) GetTime() (tm int64, err error) {
 	return
 }
 
-func (b *DeribitSim) GetBalance(currency string) (result Balance, err error) {
+func (b *DeribitSim) GetBalance(currency string) (result *Balance, err error) {
+	result = &Balance{}
 	result.Available = b.balance
 	var symbol string
 	if currency == "BTC" {
@@ -65,12 +66,12 @@ func (b *DeribitSim) GetBalance(currency string) (result Balance, err error) {
 	return
 }
 
-func (b *DeribitSim) GetOrderBook(symbol string, depth int) (result OrderBook, err error) {
-	result = *b.data.GetOrderBook()
+func (b *DeribitSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+	result = b.data.GetOrderBook()
 	return
 }
 
-func (b *DeribitSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []Record, err error) {
+func (b *DeribitSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	return
 }
 
