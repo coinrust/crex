@@ -333,23 +333,34 @@ func (s *GenerateSim) addPosition(position *Position, size float64, price float6
 		err = errors.New("方向错误")
 		return
 	}
-	// 平均成交价
-	// total_quantity / ((quantity_1 / price_1) + (quantity_2 / price_2)) = entry_price
 	// 增加持仓
 	var positionCost float64
-	if position.Size != 0 && position.AvgPrice != 0 {
-		positionCost = math.Abs(position.Size) / position.AvgPrice
+	if s.isForwardContract {
+		if position.Size != 0 && position.AvgPrice != 0 {
+			positionCost = math.Abs(position.Size) * position.AvgPrice
+		}
+
+		newPositionCost := math.Abs(size) * price
+		totalCost := positionCost + newPositionCost
+
+		totalSize := math.Abs(position.Size + size)
+		position.AvgPrice = totalSize / totalCost
+		position.Size += size
+		amount = math.Abs(size)
+	} else {
+		if position.Size != 0 && position.AvgPrice != 0 {
+			positionCost = math.Abs(position.Size) / position.AvgPrice
+		}
+
+		newPositionCost := math.Abs(size) / price
+		totalCost := positionCost + newPositionCost
+
+		totalSize := math.Abs(position.Size + size)
+		position.AvgPrice = totalSize / totalCost
+		position.Size += size
+		amount = math.Abs(size)
 	}
 
-	newPositionCost := math.Abs(size) / price
-	totalCost := positionCost + newPositionCost
-
-	totalSize := math.Abs(position.Size + size)
-	avgPrice := totalSize / totalCost
-
-	position.AvgPrice = avgPrice
-	position.Size += size
-	amount = math.Abs(size)
 	return
 }
 
