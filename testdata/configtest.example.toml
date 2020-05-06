@@ -29,13 +29,13 @@ proxy_url = ""
 access_key = ""
 secret_key = ""
 testnet = false
-proxy_url = "socks5://127.0.0.1:1080"
+proxy_url = ""
 
 [hbdmswap]
 access_key = ""
 secret_key = ""
 testnet = false
-proxy_url = "socks5://127.0.0.1:1080"
+proxy_url = ""
 
 [okexfutures]
 access_key = ""
@@ -44,10 +44,9 @@ passphrase = ""
 testnet = false
 proxy_url = ""
 
-okexswap:
-  access_key: ""
-  secret_key: ""
-  passphrase: ""
-  testnet: false
-  proxy_url: ""
-
+[okexswap]
+access_key = ""
+secret_key = ""
+passphrase = ""
+testnet = false
+proxy_url = ""
