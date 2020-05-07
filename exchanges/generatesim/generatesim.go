@@ -3,9 +3,11 @@ package generatesim
 import (
 	"errors"
 	"fmt"
+	"github.com/beaquant/utils/logger"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/util"
+	"github.com/sirupsen/logrus"
 	"math"
 	"time"
 )
@@ -29,6 +31,7 @@ type GenerateSim struct {
 	longWinCnt         float64
 	positionCnt        float64
 	positionWinCnt     float64
+	logger             *logrus.Logger
 }
 
 func NewGenerateSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, isForwardContract bool, posMode ...bool) *GenerateSim {
@@ -47,6 +50,7 @@ func NewGenerateSim(data *dataloader.Data, cash float64, makerFeeRate float64, t
 		positions:          make(map[string][]Position),
 		isDualSidePosition: isDualSidePosition,
 		isForwardContract:  isForwardContract,
+		logger:             logger.NewLogger("generatesim.log"),
 	}
 }
 
@@ -55,6 +59,9 @@ func (s *GenerateSim) GetName() (name string) {
 }
 
 func (s *GenerateSim) GetTime() (tm int64, err error) {
+	if s.data != nil && s.data.GetOrderBook() != nil {
+		return s.data.GetOrderBook().Time.UnixNano() / int64(time.Millisecond), nil
+	}
 	return time.Now().UnixNano() / (int64(time.Millisecond)), nil
 }
 
@@ -105,18 +112,38 @@ func (s *GenerateSim) SetLeverRate(value float64) (err error) {
 }
 
 func (s *GenerateSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+	tm := time.Now()
+	if s.data != nil && s.data.GetOrderBook() != nil {
+		tm = s.data.GetOrderBook().Time
+	}
+	s.logger.WithTime(tm).Println("OpenLong", price, size)
 	return s.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
 func (s *GenerateSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+	tm := time.Now()
+	if s.data != nil && s.data.GetOrderBook() != nil {
+		tm = s.data.GetOrderBook().Time
+	}
+	s.logger.WithTime(tm).Println("OpenShort", price, size)
 	return s.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
 func (s *GenerateSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+	tm := time.Now()
+	if s.data != nil && s.data.GetOrderBook() != nil {
+		tm = s.data.GetOrderBook().Time
+	}
+	s.logger.WithTime(tm).Println("CloseLong", price, size)
 	return s.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
 func (s *GenerateSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+	tm := time.Now()
+	if s.data != nil && s.data.GetOrderBook() != nil {
+		tm = s.data.GetOrderBook().Time
+	}
+	s.logger.WithTime(tm).Println("CloseShort", price, size)
 	return s.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
