@@ -1,7 +1,3 @@
-[log]
-path = "./app.log"
-level = "debug"
-
 [[exchange]]
 name = "deribit"
 debug_mode = false
@@ -9,6 +5,10 @@ access_key = ""
 secret_key = ""
 testnet = true
 websocket = false
+
+[log]
+path = "./app.log"
+level = "debug"
 
 [option]
 log_only = false # 只输出日志
