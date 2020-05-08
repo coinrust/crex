@@ -6,6 +6,7 @@ import (
 	"github.com/BurntSushi/toml"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/exchanges"
+	"github.com/coinrust/crex/log"
 )
 
 var (
@@ -13,8 +14,14 @@ var (
 )
 
 type SConfig struct {
+	Log       SLog                   `toml:"log"`
 	Exchanges []SExchange            `toml:"exchange"`
 	Options   map[string]interface{} `toml:"option"`
+}
+
+type SLog struct {
+	Path  string `toml:"path"` // 运行日志
+	Level string `toml:"level"`
 }
 
 type SExchange struct {
@@ -45,11 +52,14 @@ func Serve(strategy Strategy) (err error) {
 	if err != nil {
 		return
 	}
+
 	err = strategy.Run()
 	if err != nil {
 		return
 	}
+
 	err = strategy.OnExit()
+
 	return
 }
 
@@ -78,5 +88,11 @@ func SetupStrategyFromConfig(strategy Strategy) (err error) {
 	}
 	//log.Printf("options: %#v", options)
 	err = strategy.SetOptions(c.Options)
+
+	// 初始化日志
+	logCfg := c.Log
+	myLogger := NewMyLogger(logCfg.Path, logCfg.Level, false)
+	log.SetLogger(myLogger)
+
 	return
 }
