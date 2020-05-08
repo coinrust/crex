@@ -17,7 +17,7 @@ require (
 	github.com/go-echarts/go-echarts v0.0.0-20190915064101-cbb3b43ade5d
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/micro/go-micro v1.18.0 // indirect
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.6.0
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.3.1
 	go.uber.org/zap v1.15.0
