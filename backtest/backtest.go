@@ -3,9 +3,10 @@ package backtest
 import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
+	"github.com/coinrust/crex/log"
 	"github.com/go-echarts/go-echarts/charts"
-	"log"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type Backtest struct {
 	symbol    string
 	strategy  Strategy
 	exchanges []ExchangeSim
+	outputDir string
 	logs      LogItems
 }
 
@@ -21,11 +23,13 @@ const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 
 // NewBacktest Create backtest
 // data: The data
-func NewBacktest(data *dataloader.Data, symbol string, strategy Strategy, exchanges []ExchangeSim) *Backtest {
+// outputDir: 日志输出目录
+func NewBacktest(data *dataloader.Data, symbol string, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
 	b := &Backtest{
-		data:     data,
-		symbol:   symbol,
-		strategy: strategy,
+		data:      data,
+		symbol:    symbol,
+		strategy:  strategy,
+		outputDir: outputDir,
 	}
 	b.exchanges = exchanges
 	var exs []Exchange
@@ -34,6 +38,18 @@ func NewBacktest(data *dataloader.Data, symbol string, strategy Strategy, exchan
 	}
 	strategy.Setup(TradeModeBacktest, exs...)
 	b.logs = LogItems{}
+
+	err := os.MkdirAll(outputDir, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	logger := NewBtLogger(b,
+		filepath.Join(outputDir, "result.log"),
+		log.DebugLevel,
+		false)
+	log.SetLogger(logger)
+
 	return b
 }
 
@@ -120,7 +136,7 @@ func (b *Backtest) fetchItemStats(item *LogItem) {
 	for i := 0; i < n; i++ {
 		balance, err := b.exchanges[i].GetBalance("BTC")
 		if err != nil {
-			log.Fatal(err)
+			panic(err)
 		}
 		item.Stats = append(item.Stats, LogStats{
 			Balance: balance.Available,
@@ -203,7 +219,7 @@ func (b *Backtest) Plot() {
 
 	f, err := os.Create("result.html")
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 	}
 	line.Render(f)
 }

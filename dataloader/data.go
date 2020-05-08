@@ -6,6 +6,7 @@ import (
 
 type Data struct {
 	index      int
+	offset     int // 数据偏移量，使用过的数据被清理。这个值记录被清理的数据量
 	maxIndex   int
 	data       []*OrderBook
 	dataLoader DataLoader
@@ -16,16 +17,17 @@ func (d *Data) Len() int {
 }
 
 func (d *Data) GetIndex() int {
-	return d.index
+	return d.index + d.offset
 }
 
 func (d *Data) GetMaxIndex() int {
-	return d.maxIndex
+	return d.maxIndex + d.offset
 }
 
 func (d *Data) Reset() {
 	d.readMore()
 	d.index = 0
+	d.offset = 0
 	d.maxIndex = len(d.data) - 1
 }
 
@@ -39,7 +41,8 @@ func (d *Data) Next() bool {
 		return true
 	}
 	if n := d.readMore(); n > 0 {
-		d.maxIndex += n
+		//d.maxIndex += n
+		d.maxIndex = n - 1
 		return true
 	}
 	return false
@@ -53,6 +56,8 @@ func (d *Data) readMore() int {
 	if len(data) == 0 {
 		return 0
 	}
-	d.data = append(d.data, data...)
+	//d.data = append(d.data, data...)
+	d.offset += len(d.data)
+	d.data = data
 	return len(data)
 }

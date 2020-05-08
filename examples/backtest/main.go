@@ -6,6 +6,7 @@ import (
 	"github.com/coinrust/crex/backtest"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/exchanges/deribitsim"
+	"github.com/coinrust/crex/log"
 )
 
 type BasicStrategy struct {
@@ -17,6 +18,8 @@ func (s *BasicStrategy) OnInit() error {
 }
 
 func (s *BasicStrategy) OnTick() error {
+	ts, _ := s.Exchange.GetTime()
+	log.Infof("OnTick %v", ts)
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 
@@ -49,10 +52,12 @@ func main() {
 		exchanges = append(exchanges, ex)
 	}
 	s := &BasicStrategy{}
+	outputDir := "./output"
 	bt := backtest.NewBacktest(data,
 		"BTC",
 		s,
-		exchanges)
+		exchanges,
+		outputDir)
 	bt.Run()
 
 	logs := bt.GetLogs()

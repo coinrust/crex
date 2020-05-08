@@ -88,7 +88,7 @@ func (l *BtLogger) build() {
 
 	l.logger = zap.New(core)
 	if l.Caller {
-		l.logger = l.logger.WithOptions(zap.AddCaller(), zap.AddCallerSkip(1))
+		l.logger = l.logger.WithOptions(zap.AddCaller(), zap.AddCallerSkip(2))
 	}
 	l.sugar = l.logger.Sugar()
 }
