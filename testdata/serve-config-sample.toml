@@ -1,7 +1,6 @@
 [log]
 path = "./app.log"
 level = "debug"
-json_format = false
 
 [[exchange]]
 name = "deribit"
