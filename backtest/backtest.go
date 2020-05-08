@@ -217,7 +217,8 @@ func (b *Backtest) Plot() {
 
 	line.SetGlobalOptions(charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}, Scale: true})
 
-	f, err := os.Create("result.html")
+	filename := filepath.Join(b.outputDir, "result.html")
+	f, err := os.Create(filename)
 	if err != nil {
 		log.Error(err)
 	}
