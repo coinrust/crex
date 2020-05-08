@@ -8,6 +8,7 @@ require (
 	github.com/adshao/go-binance v0.0.0-20200326152909-7314295d8a33
 	github.com/beaquant/utils v0.0.0-20200214111051-cad84a41cb41
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
+	github.com/coinrust/log v1.0.1
 	github.com/frankrap/bitmex-api v1.0.1
 	github.com/frankrap/bybit-api v1.0.1
 	github.com/frankrap/deribit-api v1.0.3
@@ -19,4 +20,6 @@ require (
 	github.com/sirupsen/logrus v1.4.2
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.3.1
+	go.uber.org/zap v1.15.0
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

@@ -42,6 +42,14 @@ func (b *Backtest) SetData(data *dataloader.Data) {
 	b.data = data
 }
 
+// GetTime get current time
+func (b *Backtest) GetTime() time.Time {
+	if b.data == nil {
+		return time.Now()
+	}
+	return b.data.GetOrderBook().Time
+}
+
 // Run Run backtest
 func (b *Backtest) Run() {
 	b.data.Reset()
