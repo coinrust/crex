@@ -5,9 +5,15 @@ import (
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/log"
 	"github.com/go-echarts/go-echarts/charts"
+	"github.com/go-echarts/go-echarts/datatypes"
 	"os"
 	"path/filepath"
 	"time"
+)
+
+const (
+	OriginEChartsJs = "https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"
+	MyEChartsJs     = "https://cdnjs.cloudflare.com/ajax/libs/echarts/4.7.0/echarts.min.js"
 )
 
 type PlotData struct {
@@ -229,7 +235,6 @@ func (b *Backtest) equityLine(plotData *PlotData) *charts.Line {
 
 // Plot Output backtest results
 func (b *Backtest) Plot() {
-
 	var plotData PlotData
 
 	for _, v := range b.logs {
@@ -246,7 +251,19 @@ func (b *Backtest) Plot() {
 	if err != nil {
 		log.Error(err)
 	}
+
+	replaceJSAssets(&p.JSAssets)
+
 	p.Render(f)
+}
+
+// 替换Js资源，使用cdn加速资源，查看网页更快
+func replaceJSAssets(jsAssets *datatypes.OrderedSet) {
+	for i := 0; i < len(jsAssets.Values); i++ {
+		if jsAssets.Values[i] == OriginEChartsJs {
+			jsAssets.Values[i] = MyEChartsJs
+		}
+	}
 }
 
 func (b *Backtest) PlotOld() {
