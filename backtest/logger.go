@@ -175,5 +175,5 @@ func (l *BtLogger) getCurrentTs() (ts time.Time) {
 }
 
 func (l *BtLogger) Sync() {
-	log.Sync()
+	l.sugar.Sync()
 }

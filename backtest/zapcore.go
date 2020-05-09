@@ -38,15 +38,23 @@ func (c *ioCore) Check(ent zapcore.Entry, ce *zapcore.CheckedEntry) *zapcore.Che
 }
 
 func (c *ioCore) Write(ent zapcore.Entry, fields []zapcore.Field) error {
+	var lIndex = -1
+
 	for i := 0; i < len(fields); i++ {
 		v := &fields[i]
 		if v.Key == LogTsKey {
-			integer := ent.Time.UnixNano()
+			//integer := ent.Time.UnixNano()
 			ent.Time = time.Unix(0, v.Integer)
-			v.Integer = integer
+			//v.Integer = integer
+			lIndex = i
 			break
 		}
 	}
+
+	if lIndex != -1 {
+		fieldsRemove2(&fields, lIndex)
+	}
+
 	buf, err := c.enc.EncodeEntry(ent, fields)
 	if err != nil {
 		return err
@@ -80,4 +88,12 @@ func addFields(enc zapcore.ObjectEncoder, fields []zapcore.Field) {
 	for i := range fields {
 		fields[i].AddTo(enc)
 	}
+}
+
+func fieldsRemove(s []zapcore.Field, index int) []zapcore.Field {
+	return append(s[:index], s[index+1:]...)
+}
+
+func fieldsRemove2(s *[]zapcore.Field, index int) {
+	*s = append((*s)[:index], (*s)[index+1:]...)
 }

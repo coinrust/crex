@@ -202,6 +202,8 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 
 		// Update position
 		b.updatePosition(order.Symbol, size, price)
+
+		order.AvgPrice = price
 	} else if order.Direction == Sell {
 		maxSize = margin * 100 * ob.BidPrice()
 		if order.Amount > maxSize {
@@ -220,7 +222,10 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 
 		// Update position
 		b.updatePosition(order.Symbol, -size, price)
+
+		order.AvgPrice = price
 	}
+	order.FilledAmount = order.Amount
 	order.Status = OrderStatusFilled
 	return
 }
@@ -232,53 +237,65 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 
 	ob := b.data.GetOrderBook()
 	if order.Direction == Buy { // Bid order
-		if order.Price >= ob.AskPrice() {
-			if immediate && order.PostOnly {
-				order.Status = OrderStatusRejected
-				return
-			}
-
-			// match trade
-			size := order.Amount
-			var fee float64
-
-			// trade fee
-			if immediate {
-				fee = size / order.Price * b.takerFeeRate
-			} else {
-				fee = size / order.Price * b.makerFeeRate
-			}
-
-			// Update balance
-			b.addBalance(-fee)
-
-			// Update position
-			b.updatePosition(order.Symbol, size, order.Price)
+		if order.Price < ob.AskPrice() {
+			return
 		}
+
+		if immediate && order.PostOnly {
+			order.Status = OrderStatusRejected
+			return
+		}
+
+		// match trade
+		size := order.Amount
+		var fee float64
+
+		// trade fee
+		if immediate {
+			fee = size / order.Price * b.takerFeeRate
+		} else {
+			fee = size / order.Price * b.makerFeeRate
+		}
+
+		// Update balance
+		b.addBalance(-fee)
+
+		// Update position
+		b.updatePosition(order.Symbol, size, order.Price)
+
+		order.AvgPrice = order.Price
+		order.FilledAmount = order.Amount
+		order.Status = OrderStatusFilled
 	} else { // Ask order
-		if order.Price <= ob.BidPrice() {
-			if immediate && order.PostOnly {
-				order.Status = OrderStatusRejected
-				return
-			}
-
-			// match trade
-			size := order.Amount
-			var fee float64
-
-			// trade fee
-			if immediate {
-				fee = size / order.Price * b.takerFeeRate
-			} else {
-				fee = size / order.Price * b.makerFeeRate
-			}
-
-			// Update balance
-			b.addBalance(-fee)
-
-			// Update position
-			b.updatePosition(order.Symbol, -size, order.Price)
+		if order.Price > ob.BidPrice() {
+			return
 		}
+
+		if immediate && order.PostOnly {
+			order.Status = OrderStatusRejected
+			return
+		}
+
+		// match trade
+		size := order.Amount
+		var fee float64
+
+		// trade fee
+		if immediate {
+			fee = size / order.Price * b.takerFeeRate
+		} else {
+			fee = size / order.Price * b.makerFeeRate
+		}
+
+		// Update balance
+		b.addBalance(-fee)
+
+		// Update position
+		b.updatePosition(order.Symbol, -size, order.Price)
+
+		order.AvgPrice = order.Price
+		order.FilledAmount = order.Amount
+		order.Status = OrderStatusFilled
 	}
 	return
 }
