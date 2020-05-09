@@ -87,6 +87,8 @@ func (b *Backtest) Run() {
 
 	// Exit
 	b.strategy.OnExit()
+
+	log.Sync()
 }
 
 func (b *Backtest) runEventLoopOnce() {
