@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+type PlotData struct {
+	NameItems []string
+	Prices    []float64
+	Equities  []float64
+}
+
 type Backtest struct {
 	data      *dataloader.Data
 	symbol    string
@@ -178,8 +184,72 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 	return
 }
 
+func (b *Backtest) priceLine(plotData *PlotData) *charts.Line {
+	line := charts.NewLine()
+	line.SetGlobalOptions(
+		charts.InitOpts{PageTitle: "价格", Width: "1270px", Height: "500px"},
+		charts.ToolboxOpts{Show: true},
+		charts.TooltipOpts{Show: true, Trigger: "axis", TriggerOn: "mousemove|click"},
+		charts.DataZoomOpts{Type: "slider", Start: 0, End: 100},
+		charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}, Scale: true},
+	)
+
+	line.AddXAxis(plotData.NameItems)
+	line.AddYAxis("price", plotData.Prices,
+		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
+		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
+		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
+		//charts.LineOpts{Smooth: true, YAxisIndex: 0},
+	)
+
+	return line
+}
+
+func (b *Backtest) equityLine(plotData *PlotData) *charts.Line {
+	line := charts.NewLine()
+	line.SetGlobalOptions(
+		charts.InitOpts{PageTitle: "净值", Width: "1270px", Height: "400px"},
+		charts.ToolboxOpts{Show: true},
+		charts.TooltipOpts{Show: true, Trigger: "axis", TriggerOn: "mousemove|click"},
+		charts.DataZoomOpts{Type: "slider", Start: 0, End: 100},
+		charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}, Scale: true},
+	)
+
+	line.AddXAxis(plotData.NameItems)
+
+	line.AddYAxis("equity", plotData.Equities,
+		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
+		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
+		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
+		//charts.LineOpts{Smooth: true, YAxisIndex: 0},
+	)
+
+	return line
+}
+
 // Plot Output backtest results
 func (b *Backtest) Plot() {
+
+	var plotData PlotData
+
+	for _, v := range b.logs {
+		plotData.NameItems = append(plotData.NameItems, v.Time.Format(SimpleDateTimeFormat))
+		plotData.Prices = append(plotData.Prices, v.Price())
+		plotData.Equities = append(plotData.Equities, v.TotalEquity())
+	}
+
+	p := charts.NewPage()
+	p.Add(b.priceLine(&plotData), b.equityLine(&plotData))
+
+	filename := filepath.Join(b.outputDir, "result.html")
+	f, err := os.Create(filename)
+	if err != nil {
+		log.Error(err)
+	}
+	p.Render(f)
+}
+
+func (b *Backtest) PlotOld() {
 	line := charts.NewLine()
 	line.SetGlobalOptions(
 		charts.InitOpts{PageTitle: "回测", Width: "1270px", Height: "600px"},
