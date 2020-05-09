@@ -14,6 +14,9 @@ import (
 const (
 	OriginEChartsJs = "https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"
 	MyEChartsJs     = "https://cdnjs.cloudflare.com/ajax/libs/echarts/4.7.0/echarts.min.js"
+
+	OriginEChartsBulmaCss = "https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css"
+	MyEChartsBulmaCss     = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css"
 )
 
 type PlotData struct {
@@ -253,6 +256,7 @@ func (b *Backtest) Plot() {
 	}
 
 	replaceJSAssets(&p.JSAssets)
+	replaceCssAssets(&p.CSSAssets)
 
 	p.Render(f)
 }
@@ -265,6 +269,21 @@ func replaceJSAssets(jsAssets *datatypes.OrderedSet) {
 		}
 	}
 }
+
+func replaceCssAssets(cssAssets *datatypes.OrderedSet) {
+	for i := 0; i < len(cssAssets.Values); i++ {
+		if cssAssets.Values[i] == OriginEChartsBulmaCss {
+			cssAssets.Values[i] = MyEChartsBulmaCss
+		}
+	}
+}
+
+// for i := 0; i < len(p.CSSAssets.Values); i++ {
+//		t.Logf("%#v", p.CSSAssets.Values[i])
+//		if p.CSSAssets.Values[i] == "https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" {
+//			p.CSSAssets.Values[i] = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css"
+//		}
+//	}
 
 func (b *Backtest) PlotOld() {
 	line := charts.NewLine()
