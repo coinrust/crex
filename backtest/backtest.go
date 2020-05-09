@@ -278,13 +278,6 @@ func replaceCssAssets(cssAssets *datatypes.OrderedSet) {
 	}
 }
 
-// for i := 0; i < len(p.CSSAssets.Values); i++ {
-//		t.Logf("%#v", p.CSSAssets.Values[i])
-//		if p.CSSAssets.Values[i] == "https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css" {
-//			p.CSSAssets.Values[i] = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css"
-//		}
-//	}
-
 func (b *Backtest) PlotOld() {
 	line := charts.NewLine()
 	line.SetGlobalOptions(
