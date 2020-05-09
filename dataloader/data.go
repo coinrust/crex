@@ -42,6 +42,7 @@ func (d *Data) Next() bool {
 	}
 	if n := d.readMore(); n > 0 {
 		//d.maxIndex += n
+		d.index = 0
 		d.maxIndex = n - 1
 		return true
 	}
