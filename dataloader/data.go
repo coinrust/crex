@@ -2,6 +2,7 @@ package dataloader
 
 import (
 	. "github.com/coinrust/crex"
+	"time"
 )
 
 type Data struct {
@@ -24,7 +25,8 @@ func (d *Data) GetMaxIndex() int {
 	return d.maxIndex + d.offset
 }
 
-func (d *Data) Reset() {
+func (d *Data) Reset(start time.Time, end time.Time) {
+	d.dataLoader.Setup(start, end)
 	d.readMore()
 	d.index = 0
 	d.offset = 0
@@ -41,7 +43,6 @@ func (d *Data) Next() bool {
 		return true
 	}
 	if n := d.readMore(); n > 0 {
-		//d.maxIndex += n
 		d.index = 0
 		d.maxIndex = n - 1
 		return true
@@ -57,7 +58,6 @@ func (d *Data) readMore() int {
 	if len(data) == 0 {
 		return 0
 	}
-	//d.data = append(d.data, data...)
 	d.offset += len(d.data)
 	d.data = data
 	return len(data)

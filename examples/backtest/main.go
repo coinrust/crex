@@ -7,6 +7,7 @@ import (
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/exchanges/deribitsim"
 	"github.com/coinrust/crex/log"
+	"time"
 )
 
 type BasicStrategy struct {
@@ -51,10 +52,14 @@ func main() {
 		ex := deribitsim.NewDeribitSim(data, 5.0, -0.00025, 0.00075)
 		exchanges = append(exchanges, ex)
 	}
+	start, _ := time.Parse("2006-01-02 15:04:05", "2019-10-01 00:00:00")
+	end, _ := time.Parse("2006-01-02 15:04:05", "2019-10-02 00:00:00")
 	s := &BasicStrategy{}
 	outputDir := "./output"
 	bt := backtest.NewBacktest(data,
 		"BTC",
+		start,
+		end,
 		s,
 		exchanges,
 		outputDir)

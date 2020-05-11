@@ -19,6 +19,10 @@ type CsvDataLoader struct {
 	hasMoreData bool
 }
 
+func (l *CsvDataLoader) Setup(start time.Time, end time.Time) error {
+	return nil
+}
+
 func (l *CsvDataLoader) ReadData() (result []*OrderBook) {
 	if !l.hasMoreData {
 		return nil

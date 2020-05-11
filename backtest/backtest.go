@@ -32,6 +32,12 @@ type Backtest struct {
 	exchanges []ExchangeSim
 	outputDir string
 	logs      LogItems
+
+	start time.Time // 开始时间
+	end   time.Time // 结束时间
+
+	startedAt time.Time // 运行开始时间
+	endedAt   time.Time // 运行结束时间
 }
 
 const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
@@ -39,10 +45,12 @@ const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 // NewBacktest Create backtest
 // data: The data
 // outputDir: 日志输出目录
-func NewBacktest(data *dataloader.Data, symbol string, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
+func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time.Time, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
 	b := &Backtest{
 		data:      data,
 		symbol:    symbol,
+		start:     start,
+		end:       end,
 		strategy:  strategy,
 		outputDir: outputDir,
 	}
@@ -83,18 +91,17 @@ func (b *Backtest) GetTime() time.Time {
 
 // Run Run backtest
 func (b *Backtest) Run() {
-	b.data.Reset()
+	b.startedAt = time.Now()
+
+	b.data.Reset(b.start, b.end)
 
 	// Init
 	b.strategy.OnInit()
 
 	for {
 		b.strategy.OnTick()
-
 		b.runEventLoopOnce()
-
 		b.addItemStats()
-
 		if !b.data.Next() {
 			break
 		}
@@ -102,8 +109,10 @@ func (b *Backtest) Run() {
 
 	// Exit
 	b.strategy.OnExit()
-
+	// Sync logs
 	log.Sync()
+
+	b.endedAt = time.Now()
 }
 
 func (b *Backtest) runEventLoopOnce() {
@@ -181,6 +190,7 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 	result.Start = logs[0].Time
 	result.End = logs[n-1].Time
 	result.Duration = result.End.Sub(result.Start)
+	result.RunDuration = b.endedAt.Sub(b.startedAt)
 	result.EntryPrice = logs[0].Price()
 	result.ExitPrice = logs[n-1].Price()
 	result.EntryEquity = logs[0].TotalEquity()
