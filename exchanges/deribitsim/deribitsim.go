@@ -32,6 +32,8 @@ type DeribitSim struct {
 	openOrders    map[string]*Order    // Open orders
 	historyOrders map[string]*Order    // History orders
 	positions     map[string]*Position // Position key: symbol
+
+	eLog ExchangeLogger
 }
 
 func (b *DeribitSim) GetName() (name string) {
@@ -46,12 +48,6 @@ func (b *DeribitSim) GetTime() (tm int64, err error) {
 func (b *DeribitSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	//var symbol string
-	//if currency == "BTC" {
-	//	symbol = "BTC-PERPETUAL"
-	//} else if currency == "ETH" {
-	//	symbol = "ETH-PERPETUAL"
-	//}
 	position := b.getPosition(symbol)
 	var price float64
 	ob := b.data.GetOrderBook()
@@ -124,6 +120,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 
 	err = b.matchOrder(order, true)
 	if err != nil {
+		b.eLog.Error(err)
 		return
 	}
 
@@ -135,6 +132,9 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 
 	b.orders[id] = order
 	result = order
+	b.eLog.Infow("PlaceOrder",
+		"order", order,
+		"ob", b.data.GetOrderBook())
 	return
 }
 
@@ -144,7 +144,15 @@ func (b *DeribitSim) matchOrder(order *Order, immediate bool) (err error) {
 	case OrderTypeMarket:
 		err = b.matchMarketOrder(order)
 	case OrderTypeLimit:
-		err = b.matchLimitOrder(order, immediate)
+		var changed bool
+		changed, err = b.matchLimitOrder(order, immediate)
+		if err != nil {
+			b.eLog.Error(err)
+		} else if !immediate && changed {
+			b.eLog.Infow("Match Limit Order",
+				"order", order,
+				"ob", b.data.GetOrderBook())
+		}
 	}
 	return
 }
@@ -161,7 +169,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	// 数量必须是10的整数倍
 
 	if int(order.Amount)%10 != 0 {
-		err = errors.New("Invalid size - not multiple of contract size ($10)")
+		err = errors.New("invalid size - not multiple of contract size ($10)")
 		return
 	}
 
@@ -169,7 +177,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 
 	if int(position.Size+order.Amount) > PositionSizeLimit ||
 		int(position.Size-order.Amount) < -PositionSizeLimit {
-		err = errors.New("Rejected, maximum size of future position is $1,000,000")
+		err = errors.New("rejected, maximum size of future position is $1,000,000")
 		return
 	}
 
@@ -230,7 +238,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	return
 }
 
-func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
+func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -243,6 +251,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 
 		if immediate && order.PostOnly {
 			order.Status = OrderStatusRejected
+			changed = true
 			return
 		}
 
@@ -266,6 +275,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 		order.AvgPrice = order.Price
 		order.FilledAmount = order.Amount
 		order.Status = OrderStatusFilled
+		changed = true
 	} else { // Ask order
 		if order.Price > ob.BidPrice() {
 			return
@@ -273,6 +283,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 
 		if immediate && order.PostOnly {
 			order.Status = OrderStatusRejected
+			changed = true
 			return
 		}
 
@@ -296,6 +307,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 		order.AvgPrice = order.Price
 		order.FilledAmount = order.Amount
 		order.Status = OrderStatusFilled
+		changed = true
 	}
 	return
 }
@@ -490,6 +502,10 @@ func (b *DeribitSim) SubscribeOrders(market Market, callback func(orders []*Orde
 
 func (b *DeribitSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
+}
+
+func (b *DeribitSim) SetExchangeLogger(l ExchangeLogger) {
+	b.eLog = l
 }
 
 func (b *DeribitSim) RunEventLoopOnce() (err error) {

@@ -1,6 +1,7 @@
 package backtest
 
 import (
+	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/log"
@@ -33,6 +34,8 @@ type Backtest struct {
 	outputDir string
 	logs      LogItems
 
+	eLoggers []ExchangeLogger
+
 	start time.Time // 开始时间
 	end   time.Time // 结束时间
 
@@ -59,19 +62,34 @@ func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time
 	for _, v := range exchanges {
 		exs = append(exs, v)
 	}
+
 	strategy.Setup(TradeModeBacktest, exs...)
 	b.logs = LogItems{}
 
-	err := os.MkdirAll(outputDir, os.ModePerm)
+	b.outputDir = filepath.Join(b.outputDir, time.Now().Format("20060102150405"))
+
+	err := os.MkdirAll(b.outputDir, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
 	logger := NewBtLogger(b,
-		filepath.Join(outputDir, "result.log"),
+		filepath.Join(b.outputDir, "result.log"),
 		log.DebugLevel,
-		false)
+		false,
+		true)
 	log.SetLogger(logger)
+
+	for i := 0; i < len(exchanges); i++ {
+		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
+		eLogger := NewBtLogger(b,
+			path,
+			log.DebugLevel,
+			true,
+			false)
+		exchanges[i].SetExchangeLogger(eLogger)
+		b.eLoggers = append(b.eLoggers, eLogger)
+	}
 
 	return b
 }
@@ -109,8 +127,13 @@ func (b *Backtest) Run() {
 
 	// Exit
 	b.strategy.OnExit()
+
 	// Sync logs
 	log.Sync()
+
+	for _, v := range b.eLoggers {
+		v.Sync()
+	}
 
 	b.endedAt = time.Now()
 }

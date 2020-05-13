@@ -62,3 +62,12 @@ func (d *Data) readMore() int {
 	d.data = data
 	return len(data)
 }
+
+func NewData(loader DataLoader) *Data {
+	return &Data{
+		index:      0,
+		maxIndex:   0,
+		data:       nil,
+		dataLoader: loader,
+	}
+}

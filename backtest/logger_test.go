@@ -8,7 +8,7 @@ import (
 func TestBtLogger(t *testing.T) {
 	//bt := NewBacktest(nil, "", [strategy], nil)
 	logger := NewBtLogger(nil,
-		"../testdata/btlog.log", log.DebugLevel, false)
+		"../testdata/btlog.log", log.DebugLevel, false, true)
 	defer logger.Sync()
 
 	logger.Debug("hello", "world")

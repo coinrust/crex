@@ -588,6 +588,10 @@ func (s *GenerateSim) SubscribePositions(market Market, callback func(positions 
 	return nil
 }
 
+func (s *GenerateSim) SetExchangeLogger(l ExchangeLogger) {
+
+}
+
 func (s *GenerateSim) RunEventLoopOnce() (err error) {
 	for _, order := range s.openOrders {
 		s.matchOrder(order, false)

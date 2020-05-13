@@ -158,9 +158,45 @@ func ParsePlaceOrderParameter(opts ...PlaceOrderOption) *PlaceOrderParameter {
 // ExchangeSim 模拟交易所接口
 type ExchangeSim interface {
 	Exchange
-	//SetData(data *data.Data)
+
+	// 设置交易撮合日志组件
+	SetExchangeLogger(l ExchangeLogger)
+
 	// 运行一次(回测系统调用)
 	RunEventLoopOnce() (err error) // Run sim match for backtest only
+}
+
+// ExchangeLogger 交易所撮合日志
+type ExchangeLogger interface {
+	// Debug Using：log.Debug("test")
+	Debug(args ...interface{})
+
+	// Debugf Using：log.Debugf("test:%s", err)
+	Debugf(template string, args ...interface{})
+
+	// Debugw Using：log.Debugw("test", "field1", "value1", "field2", "value2")
+	Debugw(msg string, keysAndValues ...interface{})
+
+	Info(args ...interface{})
+
+	Infof(template string, args ...interface{})
+
+	Infow(msg string, keysAndValues ...interface{})
+
+	Warn(args ...interface{})
+
+	Warnf(template string, args ...interface{})
+
+	Warnw(msg string, keysAndValues ...interface{})
+
+	Error(args ...interface{})
+
+	Errorf(template string, args ...interface{})
+
+	Errorw(msg string, keysAndValues ...interface{})
+
+	// 同步，确保日志写入
+	Sync()
 }
 
 // Exchange 交易所接口

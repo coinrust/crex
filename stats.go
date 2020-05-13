@@ -29,10 +29,10 @@ func (s *Stats) PrintResult() {
 	fmt.Printf("Run Duration: \t\t%v\n", s.RunDuration.String())
 	fmt.Printf("Entry Price: \t\t%v\n", s.EntryPrice)
 	fmt.Printf("Exit Price: \t\t%v\n", s.ExitPrice)
-	fmt.Printf("Initial Equity: \t\t%v\n", s.EntryEquity)
+	fmt.Printf("Initial Equity: \t%v\n", s.EntryEquity)
 	fmt.Printf("Exit Equity: \t\t%v\n", s.ExitEquity)
 	fmt.Printf("Return: \t\t%.8f\n", s.EquityReturn)
-	fmt.Printf("Return [%%]: \t%.4f%%\n", s.EquityReturnPnt*100)
+	fmt.Printf("Return [%%]: \t\t%.4f%%\n", s.EquityReturnPnt*100)
 	fmt.Printf("Buy & Hold Return: \t%.8f\n", s.BaHReturn)
 	fmt.Printf("Buy & Hold Return [%%]: \t%.4f%%\n", s.BaHReturnPnt*100)
 }

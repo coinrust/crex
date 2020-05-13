@@ -48,10 +48,6 @@ func (b *BitMEXSim) GetTime() (tm int64, err error) {
 func (b *BitMEXSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	//var symbol string
-	//if currency == "XBT" || currency == "BTC" {
-	//	symbol = "XBTUSD"
-	//}
 	position := b.getPosition(symbol)
 	var price float64
 	ob := b.data.GetOrderBook()
@@ -485,6 +481,10 @@ func (b *BitMEXSim) SubscribeOrders(market Market, callback func(orders []*Order
 
 func (b *BitMEXSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
+}
+
+func (b *BitMEXSim) SetExchangeLogger(l ExchangeLogger) {
+
 }
 
 func (b *BitMEXSim) RunEventLoopOnce() (err error) {

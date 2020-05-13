@@ -30,7 +30,7 @@ type BtLogger struct {
 	sugar  *zap.SugaredLogger
 }
 
-func NewBtLogger(gct GetCurrentTime, path string, level string, jsonFormat bool) *BtLogger {
+func NewBtLogger(gct GetCurrentTime, path string, level string, jsonFormat bool, stdout bool) *BtLogger {
 	logger := &BtLogger{
 		Path:        path,
 		Level:       level,
@@ -40,7 +40,7 @@ func NewBtLogger(gct GetCurrentTime, path string, level string, jsonFormat bool)
 		Compress:    false,
 		Caller:      true,
 		JsonFormat:  jsonFormat,
-		Stdout:      true,
+		Stdout:      stdout,
 		gct:         gct,
 		logger:      nil,
 		sugar:       nil,
@@ -54,9 +54,9 @@ func (l *BtLogger) build() {
 		zapcore.AddSync(l.createLumberjackHook()),
 	}
 
-	//if l.Stdout {
-	writeSyncer = append(writeSyncer, zapcore.Lock(os.Stdout))
-	//}
+	if l.Stdout {
+		writeSyncer = append(writeSyncer, zapcore.Lock(os.Stdout))
+	}
 
 	var level zapcore.Level
 	switch l.Level {

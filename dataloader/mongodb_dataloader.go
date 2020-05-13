@@ -41,6 +41,7 @@ func (l *MongoDBDataLoader) Setup(start time.Time, end time.Time) error {
 	l.start = start.UnixNano() / int64(time.Millisecond)
 	l.end = end.UnixNano() / int64(time.Millisecond)
 	l.filter = bson.M{"t": bson.M{"$gte": l.start, "$lte": l.end}}
+	l.open()
 	return nil
 }
 
@@ -166,7 +167,6 @@ func NewMongoDBDataLoader(uri string, db string, exchange string, symbol string)
 		limit:       100000,
 		hasMoreData: true,
 	}
-	loader.open()
 	return loader
 }
 
