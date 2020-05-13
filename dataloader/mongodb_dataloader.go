@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -48,17 +49,10 @@ func (l *MongoDBDataLoader) ReadData() (result []*OrderBook) {
 		return nil
 	}
 
-	result = make([]*OrderBook, 0, l.limit)
+	var batch = make([]bson.Raw, 0, l.limit)
 	for l.cur.Next(l.ctx) {
-		var ob mOrderBook
-		l.cur.Decode(&ob)
-		result = append(result, &OrderBook{
-			Symbol: l.symbol,
-			Time:   time.Unix(0, ob.Timestamp*int64(time.Millisecond)),
-			Asks:   l.convertOrderBook(ob.Asks...),
-			Bids:   l.convertOrderBook(ob.Bids...),
-		})
-		if len(result) >= l.limit {
+		batch = append(batch, l.cur.Current)
+		if len(batch) >= l.limit {
 			break
 		}
 	}
@@ -67,7 +61,50 @@ func (l *MongoDBDataLoader) ReadData() (result []*OrderBook) {
 		log.Fatal(err)
 	}
 
+	return l.convert(batch...)
+}
+
+func (l *MongoDBDataLoader) convert(r ...bson.Raw) (result []*OrderBook) {
+	n := len(r)
+	var wg sync.WaitGroup
+	result = make([]*OrderBook, 0, n)
+	wg.Add(n)
+	for i := 0; i < n; i++ {
+		ob := &OrderBook{}
+		result = append(result, ob)
+		raw := &r[i]
+		go func() {
+			UnmarshalOrderBook(raw, ob)
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 	return
+}
+
+func UnmarshalOrderBook(raw *bson.Raw, ob *OrderBook) {
+	timestamp := raw.Lookup("t").Int64()
+	ob.Time = time.Unix(0, timestamp*int64(time.Millisecond))
+	asks, _ := raw.Lookup("a").Array().Values()
+	bids, _ := raw.Lookup("b").Array().Values()
+
+	ob.Asks = make([]Item, 0, len(asks))
+	ob.Bids = make([]Item, 0, len(bids))
+
+	for _, v := range asks {
+		vv, _ := v.Array().Values()
+		ob.Asks = append(ob.Asks, Item{
+			Price:  vv[0].Double(),
+			Amount: vv[1].Double(),
+		})
+	}
+	for _, v := range bids {
+		vv, _ := v.Array().Values()
+		ob.Bids = append(ob.Bids, Item{
+			Price:  vv[0].Double(),
+			Amount: vv[1].Double(),
+		})
+	}
 }
 
 func (l *MongoDBDataLoader) convertOrderBook(items ...mItem) (result []Item) {
