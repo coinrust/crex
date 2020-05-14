@@ -118,7 +118,14 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 		Status:       OrderStatusNew,
 	}
 
-	err = b.matchOrder(order, true)
+	b.eLog.Infow("PlaceOrder",
+		"symbol", symbol,
+		"direction", direction,
+		"orderType", orderType.String(),
+		"price", price,
+		"size", size,
+		"params", params)
+	_, err = b.matchOrder(order, true)
 	if err != nil {
 		b.eLog.Error(err)
 		return
@@ -133,31 +140,24 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 	b.orders[id] = order
 	result = order
 	b.eLog.Infow("PlaceOrder",
+		SimEventKey, SimEventOrder,
 		"order", order,
 		"ob", b.data.GetOrderBook())
 	return
 }
 
 // 撮合成交
-func (b *DeribitSim) matchOrder(order *Order, immediate bool) (err error) {
+func (b *DeribitSim) matchOrder(order *Order, immediate bool) (changed bool, err error) {
 	switch order.Type {
 	case OrderTypeMarket:
-		err = b.matchMarketOrder(order)
+		changed, err = b.matchMarketOrder(order)
 	case OrderTypeLimit:
-		var changed bool
 		changed, err = b.matchLimitOrder(order, immediate)
-		if err != nil {
-			b.eLog.Error(err)
-		} else if !immediate && changed {
-			b.eLog.Infow("Match Limit Order",
-				"order", order,
-				"ob", b.data.GetOrderBook())
-		}
 	}
 	return
 }
 
-func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
+func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -195,7 +195,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	if order.Direction == Buy {
 		maxSize = margin * 100 * ob.AskPrice()
 		if order.Amount > maxSize {
-			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
+			err = errors.New(fmt.Sprintf("rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
@@ -235,6 +235,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (err error) {
 	}
 	order.FilledAmount = order.Amount
 	order.Status = OrderStatusFilled
+	changed = true
 	return
 }
 
@@ -509,8 +510,15 @@ func (b *DeribitSim) SetExchangeLogger(l ExchangeLogger) {
 }
 
 func (b *DeribitSim) RunEventLoopOnce() (err error) {
+	var changed bool
 	for _, order := range b.openOrders {
-		b.matchOrder(order, false)
+		changed, err = b.matchOrder(order, false)
+		if changed {
+			b.eLog.Warnw("Match order",
+				SimEventKey, SimEventDeal,
+				"order", order,
+				"ob", b.data.GetOrderBook())
+		}
 	}
 	return
 }

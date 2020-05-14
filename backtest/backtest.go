@@ -7,6 +7,7 @@ import (
 	"github.com/coinrust/crex/log"
 	"github.com/go-echarts/go-echarts/charts"
 	"github.com/go-echarts/go-echarts/datatypes"
+	slog "log"
 	"os"
 	"path/filepath"
 	"time"
@@ -27,12 +28,14 @@ type PlotData struct {
 }
 
 type Backtest struct {
-	data      *dataloader.Data
-	symbol    string
-	strategy  Strategy
-	exchanges []ExchangeSim
-	outputDir string
-	logs      LogItems
+	data             *dataloader.Data
+	symbol           string
+	strategy         Strategy
+	exchanges        []ExchangeSim
+	outputDir        string
+	exchangeLogFiles []string // 撮合日志记录文件
+
+	logs LogItems
 
 	eLoggers []ExchangeLogger
 
@@ -82,6 +85,7 @@ func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time
 
 	for i := 0; i < len(exchanges); i++ {
 		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
+		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
 		eLogger := NewBtLogger(b,
 			path,
 			log.DebugLevel,
@@ -112,6 +116,19 @@ func (b *Backtest) Run() {
 	b.startedAt = time.Now()
 
 	b.data.Reset(b.start, b.end)
+
+	// 初始净值
+	if ob := b.data.GetOrderBook(); ob != nil {
+		item := &LogItem{
+			Time:    ob.Time,
+			RawTime: ob.Time,
+			Ask:     ob.AskPrice(),
+			Bid:     ob.BidPrice(),
+			Stats:   nil,
+		}
+		b.fetchItemStats(item)
+		b.logs = append(b.logs, item)
+	}
 
 	// Init
 	b.strategy.OnInit()
@@ -183,7 +200,7 @@ func (b *Backtest) addItemStats() {
 func (b *Backtest) fetchItemStats(item *LogItem) {
 	n := len(b.exchanges)
 	for i := 0; i < n; i++ {
-		balance, err := b.exchanges[i].GetBalance("BTC")
+		balance, err := b.exchanges[i].GetBalance(b.symbol)
 		if err != nil {
 			panic(err)
 		}
@@ -224,6 +241,23 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 	result.EquityReturnPnt = result.EquityReturn / result.EntryEquity
 
 	return
+}
+
+// HTMLReport 创建Html报告文件
+func (b *Backtest) HtmlReport() {
+	for _, v := range b.exchangeLogFiles {
+		b.htmlReport(v)
+	}
+}
+
+func (b *Backtest) htmlReport(path string) {
+	dir := filepath.Dir(path)
+	name := filepath.Base(path)
+	ext := filepath.Ext(path)
+	name = name[:len(name)-len(ext)]
+	//slog.Printf("%v", name)
+	htmlPath := filepath.Join(dir, name+".html")
+	slog.Printf("htmlPath: %v", htmlPath)
 }
 
 func (b *Backtest) priceLine(plotData *PlotData) *charts.Line {

@@ -22,6 +22,13 @@ func (t TradeMode) String() string {
 	}
 }
 
+// 回测交易撮合事件类型
+const (
+	SimEventKey   = "event"
+	SimEventOrder = "order" // 委托
+	SimEventDeal  = "deal"  // 成交
+)
+
 // Direction 委托/持仓方向
 type Direction int
 
