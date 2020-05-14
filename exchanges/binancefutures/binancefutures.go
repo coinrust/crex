@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/adshao/go-binance/futures"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/util"
+	"github.com/coinrust/crex/utils"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -57,7 +57,7 @@ func (b *BinanceFutures) GetBalance(currency string) (result *Balance, err error
 	result = &Balance{}
 	for _, v := range res {
 		if v.Asset == currency { // USDT
-			value := util.ParseFloat64(v.Balance)
+			value := utils.ParseFloat64(v.Balance)
 			result.Equity = value
 			result.Available = value
 			break
@@ -93,14 +93,14 @@ func (b *BinanceFutures) GetOrderBook(symbol string, depth int) (result *OrderBo
 	}
 	for _, v := range res.Asks {
 		result.Asks = append(result.Asks, Item{
-			Price:  util.ParseFloat64(v.Price),
-			Amount: util.ParseFloat64(v.Quantity),
+			Price:  utils.ParseFloat64(v.Price),
+			Amount: utils.ParseFloat64(v.Quantity),
 		})
 	}
 	for _, v := range res.Bids {
 		result.Bids = append(result.Bids, Item{
-			Price:  util.ParseFloat64(v.Price),
-			Amount: util.ParseFloat64(v.Quantity),
+			Price:  utils.ParseFloat64(v.Price),
+			Amount: utils.ParseFloat64(v.Quantity),
 		})
 	}
 	result.Time = time.Now()
@@ -127,11 +127,11 @@ func (b *BinanceFutures) GetRecords(symbol string, period string, from int64, en
 		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: time.Unix(0, v.OpenTime*int64(time.Millisecond)),
-			Open:      util.ParseFloat64(v.Open),
-			High:      util.ParseFloat64(v.High),
-			Low:       util.ParseFloat64(v.Low),
-			Close:     util.ParseFloat64(v.Close),
-			Volume:    util.ParseFloat64(v.Volume),
+			Open:      utils.ParseFloat64(v.Open),
+			High:      utils.ParseFloat64(v.High),
+			Low:       utils.ParseFloat64(v.Low),
+			Close:     utils.ParseFloat64(v.Close),
+			Volume:    utils.ParseFloat64(v.Volume),
 		})
 	}
 	return
@@ -295,10 +295,10 @@ func (b *BinanceFutures) GetPositions(symbol string) (result []*Position, err er
 		}
 		position := &Position{}
 		position.Symbol = v.Symbol
-		size := util.ParseFloat64(v.PositionAmt)
+		size := utils.ParseFloat64(v.PositionAmt)
 		if size != 0 {
 			position.Size = size
-			position.OpenPrice = util.ParseFloat64(v.EntryPrice)
+			position.OpenPrice = utils.ParseFloat64(v.EntryPrice)
 			position.AvgPrice = position.OpenPrice
 		}
 		result = append(result, position)
@@ -310,13 +310,13 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result *Order) {
 	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
-	result.Price = util.ParseFloat64(order.Price)
-	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Amount = util.ParseFloat64(order.OrigQuantity)
+	result.Price = utils.ParseFloat64(order.Price)
+	result.StopPx = utils.ParseFloat64(order.StopPrice)
+	result.Amount = utils.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
-	result.AvgPrice = util.ParseFloat64(order.AvgPrice)
-	result.FilledAmount = util.ParseFloat64(order.ExecutedQuantity)
+	result.AvgPrice = utils.ParseFloat64(order.AvgPrice)
+	result.FilledAmount = utils.ParseFloat64(order.ExecutedQuantity)
 	if order.TimeInForce == futures.TimeInForceTypeGTX {
 		result.PostOnly = true
 	}
@@ -329,13 +329,13 @@ func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (resu
 	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
-	result.Price = util.ParseFloat64(order.Price)
-	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Amount = util.ParseFloat64(order.OrigQuantity)
+	result.Price = utils.ParseFloat64(order.Price)
+	result.StopPx = utils.ParseFloat64(order.StopPrice)
+	result.Amount = utils.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
-	result.AvgPrice = util.ParseFloat64(order.AvgPrice)
-	result.FilledAmount = util.ParseFloat64(order.ExecutedQuantity)
+	result.AvgPrice = utils.ParseFloat64(order.AvgPrice)
+	result.FilledAmount = utils.ParseFloat64(order.ExecutedQuantity)
 	if order.TimeInForce == futures.TimeInForceTypeGTX {
 		result.PostOnly = true
 	}
@@ -348,13 +348,13 @@ func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (resu
 	result = &Order{}
 	result.ID = fmt.Sprint(order.OrderID)
 	result.Symbol = order.Symbol
-	result.Price = util.ParseFloat64(order.Price)
-	result.StopPx = util.ParseFloat64(order.StopPrice)
-	result.Amount = util.ParseFloat64(order.OrigQuantity)
+	result.Price = utils.ParseFloat64(order.Price)
+	result.StopPx = utils.ParseFloat64(order.StopPrice)
+	result.Amount = utils.ParseFloat64(order.OrigQuantity)
 	result.Direction = b.convertDirection(order.Side)
 	result.Type = b.convertOrderType(order.Type)
 	result.AvgPrice = 0
-	result.FilledAmount = util.ParseFloat64(order.ExecutedQuantity)
+	result.FilledAmount = utils.ParseFloat64(order.ExecutedQuantity)
 	if order.TimeInForce == futures.TimeInForceTypeGTX {
 		result.PostOnly = true
 	}

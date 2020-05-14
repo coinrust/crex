@@ -5,7 +5,6 @@ import (
 	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
-	"github.com/coinrust/crex/util"
 	"log"
 	"math"
 	"time"
@@ -102,8 +101,7 @@ func (b *DeribitSim) CloseShort(symbol string, orderType OrderType, price float6
 func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
-	_id, _ := util.NextID()
-	id := fmt.Sprintf("%v", _id)
+	id := GenOrderId()
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
@@ -139,10 +137,10 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 
 	b.orders[id] = order
 	result = order
-	b.eLog.Infow("PlaceOrder",
+	b.eLog.Infow("Place order",
 		SimEventKey, SimEventOrder,
 		"order", order,
-		"ob", b.data.GetOrderBook())
+		"orderbook", b.data.GetOrderBook())
 	return
 }
 
@@ -517,7 +515,7 @@ func (b *DeribitSim) RunEventLoopOnce() (err error) {
 			b.eLog.Warnw("Match order",
 				SimEventKey, SimEventDeal,
 				"order", order,
-				"ob", b.data.GetOrderBook())
+				"orderbook", b.data.GetOrderBook())
 		}
 	}
 	return

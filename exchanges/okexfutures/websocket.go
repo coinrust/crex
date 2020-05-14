@@ -3,7 +3,7 @@ package okexfutures
 import (
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/util"
+	"github.com/coinrust/crex/utils"
 	"github.com/frankrap/okex-api"
 	"time"
 )
@@ -74,8 +74,8 @@ func (s *FuturesWebSocket) tradeCallback(_trades []okex.WSTrade) {
 		t := Trade{
 			ID:        v.TradeID,
 			Direction: direction,
-			Price:     util.ParseFloat64(v.Price),
-			Amount:    util.ParseFloat64(v.Side),
+			Price:     utils.ParseFloat64(v.Price),
+			Amount:    utils.ParseFloat64(v.Side),
 			Ts:        v.Timestamp.UnixNano() / int64(time.Millisecond),
 			Symbol:    v.InstrumentID,
 		}
@@ -98,11 +98,11 @@ func (s *FuturesWebSocket) convertOrder(order *okex.WSOrder) *Order {
 	o := &Order{}
 	o.ID = order.OrderID
 	o.Symbol = order.InstrumentID
-	o.Price = util.ParseFloat64(order.Price)
-	o.AvgPrice = util.ParseFloat64(order.PriceAvg)
+	o.Price = utils.ParseFloat64(order.Price)
+	o.AvgPrice = utils.ParseFloat64(order.PriceAvg)
 	// o.StopPx = 0
-	o.Amount = util.ParseFloat64(order.Size)
-	o.FilledAmount = util.ParseFloat64(order.FilledQty)
+	o.Amount = utils.ParseFloat64(order.Size)
+	o.FilledAmount = utils.ParseFloat64(order.FilledQty)
 	switch order.Type {
 	case "1":
 		o.Direction = Buy
@@ -169,14 +169,14 @@ func (s *FuturesWebSocket) positionsCallback(positions []okex.WSFuturesPosition)
 	//log.Printf("positionsCallback")
 	var eventData []*Position
 	for _, v := range positions {
-		longQty := util.ParseFloat64(v.LongQty)
-		shortQty := util.ParseFloat64(v.ShortQty)
+		longQty := utils.ParseFloat64(v.LongQty)
+		shortQty := utils.ParseFloat64(v.ShortQty)
 		if longQty > 0 {
 			var o Position
 			o.Symbol = v.InstrumentID
 			o.OpenTime = v.Timestamp
 			o.Size = longQty
-			o.OpenPrice = util.ParseFloat64(v.LongAvgCost)
+			o.OpenPrice = utils.ParseFloat64(v.LongAvgCost)
 			o.AvgPrice = o.OpenPrice
 			eventData = append(eventData, &o)
 		} else if shortQty > 0 {
@@ -184,7 +184,7 @@ func (s *FuturesWebSocket) positionsCallback(positions []okex.WSFuturesPosition)
 			o.Symbol = v.InstrumentID
 			o.OpenTime = v.Timestamp
 			o.Size = -shortQty
-			o.OpenPrice = util.ParseFloat64(v.ShortAvgCost)
+			o.OpenPrice = utils.ParseFloat64(v.ShortAvgCost)
 			o.AvgPrice = o.OpenPrice
 			eventData = append(eventData, &o)
 		}

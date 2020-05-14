@@ -6,7 +6,7 @@ import (
 	"github.com/beaquant/utils/logger"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
-	"github.com/coinrust/crex/util"
+	"github.com/coinrust/crex/utils"
 	"github.com/sirupsen/logrus"
 	"math"
 	"time"
@@ -154,7 +154,7 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 		return
 	}
 	params := ParsePlaceOrderParameter(opts...)
-	_id, _ := util.NextID()
+	_id, _ := utils.NextID()
 	id := fmt.Sprintf("%v", _id)
 	order := &Order{
 		ID:           id,

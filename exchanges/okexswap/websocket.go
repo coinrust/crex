@@ -3,7 +3,7 @@ package okexswap
 import (
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/util"
+	"github.com/coinrust/crex/utils"
 	"github.com/frankrap/okex-api"
 	"time"
 )
@@ -74,8 +74,8 @@ func (s *SwapWebSocket) tradeCallback(_trades []okex.WSTrade) {
 		t := Trade{
 			ID:        v.TradeID,
 			Direction: direction,
-			Price:     util.ParseFloat64(v.Price),
-			Amount:    util.ParseFloat64(v.Side),
+			Price:     utils.ParseFloat64(v.Price),
+			Amount:    utils.ParseFloat64(v.Side),
 			Ts:        v.Timestamp.UnixNano() / int64(time.Millisecond),
 			Symbol:    v.InstrumentID,
 		}
@@ -98,11 +98,11 @@ func (s *SwapWebSocket) convertOrder(order *okex.WSOrder) *Order {
 	o := &Order{}
 	o.ID = order.OrderID
 	o.Symbol = order.InstrumentID
-	o.Price = util.ParseFloat64(order.Price)
-	o.AvgPrice = util.ParseFloat64(order.PriceAvg)
+	o.Price = utils.ParseFloat64(order.Price)
+	o.AvgPrice = utils.ParseFloat64(order.PriceAvg)
 	// o.StopPx = 0
-	o.Amount = util.ParseFloat64(order.Size)
-	o.FilledAmount = util.ParseFloat64(order.FilledQty)
+	o.Amount = utils.ParseFloat64(order.Size)
+	o.FilledAmount = utils.ParseFloat64(order.FilledQty)
 	switch order.Type {
 	case "1":
 		o.Direction = Buy
@@ -174,11 +174,11 @@ func (s *SwapWebSocket) positionsCallback(positions []okex.WSSwapPositionData) {
 			o.Symbol = v.InstrumentID
 			o.OpenTime = v1.Timestamp
 			if v1.Side == "long" {
-				o.Size = util.ParseFloat64(v1.Position)
+				o.Size = utils.ParseFloat64(v1.Position)
 			} else if v1.Side == "short" {
-				o.Size = -util.ParseFloat64(v1.Position)
+				o.Size = -utils.ParseFloat64(v1.Position)
 			}
-			o.OpenPrice = util.ParseFloat64(v1.AvgCost)
+			o.OpenPrice = utils.ParseFloat64(v1.AvgCost)
 			o.AvgPrice = o.OpenPrice
 			eventData = append(eventData, &o)
 		}

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
-	"github.com/coinrust/crex/util"
 	"log"
 	"math"
 	"time"
@@ -103,8 +102,7 @@ func (b *BitMEXSim) CloseShort(symbol string, orderType OrderType, price float64
 func (b *BitMEXSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
-	_id, _ := util.NextID()
-	id := fmt.Sprintf("%v", _id)
+	id := GenOrderId()
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,

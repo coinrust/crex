@@ -1,15 +1,21 @@
 package backtest
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/log"
+	"github.com/coinrust/crex/utils"
 	"github.com/go-echarts/go-echarts/charts"
 	"github.com/go-echarts/go-echarts/datatypes"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	slog "log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -66,33 +72,8 @@ func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time
 		exs = append(exs, v)
 	}
 
-	strategy.Setup(TradeModeBacktest, exs...)
-	b.logs = LogItems{}
-
-	b.outputDir = filepath.Join(b.outputDir, time.Now().Format("20060102150405"))
-
-	err := os.MkdirAll(b.outputDir, os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-
-	logger := NewBtLogger(b,
-		filepath.Join(b.outputDir, "result.log"),
-		log.DebugLevel,
-		false,
-		true)
-	log.SetLogger(logger)
-
-	for i := 0; i < len(exchanges); i++ {
-		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
-		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
-		eLogger := NewBtLogger(b,
-			path,
-			log.DebugLevel,
-			true,
-			false)
-		exchanges[i].SetExchangeLogger(eLogger)
-		b.eLoggers = append(b.eLoggers, eLogger)
+	if strategy != nil {
+		strategy.Setup(TradeModeBacktest, exs...)
 	}
 
 	return b
@@ -113,6 +94,36 @@ func (b *Backtest) GetTime() time.Time {
 
 // Run Run backtest
 func (b *Backtest) Run() {
+	b.logs = LogItems{}
+
+	SetIdGenerate(utils.NewIdGenerate(b.start))
+
+	err := os.MkdirAll(b.outputDir, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	b.outputDir = filepath.Join(b.outputDir, time.Now().Format("20060102150405"))
+
+	logger := NewBtLogger(b,
+		filepath.Join(b.outputDir, "result.log"),
+		log.DebugLevel,
+		false,
+		true)
+	log.SetLogger(logger)
+
+	for i := 0; i < len(b.exchanges); i++ {
+		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
+		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
+		eLogger := NewBtLogger(b,
+			path,
+			log.DebugLevel,
+			true,
+			false)
+		b.exchanges[i].SetExchangeLogger(eLogger)
+		b.eLoggers = append(b.eLoggers, eLogger)
+	}
+
 	b.startedAt = time.Now()
 
 	b.data.Reset(b.start, b.end)
@@ -250,7 +261,7 @@ func (b *Backtest) HtmlReport() {
 	}
 }
 
-func (b *Backtest) htmlReport(path string) {
+func (b *Backtest) htmlReport(path string) (err error) {
 	dir := filepath.Dir(path)
 	name := filepath.Base(path)
 	ext := filepath.Ext(path)
@@ -258,6 +269,124 @@ func (b *Backtest) htmlReport(path string) {
 	//slog.Printf("%v", name)
 	htmlPath := filepath.Join(dir, name+".html")
 	slog.Printf("htmlPath: %v", htmlPath)
+
+	var orders []*SOrder
+	var dealOrders []*SOrder
+	orders, dealOrders, err = b.readTradeLog(path)
+	if err != nil {
+		return
+	}
+
+	//for _, v := range orders {
+	//	slog.Printf("orders Ts: %v Order: %v OrderBook: %v Comment: %v",
+	//		v.Ts, v.Order, v.OrderBook, v.Comment)
+	//}
+
+	var html string
+	html, err = b.buildReportHtml(orders, dealOrders)
+	err = ioutil.WriteFile("test.html", []byte(html), os.ModePerm)
+	return
+}
+
+func (b *Backtest) buildReportHtml(orders []*SOrder, dealOrders []*SOrder) (html string, err error) {
+	//var templateData []byte
+	//templateData, err = ioutil.ReadFile("./ReportHistory-template.html")
+	//if err != nil {
+	//	slog.Printf("%v", err)
+	//	return
+	//}
+	//reportHistoryTemplate := string(templateData)
+	//slog.Printf("%v", reportHistoryTemplate)
+	// <tr bgcolor="#FFFFFF" align="right"><td>2018.07.06 11:08:44</td><td>11573668</td><td>EURUSD</td><td>buy limit</td><td colspan="2">0.20 / 0.00</td><td>1.16673</td><td></td><td></td><td colspan="2">2018.07.06 11:17:24</td><td>canceled</td><td></td></tr>
+	// <tr bgcolor="#F7F7F7" align="right"><td>2018.07.06 11:08:57</td><td>11573671</td><td>EURUSD</td><td>sell limit</td><td colspan="2">0.20 / 0.00</td><td>1.17106</td><td></td><td></td><td colspan="2">2018.07.06 11:13:03</td><td>canceled</td><td></td></tr>
+	// <!--{order-row}-->
+	s := bytes.Buffer{}
+	for i := 0; i < len(orders); i++ {
+		order := orders[i].Order
+		bgColor := "#FFFFFF"
+		if i%2 != 0 {
+			bgColor = "#F7F7F7"
+		}
+		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))              // #FFFFFF
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, time.Now().Format("2006.01.02 15:04:05"))) // 2018.07.06 11:08:44
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                 // 11573668
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Symbol))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Type.String()))                               // buy limit
+		s.WriteString(fmt.Sprintf(`<td colspan="2">%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Price))                                       // 1.16673
+		s.WriteString(`<td></td>`)
+		s.WriteString(`<td></td>`)
+		s.WriteString(fmt.Sprintf(`<td colspan="2">%v</td>`, time.Now().Format("2006.01.02 15:04:05")))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
+		s.WriteString(`<td></td>`)
+		s.WriteString(`</tr>`)
+	}
+	html = strings.Replace(reportHistoryTemplate, `<!--{order-row}-->`, s.String(), -1)
+	return
+}
+
+func (b *Backtest) readTradeLog(path string) (orders []*SOrder, dealOrders []*SOrder, err error) {
+	var data []byte
+	data, err = ioutil.ReadFile(path)
+	if err != nil {
+		return
+	}
+	ss := strings.Split(string(data), "\n")
+
+	for _, s := range ss {
+		if s == "" {
+			continue
+		}
+		var event string
+		var so *SOrder
+		event, so, err = b.parseSOrder(s)
+		if err != nil {
+			return
+		}
+		switch event {
+		case "order":
+			orders = append(orders, so)
+		case "deal":
+			dealOrders = append(dealOrders, so)
+		}
+	}
+
+	return
+}
+
+func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
+	ret := gjson.Parse(s)
+	if eventValue := ret.Get("event"); eventValue.Exists() {
+		var order Order
+		var orderbook OrderBook
+
+		event = eventValue.String()
+		tsString := ret.Get("ts").String() // 2019-10-01T08:00:00.143+0800
+		msg := ret.Get("msg").String()
+		orderJson := ret.Get("order").String()
+		orderbookJson := ret.Get("orderbook").String()
+
+		err = json.Unmarshal([]byte(orderJson), &order)
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(orderbookJson), &orderbook)
+		if err != nil {
+			return
+		}
+		var ts time.Time
+		ts, err = time.Parse("2006-01-02T15:04:05.000Z0700", tsString)
+		if err != nil {
+			return
+		}
+		so = &SOrder{
+			Ts:        ts,
+			Order:     &order,
+			OrderBook: &orderbook,
+			Comment:   msg,
+		}
+	}
+	return
 }
 
 func (b *Backtest) priceLine(plotData *PlotData) *charts.Line {

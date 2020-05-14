@@ -2,7 +2,7 @@ package okexfutures
 
 import (
 	"fmt"
-	"github.com/coinrust/crex/util"
+	"github.com/coinrust/crex/utils"
 	"github.com/spf13/cast"
 	"strconv"
 	"strings"
@@ -70,15 +70,15 @@ func (b *OkexFutures) GetOrderBook(symbol string, depth int) (result *OrderBook,
 
 	for _, v := range ret.Asks {
 		result.Asks = append(result.Asks, Item{
-			Price:  util.ParseFloat64(v[0]),
-			Amount: util.ParseFloat64(v[1]),
+			Price:  utils.ParseFloat64(v[0]),
+			Amount: utils.ParseFloat64(v[1]),
 		})
 	}
 
 	for _, v := range ret.Bids {
 		result.Bids = append(result.Bids, Item{
-			Price:  util.ParseFloat64(v[0]),
-			Amount: util.ParseFloat64(v[1]),
+			Price:  utils.ParseFloat64(v[0]),
+			Amount: utils.ParseFloat64(v[1]),
 		})
 	}
 
@@ -159,11 +159,11 @@ func (b *OkexFutures) GetRecords(symbol string, period string, from int64, end i
 		records = append(records, &Record{
 			Symbol:    symbol,
 			Timestamp: timestamp.Local(),
-			Open:      util.ParseFloat64(v[1]),
-			High:      util.ParseFloat64(v[2]),
-			Low:       util.ParseFloat64(v[3]),
-			Close:     util.ParseFloat64(v[4]),
-			Volume:    util.ParseFloat64(v[5]),
+			Open:      utils.ParseFloat64(v[1]),
+			High:      utils.ParseFloat64(v[2]),
+			Low:       utils.ParseFloat64(v[3]),
+			Close:     utils.ParseFloat64(v[4]),
+			Volume:    utils.ParseFloat64(v[5]),
 		})
 	}
 	return
