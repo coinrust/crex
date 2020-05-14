@@ -12,7 +12,6 @@ import (
 	"github.com/go-echarts/go-echarts/datatypes"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
-	slog "log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -268,7 +267,7 @@ func (b *Backtest) htmlReport(path string) (err error) {
 	name = name[:len(name)-len(ext)]
 	//slog.Printf("%v", name)
 	htmlPath := filepath.Join(dir, name+".html")
-	slog.Printf("htmlPath: %v", htmlPath)
+	//slog.Printf("htmlPath: %v", htmlPath)
 
 	var orders []*SOrder
 	var dealOrders []*SOrder
@@ -284,7 +283,7 @@ func (b *Backtest) htmlReport(path string) (err error) {
 
 	var html string
 	html, err = b.buildReportHtml(orders, dealOrders)
-	err = ioutil.WriteFile("test.html", []byte(html), os.ModePerm)
+	err = ioutil.WriteFile(htmlPath, []byte(html), os.ModePerm)
 	return
 }
 
@@ -300,6 +299,18 @@ func (b *Backtest) buildReportHtml(orders []*SOrder, dealOrders []*SOrder) (html
 	// <tr bgcolor="#FFFFFF" align="right"><td>2018.07.06 11:08:44</td><td>11573668</td><td>EURUSD</td><td>buy limit</td><td colspan="2">0.20 / 0.00</td><td>1.16673</td><td></td><td></td><td colspan="2">2018.07.06 11:17:24</td><td>canceled</td><td></td></tr>
 	// <tr bgcolor="#F7F7F7" align="right"><td>2018.07.06 11:08:57</td><td>11573671</td><td>EURUSD</td><td>sell limit</td><td colspan="2">0.20 / 0.00</td><td>1.17106</td><td></td><td></td><td colspan="2">2018.07.06 11:13:03</td><td>canceled</td><td></td></tr>
 	// <!--{order-row}-->
+	html = strings.ReplaceAll(reportHistoryTemplate, "<!--{Symbol}-->", b.symbol)
+	html = strings.ReplaceAll(html, "<!--{Period}-->", fmt.Sprintf("%v - %v", b.start.String(), b.end.String())) // 2018.11.01 - 2018.12.01
+	// Parameters: A=1
+	stats := b.ComputeStats()
+	html = strings.ReplaceAll(html, "<!--Initial Equity-->", fmt.Sprint(stats.EntryEquity))
+	html = strings.ReplaceAll(html, "<!--Exit Equity-->", fmt.Sprint(stats.ExitEquity))
+	html = strings.ReplaceAll(html, "<!--Duration-->", stats.Duration.String())
+	html = strings.ReplaceAll(html, "<!--Return-->", fmt.Sprintf("%.8f", stats.EquityReturn))
+	html = strings.ReplaceAll(html, "<!--Return [%]-->", fmt.Sprintf("%.4f", stats.EquityReturnPnt*100))
+	html = strings.ReplaceAll(html, "<!--Run Duration-->", stats.RunDuration.String())
+	html = strings.ReplaceAll(html, "<!--Buy & Hold Return-->", fmt.Sprintf("%.8f", stats.BaHReturn))
+	html = strings.ReplaceAll(html, "<!--Buy & Hold Return [%]-->", fmt.Sprintf("%.4f", stats.BaHReturnPnt*100))
 	s := bytes.Buffer{}
 	for i := 0; i < len(orders); i++ {
 		order := orders[i].Order
@@ -308,20 +319,26 @@ func (b *Backtest) buildReportHtml(orders []*SOrder, dealOrders []*SOrder) (html
 			bgColor = "#F7F7F7"
 		}
 		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))              // #FFFFFF
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, time.Now().Format("2006.01.02 15:04:05"))) // 2018.07.06 11:08:44
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006.01.02 15:04:05"))) // 2018.07.06 11:08:44
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                 // 11573668
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Symbol))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Type.String()))                               // buy limit
+		s.WriteString(fmt.Sprintf(`<td>%v %v</td>`,
+			strings.ToLower(order.Direction.String()),
+			strings.ToLower(order.Type.String()))) // buy limit
 		s.WriteString(fmt.Sprintf(`<td colspan="2">%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Price))                                       // 1.16673
+		if order.AvgPrice > 0 {
+			s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.AvgPrice))
+		} else {
+			s.WriteString(`<td></td>`)
+		}
 		s.WriteString(`<td></td>`)
-		s.WriteString(`<td></td>`)
-		s.WriteString(fmt.Sprintf(`<td colspan="2">%v</td>`, time.Now().Format("2006.01.02 15:04:05")))
+		s.WriteString(fmt.Sprintf(`<td colspan="2">%v</td>`, order.UpdateTime.Format("2006.01.02 15:04:05")))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
 		s.WriteString(`<td></td>`)
 		s.WriteString(`</tr>`)
 	}
-	html = strings.Replace(reportHistoryTemplate, `<!--{order-row}-->`, s.String(), -1)
+	html = strings.Replace(html, `<!--{order-row}-->`, s.String(), -1)
 	return
 }
 

@@ -102,8 +102,10 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	id := GenOrderId()
+	ob := b.data.GetOrderBook()
 	order := &Order{
 		ID:           id,
+		Time:         ob.Time,
 		Symbol:       symbol,
 		Price:        price,
 		Amount:       size,
@@ -113,6 +115,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 		Type:         orderType,
 		PostOnly:     params.PostOnly,
 		ReduceOnly:   params.ReduceOnly,
+		UpdateTime:   ob.Time,
 		Status:       OrderStatusNew,
 	}
 
@@ -140,7 +143,9 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 	b.eLog.Infow("Place order",
 		SimEventKey, SimEventOrder,
 		"order", order,
-		"orderbook", b.data.GetOrderBook())
+		"orderbook", ob,
+		"balance", b.balance,
+		"position", b.positions)
 	return
 }
 
@@ -232,6 +237,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		order.AvgPrice = price
 	}
 	order.FilledAmount = order.Amount
+	order.UpdateTime = ob.Time
 	order.Status = OrderStatusFilled
 	changed = true
 	return
@@ -249,6 +255,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 		}
 
 		if immediate && order.PostOnly {
+			order.UpdateTime = ob.Time
 			order.Status = OrderStatusRejected
 			changed = true
 			return
@@ -273,6 +280,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 
 		order.AvgPrice = order.Price
 		order.FilledAmount = order.Amount
+		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
 		changed = true
 	} else { // Ask order
@@ -281,6 +289,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 		}
 
 		if immediate && order.PostOnly {
+			order.UpdateTime = ob.Time
 			order.Status = OrderStatusRejected
 			changed = true
 			return
@@ -305,6 +314,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 
 		order.AvgPrice = order.Price
 		order.FilledAmount = order.Amount
+		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
 		changed = true
 	}

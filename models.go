@@ -121,6 +121,7 @@ type Trade struct {
 type Order struct {
 	ID           string      `json:"id"`            // ID
 	Symbol       string      `json:"symbol"`        // 标
+	Time         time.Time   `json:"time"`          // 订单时间
 	Price        float64     `json:"price"`         // 价格
 	StopPx       float64     `json:"stop_px"`       // 触发价
 	Amount       float64     `json:"amount"`        // 委托数量
@@ -130,6 +131,7 @@ type Order struct {
 	Type         OrderType   `json:"type"`          // 委托类型
 	PostOnly     bool        `json:"post_only"`     // 只做Maker选项
 	ReduceOnly   bool        `json:"reduce_only"`   // 只减仓选项
+	UpdateTime   time.Time   `json:"update_time"`   // 更新时间
 	Status       OrderStatus `json:"status"`        // 委托状态
 }
 
