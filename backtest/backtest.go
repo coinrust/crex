@@ -1,3 +1,4 @@
+//go:generate statik -f -src=./ -include=*.html
 package backtest
 
 import (
@@ -5,13 +6,16 @@ import (
 	"encoding/json"
 	"fmt"
 	. "github.com/coinrust/crex"
+	_ "github.com/coinrust/crex/backtest/statik"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/log"
 	"github.com/coinrust/crex/utils"
 	"github.com/go-echarts/go-echarts/charts"
 	"github.com/go-echarts/go-echarts/datatypes"
+	"github.com/rakyll/statik/fs"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
+	slog "log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -52,6 +56,26 @@ type Backtest struct {
 }
 
 const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
+
+var (
+	reportHistoryTemplate string
+)
+
+func init() {
+	statikFS, err := fs.New()
+	if err != nil {
+		slog.Fatal(err)
+	}
+	f, err := statikFS.Open("/ReportHistoryTemplate.html")
+	if err != nil {
+		slog.Fatal(err)
+	}
+	d, err := ioutil.ReadAll(f)
+	if err != nil {
+		slog.Fatal(err)
+	}
+	reportHistoryTemplate = string(d)
+}
 
 // NewBacktest Create backtest
 // data: The data
