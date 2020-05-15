@@ -140,12 +140,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 
 	b.orders[id] = order
 	result = order
-	b.eLog.Infow("Place order",
-		SimEventKey, SimEventOrder,
-		"order", order,
-		"orderbook", ob,
-		"balance", b.balance,
-		"position", b.positions)
+	b.logOrderInfo("Place order", SimEventOrder, order)
 	return
 }
 
@@ -193,6 +188,8 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
 	// 需要满足: sizeCurrency <= margin * 100
 	// 可开仓数量: <= margin * 100 * price(ask/bid)
 	var maxSize float64
+	var filledAmount float64
+	var avgPrice float64
 
 	// 市价成交
 	if order.Direction == Buy {
@@ -202,41 +199,41 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
 			return
 		}
 
-		price := ob.AskPrice()
-		size := order.Amount
+		filledAmount, avgPrice = b.matchBid(order.Amount, ob.Asks...)
 
 		// trade fee
-		fee := size / price * b.takerFeeRate
+		fee := filledAmount / avgPrice * b.takerFeeRate
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, size, price)
-
-		order.AvgPrice = price
+		pnl := b.updatePosition(order.Symbol, filledAmount, avgPrice)
+		order.Pnl += pnl
+		order.Commission += fee
+		order.AvgPrice = avgPrice
 	} else if order.Direction == Sell {
 		maxSize = margin * 100 * ob.BidPrice()
 		if order.Amount > maxSize {
-			err = errors.New(fmt.Sprintf("Rejected, maximum size of future position is %v", maxSize))
+			err = errors.New(fmt.Sprintf("rejected, maximum size of future position is %v", maxSize))
 			return
 		}
 
-		price := ob.BidPrice()
-		size := order.Amount
+		filledAmount, avgPrice = b.matchBid(order.Amount, ob.Bids...)
 
 		// trade fee
-		fee := size / price * b.takerFeeRate
+		fee := filledAmount / avgPrice * b.takerFeeRate
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, -size, price)
-
-		order.AvgPrice = price
+		pnl := b.updatePosition(order.Symbol, -filledAmount, avgPrice)
+		order.Pnl += pnl
+		order.Commission += fee
+		order.AvgPrice = avgPrice
 	}
-	order.FilledAmount = order.Amount
+	order.FilledAmount = filledAmount
 	order.UpdateTime = ob.Time
 	order.Status = OrderStatusFilled
 	changed = true
@@ -250,7 +247,9 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 
 	ob := b.data.GetOrderBook()
 	if order.Direction == Buy { // Bid order
-		if order.Price < ob.AskPrice() {
+		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Asks...)
+		//if order.Price < ob.AskPrice() {
+		if filledAmount == 0 {
 			return
 		}
 
@@ -262,29 +261,31 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 		}
 
 		// match trade
-		size := order.Amount
 		var fee float64
 
 		// trade fee
 		if immediate {
-			fee = size / order.Price * b.takerFeeRate
+			fee = filledAmount / avgPrice * b.takerFeeRate
 		} else {
-			fee = size / order.Price * b.makerFeeRate
+			fee = filledAmount / avgPrice * b.makerFeeRate
 		}
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, size, order.Price)
+		b.updatePosition(order.Symbol, filledAmount, avgPrice)
 
-		order.AvgPrice = order.Price
-		order.FilledAmount = order.Amount
+		order.Commission -= fee
+		order.AvgPrice = avgPrice
+		order.FilledAmount = filledAmount
 		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
 		changed = true
 	} else { // Ask order
-		if order.Price > ob.BidPrice() {
+		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Asks...)
+		//if order.Price > ob.BidPrice() {
+		if filledAmount == 0 {
 			return
 		}
 
@@ -296,24 +297,24 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 		}
 
 		// match trade
-		size := order.Amount
 		var fee float64
 
 		// trade fee
 		if immediate {
-			fee = size / order.Price * b.takerFeeRate
+			fee = filledAmount / avgPrice * b.takerFeeRate
 		} else {
-			fee = size / order.Price * b.makerFeeRate
+			fee = filledAmount / avgPrice * b.makerFeeRate
 		}
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, -size, order.Price)
+		b.updatePosition(order.Symbol, -filledAmount, avgPrice)
 
-		order.AvgPrice = order.Price
-		order.FilledAmount = order.Amount
+		order.Commission -= fee
+		order.AvgPrice = avgPrice
+		order.FilledAmount = filledAmount
 		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
 		changed = true
@@ -321,18 +322,107 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 	return
 }
 
+func (b *DeribitSim) matchBid(size float64, asks ...Item) (filledSize float64, avgPrice float64) {
+	type item = struct {
+		Amount float64
+		Price  float64
+	}
+
+	var items []item
+	lSize := size
+	for i := 0; i < len(asks); i++ {
+		if lSize >= asks[i].Amount {
+			items = append(items, item{
+				Amount: asks[i].Amount,
+				Price:  asks[i].Price,
+			})
+			lSize -= asks[i].Amount
+		} else {
+			items = append(items, item{
+				Amount: lSize,
+				Price:  asks[i].Price,
+			})
+			lSize = 0
+		}
+		if lSize <= 0 {
+			break
+		}
+	}
+
+	if lSize != 0 {
+		return
+	}
+
+	// 计算平均价
+	amount := 0.0
+	for _, v := range items {
+		amount += v.Price * v.Amount
+		filledSize += v.Amount
+	}
+	if filledSize == 0 {
+		return
+	}
+	avgPrice = amount / filledSize
+	return
+}
+
+func (b *DeribitSim) matchAsk(size float64, bids ...Item) (filledSize float64, avgPrice float64) {
+	type item = struct {
+		Amount float64
+		Price  float64
+	}
+
+	var items []item
+	lSize := size
+	for i := 0; i < len(bids); i++ {
+		if lSize >= bids[i].Amount {
+			items = append(items, item{
+				Amount: bids[i].Amount,
+				Price:  bids[i].Price,
+			})
+			lSize -= bids[i].Amount
+		} else {
+			items = append(items, item{
+				Amount: lSize,
+				Price:  bids[i].Price,
+			})
+			lSize = 0
+		}
+		if lSize <= 0 {
+			break
+		}
+	}
+
+	if lSize != 0 {
+		return
+	}
+
+	// 计算平均价
+	amount := 0.0
+	for _, v := range items {
+		amount += v.Price * v.Amount
+		filledSize += v.Amount
+	}
+	if filledSize == 0 {
+		return
+	}
+	avgPrice = amount / filledSize
+	return
+}
+
 // 更新持仓
-func (b *DeribitSim) updatePosition(symbol string, size float64, price float64) {
+func (b *DeribitSim) updatePosition(symbol string, size float64, price float64) (pnl float64) {
 	position := b.getPosition(symbol)
 	if position == nil {
 		log.Fatalf("position error symbol=%v", symbol)
 	}
 
 	if position.Size > 0 && size < 0 || position.Size < 0 && size > 0 {
-		b.closePosition(position, size, price)
+		pnl, _ = b.closePosition(position, size, price)
 	} else {
 		b.addPosition(position, size, price)
 	}
+	return
 }
 
 // 增加持仓
@@ -361,7 +451,7 @@ func (b *DeribitSim) addPosition(position *Position, size float64, price float64
 }
 
 // 平仓，超过数量，则开立新仓
-func (b *DeribitSim) closePosition(position *Position, size float64, price float64) (err error) {
+func (b *DeribitSim) closePosition(position *Position, size float64, price float64) (pnl float64, err error) {
 	if position.Size == 0 {
 		err = errors.New("当前无持仓")
 		return
@@ -374,19 +464,19 @@ func (b *DeribitSim) closePosition(position *Position, size float64, price float
 	if remaining > 0 {
 		// 先平掉原有持仓
 		// 计算盈利
-		pnl, _ := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
 		b.addPnl(pnl)
 		position.AvgPrice = price
 		position.Size = position.Size + size
 	} else if remaining == 0 {
 		// 完全平仓
-		pnl, _ := CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price)
 		b.addPnl(pnl)
 		position.AvgPrice = 0
 		position.Size = 0
 	} else {
 		// 部分平仓
-		pnl, _ := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price)
 		b.addPnl(pnl)
 		//position.AvgPrice = position.AvgPrice
 		position.Size = position.Size + size
@@ -522,13 +612,21 @@ func (b *DeribitSim) RunEventLoopOnce() (err error) {
 	for _, order := range b.openOrders {
 		changed, err = b.matchOrder(order, false)
 		if changed {
-			b.eLog.Warnw("Match order",
-				SimEventKey, SimEventDeal,
-				"order", order,
-				"orderbook", b.data.GetOrderBook())
+			b.logOrderInfo("Match order", SimEventDeal, order)
 		}
 	}
 	return
+}
+
+func (b *DeribitSim) logOrderInfo(msg string, event string, order *Order) {
+	ob := b.data.GetOrderBook()
+	position := b.getPosition(order.Symbol)
+	b.eLog.Infow(msg,
+		SimEventKey, event,
+		"order", order,
+		"orderbook", ob,
+		"balance", b.balance,
+		"positions", []*Position{position})
 }
 
 func NewDeribitSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *DeribitSim {

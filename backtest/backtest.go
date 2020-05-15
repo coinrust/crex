@@ -18,6 +18,7 @@ import (
 	slog "log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 )
@@ -293,25 +294,25 @@ func (b *Backtest) htmlReport(path string) (err error) {
 	htmlPath := filepath.Join(dir, name+".html")
 	//slog.Printf("htmlPath: %v", htmlPath)
 
-	var orders []*SOrder
+	var sOrders []*SOrder
 	var dealOrders []*SOrder
-	orders, dealOrders, err = b.readTradeLog(path)
+	sOrders, dealOrders, err = b.readTradeLog(path)
 	if err != nil {
 		return
 	}
 
-	//for _, v := range orders {
-	//	slog.Printf("orders Ts: %v Order: %v OrderBook: %v Comment: %v",
+	//for _, v := range sOrders {
+	//	slog.Printf("sOrders Ts: %v Order: %v OrderBook: %v Comment: %v",
 	//		v.Ts, v.Order, v.OrderBook, v.Comment)
 	//}
 
 	var html string
-	html, err = b.buildReportHtml(orders, dealOrders)
+	html, err = b.buildReportHtml(sOrders, dealOrders)
 	err = ioutil.WriteFile(htmlPath, []byte(html), os.ModePerm)
 	return
 }
 
-func (b *Backtest) buildReportHtml(orders []*SOrder, dealOrders []*SOrder) (html string, err error) {
+func (b *Backtest) buildReportHtml(sOrders []*SOrder, dealOrders []*SOrder) (html string, err error) {
 	//var templateData []byte
 	//templateData, err = ioutil.ReadFile("./ReportHistory-template.html")
 	//if err != nil {
@@ -335,35 +336,66 @@ func (b *Backtest) buildReportHtml(orders []*SOrder, dealOrders []*SOrder) (html
 	html = strings.ReplaceAll(html, "<!--Run Duration-->", stats.RunDuration.String())
 	html = strings.ReplaceAll(html, "<!--Buy & Hold Return-->", fmt.Sprintf("%.8f", stats.BaHReturn))
 	html = strings.ReplaceAll(html, "<!--Buy & Hold Return [%]-->", fmt.Sprintf("%.4f", stats.BaHReturnPnt*100))
+	s := b.buildSOrders(sOrders)
+	html = strings.Replace(html, `<!--{order-rows}-->`, s, -1)
+	s = b.buildSOrders(dealOrders)
+	html = strings.Replace(html, `<!--{deal-order-rows}-->`, s, -1)
+	return
+}
+
+func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
 	s := bytes.Buffer{}
-	for i := 0; i < len(orders); i++ {
-		order := orders[i].Order
+	for i := 0; i < len(sOrders); i++ {
+		sOrder := sOrders[i]
+		order := sOrders[i].Order
 		bgColor := "#FFFFFF"
 		if i%2 != 0 {
 			bgColor = "#F7F7F7"
 		}
-		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))              // #FFFFFF
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006.01.02 15:04:05"))) // 2018.07.06 11:08:44
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                 // 11573668
+		price := fmt.Sprintf("%v", order.Price)
+		orderType := strings.ToLower(order.Direction.String())
+		if order.Type == OrderTypeMarket {
+			price = "market"
+		} else {
+			orderType += " " + strings.ToLower(order.Type.String())
+		}
+		if order.PostOnly {
+			orderType += " postOnly"
+		}
+		if order.ReduceOnly {
+			orderType += " reduceOnly"
+		}
+		positions := ""
+		sort.Slice(sOrder.Positions, func(i, j int) bool {
+			return sOrder.Positions[i].Size > sOrder.Positions[j].Size
+		})
+		for _, v := range sOrder.Positions {
+			if positions != "" {
+				positions += " / "
+			}
+			positions += fmt.Sprintf("%v", v.Size)
+		}
+		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))                  // #FFFFFF
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006.01.02 15:04:05.000"))) // 2018.07.06 11:08:44
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                     // 11573668
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Symbol))
-		s.WriteString(fmt.Sprintf(`<td>%v %v</td>`,
-			strings.ToLower(order.Direction.String()),
-			strings.ToLower(order.Type.String()))) // buy limit
-		s.WriteString(fmt.Sprintf(`<td colspan="2">%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Price))                                       // 1.16673
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, orderType))                             // buy limit/buy
+		s.WriteString(fmt.Sprintf(`<td>%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, price))                                 // 1.16673
 		if order.AvgPrice > 0 {
 			s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.AvgPrice))
 		} else {
 			s.WriteString(`<td></td>`)
 		}
-		s.WriteString(`<td></td>`)
-		s.WriteString(fmt.Sprintf(`<td colspan="2">%v</td>`, order.UpdateTime.Format("2006.01.02 15:04:05")))
+		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Pnl))
+		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Commission))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.Balance))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006.01.02 15:04:05.000")))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
-		s.WriteString(`<td></td>`)
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, positions))
 		s.WriteString(`</tr>`)
 	}
-	html = strings.Replace(html, `<!--{order-row}-->`, s.String(), -1)
-	return
+	return s.String()
 }
 
 func (b *Backtest) readTradeLog(path string) (orders []*SOrder, dealOrders []*SOrder, err error) {
@@ -400,18 +432,25 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 	if eventValue := ret.Get("event"); eventValue.Exists() {
 		var order Order
 		var orderbook OrderBook
+		var positions []*Position
 
 		event = eventValue.String()
 		tsString := ret.Get("ts").String() // 2019-10-01T08:00:00.143+0800
 		msg := ret.Get("msg").String()
 		orderJson := ret.Get("order").String()
 		orderbookJson := ret.Get("orderbook").String()
+		positionsJson := ret.Get("positions").String()
+		balance := ret.Get("balance").Float()
 
 		err = json.Unmarshal([]byte(orderJson), &order)
 		if err != nil {
 			return
 		}
 		err = json.Unmarshal([]byte(orderbookJson), &orderbook)
+		if err != nil {
+			return
+		}
+		err = json.Unmarshal([]byte(positionsJson), &positions)
 		if err != nil {
 			return
 		}
@@ -424,6 +463,8 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 			Ts:        ts,
 			Order:     &order,
 			OrderBook: &orderbook,
+			Positions: positions,
+			Balance:   balance,
 			Comment:   msg,
 		}
 	}

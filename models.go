@@ -131,6 +131,8 @@ type Order struct {
 	Type         OrderType   `json:"type"`          // 委托类型
 	PostOnly     bool        `json:"post_only"`     // 只做Maker选项
 	ReduceOnly   bool        `json:"reduce_only"`   // 只减仓选项
+	Commission   float64     `json:"commission"`    // 支付的佣金
+	Pnl          float64     `json:"pnl"`           // 盈亏
 	UpdateTime   time.Time   `json:"update_time"`   // 更新时间
 	Status       OrderStatus `json:"status"`        // 委托状态
 }
