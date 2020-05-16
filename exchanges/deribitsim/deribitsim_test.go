@@ -5,6 +5,7 @@ import (
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/math"
 	"github.com/coinrust/crex/utils"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -22,12 +23,10 @@ func testExchange() Exchange {
 
 func TestReduceOrder(t *testing.T) {
 	ex := testExchange()
-	order, err := ex.PlaceOrder("BTC-PERPETUAL", Buy, OrderTypeMarket, 3000, 10)
-	if err != nil {
-		t.Error(err)
-		return
-	}
-	t.Logf("%#v", order)
+	_, err := ex.PlaceOrder("BTC-PERPETUAL",
+		Buy, OrderTypeMarket, 3000, 10,
+		OrderReduceOnlyOption(true))
+	assert.Equal(t, err, ErrInvalidAmount)
 }
 
 // 计算公式:

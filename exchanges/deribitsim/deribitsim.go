@@ -126,6 +126,21 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 		"price", price,
 		"size", size,
 		"params", params)
+
+	// 如果是减仓单，判断是否足够
+	if params.ReduceOnly {
+		position := b.getPosition(symbol)
+		if direction == Buy &&
+			(position.Size >= 0 || math.Abs(position.Size) < size) { // 平空
+			err = ErrInvalidAmount
+			return
+		} else if direction == Sell &&
+			(position.Size <= 0 || math.Abs(position.Size) < size) { // 平多
+			err = ErrInvalidAmount
+			return
+		}
+	}
+
 	_, err = b.matchOrder(order, true)
 	if err != nil {
 		b.eLog.Error(err)
