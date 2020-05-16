@@ -22,8 +22,9 @@
 ### Backtesting
 See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/main.go)
 
-### Live trading
-See [@live trading](https://github.com/coinrust/crex/blob/master/examples/live/main.go)
+### trade results:
+<div align=center><img src="https://raw.githubusercontent.com/coinrust/crex/master/images/trade_result.png" /></div>
+<div align=center><img src="https://raw.githubusercontent.com/coinrust/crex/master/images/trade_history_report.png" /></div>
 
 ## Open-source trading strategies
 [https://github.com/coinrust/trading-strategies](https://github.com/coinrust/trading-strategies)
@@ -187,6 +188,23 @@ t,asks[0].price,asks[0].amount,asks[1].price,asks[1].amount,asks[2].price,asks[2
 1569888000522,8304.5,10270,8305,60,8305.5,1220,8306,80,8307,200,8307.5,20370,8308,68260,8308.5,120000,8309,38400,8309.5,8400,8304,185750,8303.5,52200,8303,20600,8302.5,4500,8302,2000,8301.5,18200,8301,18000,8300.5,5090,8300,71320,8299.5,310
 1569888000527,8304.5,10270,8305,60,8305.5,1220,8306,80,8307,200,8307.5,20370,8308,68260,8308.5,120000,8309,38400,8309.5,8400,8304,185010,8303.5,52200,8303,20600,8302.5,4500,8302,2000,8301.5,18200,8301,18000,8300.5,5090,8300,71320,8299.5,310
 ```
+
+### 2. MongoDB (recommend)
+* Database. for example: tick_db
+* Collection. for example: deribit:BTC-PERPETUAL
+* Document:
+t: timestamp (ms)
+a: asks Array [[ask_price_0,ask_amount_0],[ask_price_1,ask_amount_1],...]
+b: bids Array [[bid_price_0,ask_amount_0],[bid_price_1,bid_amount_1],...]
+```json
+{"_id":{"$oid":"5eb946d88316c7a9c541705c"},"t":{"$numberLong":"1569888000143"},"a":[[8304.5,7010],[8305,60],[8305.5,1220],[8306,80],[8307,200],[8307.5,1650],[8308,68260],[8308.5,120000],[8309,38400],[8309.5,8400]],"b":[[8304,185750],[8303.5,52200],[8303,20600],[8302.5,4500],[8302,2000],[8301.5,18200],[8301,18000],[8300.5,90],[8300,71320],[8299.5,310]]}
+```
+
+### Data processing example
+Example of importing data into a database:
+cd ./cmd/deribit-data-to-db
+go build
+./deribit-data-to-db
 
 ### TODO
 * Paper trading.

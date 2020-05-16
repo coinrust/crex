@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/backtest"
 	"github.com/coinrust/crex/dataloader"
@@ -46,14 +45,20 @@ func (s *BasicStrategy) OnExit() error {
 }
 
 func main() {
-	data := dataloader.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
+	loader := dataloader.NewMongoDBDataLoader("mongodb://localhost:27017",
+		"tick_db", "deribit", "BTC-PERPETUAL")
+	data := dataloader.NewData(loader)
+
+	start, _ := time.Parse("2006-01-02 15:04:05", "2019-10-01 00:00:00")
+	end, _ := time.Parse("2006-01-02 15:04:05", "2019-10-02 00:00:00")
+
+	//data := dataloader.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
+
 	var exchanges []ExchangeSim
 	for i := 0; i < 2; i++ {
 		ex := deribitsim.NewDeribitSim(data, 5.0, -0.00025, 0.00075)
 		exchanges = append(exchanges, ex)
 	}
-	start, _ := time.Parse("2006-01-02 15:04:05", "2019-10-01 00:00:00")
-	end, _ := time.Parse("2006-01-02 15:04:05", "2019-10-02 00:00:00")
 	s := &BasicStrategy{}
 	outputDir := "./output"
 	bt := backtest.NewBacktest(data,
@@ -65,11 +70,12 @@ func main() {
 		outputDir)
 	bt.Run()
 
-	logs := bt.GetLogs()
-	for _, v := range logs {
-		fmt.Printf("Time: %v Price: %v Equity: %v\n", v.Time, v.Price(), v.TotalEquity())
-	}
+	//logs := bt.GetLogs()
+	//for _, v := range logs {
+	//	fmt.Printf("Time: %v Price: %v Equity: %v\n", v.Time, v.Price(), v.TotalEquity())
+	//}
 
 	bt.ComputeStats().PrintResult()
-	//bt.Plot()
+	bt.Plot()
+	bt.HtmlReport()
 }
