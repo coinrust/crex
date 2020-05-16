@@ -1,4 +1,4 @@
-package deribitsim
+package exsim
 
 import (
 	. "github.com/coinrust/crex"
@@ -16,7 +16,7 @@ func testExchange() Exchange {
 	SetIdGenerate(utils.NewIdGenerate(start))
 	data := dataloader.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
 	data.Reset(start, end)
-	ex := NewDeribitSim(data, 10000, -0.00025, 0.00075)
+	ex := NewExSim(data, 10000, -0.00025, 0.00075)
 	ex.SetExchangeLogger(&EmptyExchangeLogger{})
 	return ex
 }

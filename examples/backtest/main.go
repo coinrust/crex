@@ -4,7 +4,7 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/backtest"
 	"github.com/coinrust/crex/dataloader"
-	"github.com/coinrust/crex/exchanges/deribitsim"
+	"github.com/coinrust/crex/exchanges/exsim"
 	"github.com/coinrust/crex/log"
 	"time"
 )
@@ -56,7 +56,7 @@ func main() {
 
 	var exchanges []ExchangeSim
 	for i := 0; i < 2; i++ {
-		ex := deribitsim.NewDeribitSim(data, 5.0, -0.00025, 0.00075)
+		ex := exsim.NewExSim(data, 5.0, -0.00025, 0.00075)
 		exchanges = append(exchanges, ex)
 	}
 	s := &BasicStrategy{}

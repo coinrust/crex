@@ -1,4 +1,4 @@
-package deribitsim
+package exsim
 
 import (
 	"errors"
@@ -21,8 +21,8 @@ type MarginInfo struct {
 	LiquidationPriceShort float64
 }
 
-// DeribitSim the deribit exchange for backtest
-type DeribitSim struct {
+// ExSim the exchange for backtest
+type ExSim struct {
 	data          *dataloader.Data
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
@@ -35,16 +35,16 @@ type DeribitSim struct {
 	eLog ExchangeLogger
 }
 
-func (b *DeribitSim) GetName() (name string) {
+func (b *ExSim) GetName() (name string) {
 	return "deribit"
 }
 
-func (b *DeribitSim) GetTime() (tm int64, err error) {
+func (b *ExSim) GetTime() (tm int64, err error) {
 	err = ErrNotImplemented
 	return
 }
 
-func (b *DeribitSim) GetBalance(symbol string) (result *Balance, err error) {
+func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
 	position := b.getPosition(symbol)
@@ -61,44 +61,44 @@ func (b *DeribitSim) GetBalance(symbol string) (result *Balance, err error) {
 	return
 }
 
-func (b *DeribitSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
+func (b *ExSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
 	result = b.data.GetOrderBook()
 	return
 }
 
-func (b *DeribitSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
+func (b *ExSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
 	return
 }
 
-func (b *DeribitSim) SetContractType(pair string, contractType string) (err error) {
+func (b *ExSim) SetContractType(pair string, contractType string) (err error) {
 	return
 }
 
-func (b *DeribitSim) GetContractID() (symbol string, err error) {
+func (b *ExSim) GetContractID() (symbol string, err error) {
 	return
 }
 
-func (b *DeribitSim) SetLeverRate(value float64) (err error) {
+func (b *ExSim) SetLeverRate(value float64) (err error) {
 	return
 }
 
-func (b *DeribitSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+func (b *ExSim) OpenLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size)
 }
 
-func (b *DeribitSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+func (b *ExSim) OpenShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size)
 }
 
-func (b *DeribitSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+func (b *ExSim) CloseLong(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Sell, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *DeribitSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
+func (b *ExSim) CloseShort(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error) {
 	return b.PlaceOrder(symbol, Buy, orderType, price, size, OrderReduceOnlyOption(true))
 }
 
-func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
+func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderType, price float64,
 	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	id := GenOrderId()
@@ -160,7 +160,7 @@ func (b *DeribitSim) PlaceOrder(symbol string, direction Direction, orderType Or
 }
 
 // 撮合成交
-func (b *DeribitSim) matchOrder(order *Order, immediate bool) (changed bool, err error) {
+func (b *ExSim) matchOrder(order *Order, immediate bool) (changed bool, err error) {
 	switch order.Type {
 	case OrderTypeMarket:
 		changed, err = b.matchMarketOrder(order)
@@ -170,7 +170,7 @@ func (b *DeribitSim) matchOrder(order *Order, immediate bool) (changed bool, err
 	return
 }
 
-func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
+func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -255,7 +255,7 @@ func (b *DeribitSim) matchMarketOrder(order *Order) (changed bool, err error) {
 	return
 }
 
-func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err error) {
+func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -337,7 +337,7 @@ func (b *DeribitSim) matchLimitOrder(order *Order, immediate bool) (changed bool
 	return
 }
 
-func (b *DeribitSim) matchBid(size float64, asks ...Item) (filledSize float64, avgPrice float64) {
+func (b *ExSim) matchBid(size float64, asks ...Item) (filledSize float64, avgPrice float64) {
 	type item = struct {
 		Amount float64
 		Price  float64
@@ -381,7 +381,7 @@ func (b *DeribitSim) matchBid(size float64, asks ...Item) (filledSize float64, a
 	return
 }
 
-func (b *DeribitSim) matchAsk(size float64, bids ...Item) (filledSize float64, avgPrice float64) {
+func (b *ExSim) matchAsk(size float64, bids ...Item) (filledSize float64, avgPrice float64) {
 	type item = struct {
 		Amount float64
 		Price  float64
@@ -426,7 +426,7 @@ func (b *DeribitSim) matchAsk(size float64, bids ...Item) (filledSize float64, a
 }
 
 // 更新持仓
-func (b *DeribitSim) updatePosition(symbol string, size float64, price float64) (pnl float64) {
+func (b *ExSim) updatePosition(symbol string, size float64, price float64) (pnl float64) {
 	position := b.getPosition(symbol)
 	if position == nil {
 		log.Fatalf("position error symbol=%v", symbol)
@@ -441,7 +441,7 @@ func (b *DeribitSim) updatePosition(symbol string, size float64, price float64) 
 }
 
 // 增加持仓
-func (b *DeribitSim) addPosition(position *Position, size float64, price float64) (err error) {
+func (b *ExSim) addPosition(position *Position, size float64, price float64) (err error) {
 	if position.Size < 0 && size > 0 || position.Size > 0 && size < 0 {
 		err = errors.New("方向错误")
 		return
@@ -466,7 +466,7 @@ func (b *DeribitSim) addPosition(position *Position, size float64, price float64
 }
 
 // 平仓，超过数量，则开立新仓
-func (b *DeribitSim) closePosition(position *Position, size float64, price float64) (pnl float64, err error) {
+func (b *ExSim) closePosition(position *Position, size float64, price float64) (pnl float64, err error) {
 	if position.Size == 0 {
 		err = errors.New("当前无持仓")
 		return
@@ -500,17 +500,17 @@ func (b *DeribitSim) closePosition(position *Position, size float64, price float
 }
 
 // 增加Balance
-func (b *DeribitSim) addBalance(value float64) {
+func (b *ExSim) addBalance(value float64) {
 	b.balance += value
 }
 
 // 增加P/L
-func (b *DeribitSim) addPnl(pnl float64) {
+func (b *ExSim) addPnl(pnl float64) {
 	b.balance += pnl
 }
 
 // 获取持仓
-func (b *DeribitSim) getPosition(symbol string) *Position {
+func (b *ExSim) getPosition(symbol string) *Position {
 	if position, ok := b.positions[symbol]; ok {
 		return position
 	} else {
@@ -526,7 +526,7 @@ func (b *DeribitSim) getPosition(symbol string) *Position {
 	}
 }
 
-func (b *DeribitSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
+func (b *ExSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
 	for _, v := range b.openOrders {
 		if v.Symbol == symbol {
 			result = append(result, v)
@@ -535,7 +535,7 @@ func (b *DeribitSim) GetOpenOrders(symbol string, opts ...OrderOption) (result [
 	return
 }
 
-func (b *DeribitSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
+func (b *ExSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	order, ok := b.orders[id]
 	if !ok {
 		err = errors.New("not found")
@@ -545,7 +545,7 @@ func (b *DeribitSim) GetOrder(symbol string, id string, opts ...OrderOption) (re
 	return
 }
 
-func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
+func (b *ExSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
 	if order, ok := b.orders[id]; ok {
 		if !order.IsOpen() {
 			err = errors.New("status error")
@@ -565,7 +565,7 @@ func (b *DeribitSim) CancelOrder(symbol string, id string, opts ...OrderOption) 
 	return
 }
 
-func (b *DeribitSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
+func (b *ExSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	var idsToBeRemoved []string
 
 	for _, order := range b.openOrders {
@@ -588,11 +588,11 @@ func (b *DeribitSim) CancelAllOrders(symbol string, opts ...OrderOption) (err er
 	return
 }
 
-func (b *DeribitSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
+func (b *ExSim) AmendOrder(symbol string, id string, price float64, size float64, opts ...OrderOption) (result *Order, err error) {
 	return
 }
 
-func (b *DeribitSim) GetPositions(symbol string) (result []*Position, err error) {
+func (b *ExSim) GetPositions(symbol string) (result []*Position, err error) {
 	position, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
@@ -602,27 +602,27 @@ func (b *DeribitSim) GetPositions(symbol string) (result []*Position, err error)
 	return
 }
 
-func (b *DeribitSim) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
+func (b *ExSim) SubscribeTrades(market Market, callback func(trades []*Trade)) error {
 	return nil
 }
 
-func (b *DeribitSim) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error {
+func (b *ExSim) SubscribeLevel2Snapshots(market Market, callback func(ob *OrderBook)) error {
 	return nil
 }
 
-func (b *DeribitSim) SubscribeOrders(market Market, callback func(orders []*Order)) error {
+func (b *ExSim) SubscribeOrders(market Market, callback func(orders []*Order)) error {
 	return nil
 }
 
-func (b *DeribitSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
+func (b *ExSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
 }
 
-func (b *DeribitSim) SetExchangeLogger(l ExchangeLogger) {
+func (b *ExSim) SetExchangeLogger(l ExchangeLogger) {
 	b.eLog = l
 }
 
-func (b *DeribitSim) RunEventLoopOnce() (err error) {
+func (b *ExSim) RunEventLoopOnce() (err error) {
 	var changed bool
 	for _, order := range b.openOrders {
 		changed, err = b.matchOrder(order, false)
@@ -633,7 +633,7 @@ func (b *DeribitSim) RunEventLoopOnce() (err error) {
 	return
 }
 
-func (b *DeribitSim) logOrderInfo(msg string, event string, order *Order) {
+func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 	if b.eLog == nil {
 		return
 	}
@@ -648,8 +648,8 @@ func (b *DeribitSim) logOrderInfo(msg string, event string, order *Order) {
 		"positions", []*Position{position})
 }
 
-func NewDeribitSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *DeribitSim {
-	return &DeribitSim{
+func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *ExSim {
+	return &ExSim{
 		data:          data,
 		balance:       cash,
 		makerFeeRate:  makerFeeRate, // -0.00025 // Maker 费率

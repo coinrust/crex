@@ -1,4 +1,4 @@
-package deribitsim
+package exsim
 
 import (
 	. "github.com/coinrust/crex"
