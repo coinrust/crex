@@ -162,7 +162,7 @@ func main() {
 }
 ```
 
-### Standard CSV data types formats
+### 1. Standard CSV data types formats
 * columns delimiter: , (comma)
 * new line marker: \n (LF)
 * date time format: Unix time (ms)
@@ -202,9 +202,11 @@ b: bids Array [[bid_price_0,ask_amount_0],[bid_price_1,bid_amount_1],...]
 
 ### Data processing example
 Example of importing data into a database:
+```shell script
 cd ./cmd/deribit-data-to-db
 go build
 ./deribit-data-to-db
+```
 
 ### TODO
 * Paper trading.

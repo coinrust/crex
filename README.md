@@ -203,9 +203,11 @@ b: bids Array [[bid_price_0,ask_amount_0],[bid_price_1,bid_amount_1],...]
 
 ### 数据处理示例
 Example of importing data into a database:
+```shell script
 cd ./cmd/deribit-data-to-db
 go build
 ./deribit-data-to-db
+```
 
 ## TODO
 * Paper trading.
