@@ -1,8 +1,8 @@
 package crex
 
 import (
-	"fmt"
 	"github.com/coinrust/crex/utils"
+	"strconv"
 )
 
 var idGen *utils.IdGenerate
@@ -13,5 +13,5 @@ func SetIdGenerate(g *utils.IdGenerate) {
 
 func GenOrderId() string {
 	id := idGen.Next()
-	return fmt.Sprint(id)
+	return strconv.Itoa(int(id))
 }

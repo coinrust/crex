@@ -149,6 +149,7 @@ type Position struct {
 	OpenPrice float64   `json:"open_price"` // 开仓价
 	Size      float64   `json:"size"`       // 仓位大小
 	AvgPrice  float64   `json:"avg_price"`  // 平均价
+	Profit    float64   `json:"profit"`     //浮动盈亏
 }
 
 func (p *Position) Side() Direction {

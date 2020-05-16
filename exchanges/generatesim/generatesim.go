@@ -6,7 +6,6 @@ import (
 	"github.com/beaquant/utils/logger"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
-	"github.com/coinrust/crex/utils"
 	"github.com/sirupsen/logrus"
 	"math"
 	"time"
@@ -32,6 +31,7 @@ type GenerateSim struct {
 	positionCnt        float64
 	positionWinCnt     float64
 	logger             *logrus.Logger
+	eLog               ExchangeLogger
 }
 
 func NewGenerateSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, isForwardContract bool, posMode ...bool) *GenerateSim {
@@ -154,11 +154,12 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 		return
 	}
 	params := ParsePlaceOrderParameter(opts...)
-	_id, _ := utils.NextID()
-	id := fmt.Sprintf("%v", _id)
+	id := GenOrderId()
+	ob := s.data.GetOrderBook()
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
+		Time:         ob.Time,
 		Price:        price,
 		Amount:       size,
 		AvgPrice:     0,
@@ -167,11 +168,22 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 		Type:         orderType,
 		PostOnly:     params.PostOnly,
 		ReduceOnly:   params.ReduceOnly,
+		UpdateTime:   ob.Time,
 		Status:       OrderStatusNew,
 	}
+	s.eLog.Infow(
+		"PlaceOrder",
+		"symbol", symbol,
+		"direction", direction,
+		"orderType", orderType.String(),
+		"price", price,
+		"size", size,
+		"params", params,
+	)
 
 	err = s.matchOrder(order, true)
 	if err != nil {
+		s.eLog.Error(err)
 		return
 	}
 
@@ -183,6 +195,7 @@ func (s *GenerateSim) PlaceOrder(symbol string, direction Direction, orderType O
 
 	s.orders[id] = order
 	result = order
+	s.logOrderInfo("Place order", SimEventOrder, order)
 	return
 }
 
@@ -199,6 +212,7 @@ func (s *GenerateSim) matchOrder(order *Order, immediate bool) (err error) {
 
 func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 	if !order.IsOpen() {
+		err = errors.New("order is closed")
 		return
 	}
 
@@ -209,6 +223,7 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 		size := order.Amount
 		price := ob.AskAvePrice(size)
 		if price <= 0 {
+			err = errors.New("size is bigger than orderbook")
 			return
 		}
 
@@ -232,11 +247,20 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 		order.AvgPrice = price
 		// Update balance
 		s.addBalance(-fee)
+		//pnl := CalcPnl()
+		//pnl := s.updatePosition(order.Symbol, filledAmount, avgPrice)
+		//order.Pnl += pnl
+		order.Commission += fee
 
 	} else if order.Direction == Sell {
 
 		size := order.Amount
 		price := ob.BidAvePrice(size)
+		if price <= 0 {
+			err = errors.New("size is bigger than orderbook")
+			return
+		}
+
 		// Update position
 		size, err = s.updatePosition(order.Symbol, -size, price, order.ReduceOnly)
 		if err != nil {
@@ -258,8 +282,10 @@ func (s *GenerateSim) matchMarketOrder(order *Order) (err error) {
 
 		// Update balance
 		s.addBalance(-fee)
+		order.Commission += fee
 
 	}
+	order.UpdateTime = ob.Time
 	order.Status = OrderStatusFilled
 	return
 }
@@ -417,11 +443,13 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 		// 计算盈利
 		pnl := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, s.isForwardContract)
 		s.addPnl(pnl)
+		position.Profit = pnl
 		position.AvgPrice = price
 		position.Size = position.Size + size
 	} else if remaining == 0 {
 		// 完全平仓
 		pnl := CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, s.isForwardContract)
+		position.Profit = pnl
 		s.addPnl(pnl)
 
 		if pnl > 0 {
@@ -445,6 +473,7 @@ func (s *GenerateSim) closePosition(position *Position, size float64, price floa
 	} else {
 		// 部分平仓
 		pnl := CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, s.isForwardContract)
+		position.Profit = pnl
 		s.addPnl(pnl)
 		//position.AvgPrice = position.AvgPrice
 		position.Size = position.Size + size
@@ -589,12 +618,14 @@ func (s *GenerateSim) SubscribePositions(market Market, callback func(positions 
 }
 
 func (s *GenerateSim) SetExchangeLogger(l ExchangeLogger) {
-
+	s.eLog = l
 }
 
 func (s *GenerateSim) RunEventLoopOnce() (err error) {
 	for _, order := range s.openOrders {
-		s.matchOrder(order, false)
+		if s.matchOrder(order, false) == nil {
+
+		}
 	}
 	return
 }
@@ -605,4 +636,18 @@ func (s *GenerateSim) GetWinRate() (longWinRate, shortWinRate, totalWinRate floa
 
 func (s *GenerateSim) GetFee() (fee float64) {
 	return s.totalFee
+}
+
+func (s *GenerateSim) logOrderInfo(msg string, event string, order *Order) {
+	ob := s.data.GetOrderBook()
+	position := s.getPosition(order.Symbol)
+	s.eLog.Infow(
+		msg,
+		SimEventKey,
+		event,
+		"order", order,
+		"orderbook", ob,
+		"balance", s.balance,
+		"positions", position,
+	)
 }
