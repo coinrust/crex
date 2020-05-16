@@ -619,6 +619,10 @@ func (b *DeribitSim) RunEventLoopOnce() (err error) {
 }
 
 func (b *DeribitSim) logOrderInfo(msg string, event string, order *Order) {
+	if b.eLog == nil {
+		return
+	}
+
 	ob := b.data.GetOrderBook()
 	position := b.getPosition(order.Symbol)
 	b.eLog.Infow(msg,

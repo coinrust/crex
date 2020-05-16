@@ -50,8 +50,10 @@ func NewBtLogger(gct GetCurrentTime, path string, level string, jsonFormat bool,
 }
 
 func (l *BtLogger) build() {
-	writeSyncer := []zapcore.WriteSyncer{
-		zapcore.AddSync(l.createLumberjackHook()),
+	var writeSyncer []zapcore.WriteSyncer
+
+	if l.Path != "" {
+		writeSyncer = append(writeSyncer, zapcore.AddSync(l.createLumberjackHook()))
 	}
 
 	if l.Stdout {

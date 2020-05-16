@@ -2,12 +2,32 @@ package deribitsim
 
 import (
 	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/math"
+	"github.com/coinrust/crex/utils"
 	"testing"
+	"time"
 )
 
 func testExchange() Exchange {
-	return NewDeribitSim(nil, 10000, 0, 0)
+	start, _ := time.Parse("2006-01-02 15:04:05", "2019-10-01 00:00:00")
+	end, _ := time.Parse("2006-01-02 15:04:05", "2019-10-02 00:00:00")
+	SetIdGenerate(utils.NewIdGenerate(start))
+	data := dataloader.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
+	data.Reset(start, end)
+	ex := NewDeribitSim(data, 10000, -0.00025, 0.00075)
+	ex.SetExchangeLogger(&EmptyExchangeLogger{})
+	return ex
+}
+
+func TestReduceOrder(t *testing.T) {
+	ex := testExchange()
+	order, err := ex.PlaceOrder("BTC-PERPETUAL", Buy, OrderTypeMarket, 3000, 10)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Logf("%#v", order)
 }
 
 // 计算公式:

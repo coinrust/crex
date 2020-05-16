@@ -42,6 +42,7 @@ type Backtest struct {
 	symbol           string
 	strategy         Strategy
 	exchanges        []ExchangeSim
+	baseOutputDir    string
 	outputDir        string
 	exchangeLogFiles []string // 撮合日志记录文件
 
@@ -83,12 +84,12 @@ func init() {
 // outputDir: 日志输出目录
 func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time.Time, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
 	b := &Backtest{
-		data:      data,
-		symbol:    symbol,
-		start:     start,
-		end:       end,
-		strategy:  strategy,
-		outputDir: outputDir,
+		data:          data,
+		symbol:        symbol,
+		start:         start,
+		end:           end,
+		strategy:      strategy,
+		baseOutputDir: outputDir,
 	}
 	b.exchanges = exchanges
 	var exs []Exchange
@@ -122,12 +123,12 @@ func (b *Backtest) Run() {
 
 	SetIdGenerate(utils.NewIdGenerate(b.start))
 
-	err := os.MkdirAll(b.outputDir, os.ModePerm)
+	err := os.MkdirAll(b.baseOutputDir, os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	b.outputDir = filepath.Join(b.outputDir, time.Now().Format("20060102150405"))
+	b.outputDir = filepath.Join(b.baseOutputDir, time.Now().Format("20060102150405"))
 
 	logger := NewBtLogger(b,
 		filepath.Join(b.outputDir, "result.log"),
