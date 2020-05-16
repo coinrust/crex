@@ -22,7 +22,7 @@
 ### Backtesting
 See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/main.go)
 
-### trade results:
+### Trade results:
 <div align=center><img src="https://raw.githubusercontent.com/coinrust/crex/master/images/trade_result.png" /></div>
 <div align=center><img src="https://raw.githubusercontent.com/coinrust/crex/master/images/trade_history_report.png" /></div>
 
