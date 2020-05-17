@@ -21,16 +21,20 @@ type MarginInfo struct {
 	LiquidationPriceShort float64
 }
 
+// 持仓，用于多仓
+type Positions []*Position // 单向持仓只有一项; 双向持仓 Index: 0-Long Index: 1-Short
+
 // ExSim the exchange for backtest
 type ExSim struct {
-	data          *dataloader.Data
-	makerFeeRate  float64 // -0.00025	// Maker fee rate
-	takerFeeRate  float64 // 0.00075	// Taker fee rate
-	balance       float64
-	orders        map[string]*Order    // All orders key: OrderID value: Order
-	openOrders    map[string]*Order    // Open orders
-	historyOrders map[string]*Order    // History orders
-	positions     map[string]*Position // Position key: symbol
+	data           *dataloader.Data
+	makerFeeRate   float64 // -0.00025	// Maker fee rate
+	takerFeeRate   float64 // 0.00075	// Taker fee rate
+	hedgedPosition bool    // 双向持仓
+	balance        float64
+	orders         map[string]*Order     // All orders key: OrderID value: Order
+	openOrders     map[string]*Order     // Open orders
+	historyOrders  map[string]*Order     // History orders
+	positions      map[string]*Positions // Position key: symbol
 
 	eLog ExchangeLogger
 }
@@ -47,17 +51,21 @@ func (b *ExSim) GetTime() (tm int64, err error) {
 func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	position := b.getPosition(symbol)
-	var price float64
+	positions := b.getPositions(symbol)
 	ob := b.data.GetOrderBook()
-	side := position.Side()
-	if side == Buy {
-		price = ob.AskPrice()
-	} else if side == Sell {
-		price = ob.BidPrice()
+
+	result.Equity = result.Available
+	for _, position := range *positions {
+		var price float64
+		side := position.Side()
+		if side == Buy {
+			price = ob.AskPrice()
+		} else if side == Sell {
+			price = ob.BidPrice()
+		}
+		pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price)
+		result.Equity += pnl
 	}
-	pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price)
-	result.Equity = result.Available + pnl
 	return
 }
 
@@ -129,7 +137,8 @@ func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 
 	// 如果是减仓单，判断是否足够
 	if params.ReduceOnly {
-		position := b.getPosition(symbol)
+		side := b.getOrderSide(order)
+		position := b.getPosition(symbol, side)
 		if direction == Buy &&
 			(position.Size >= 0 || math.Abs(position.Size) < size) { // 平空
 			err = ErrInvalidAmount
@@ -160,12 +169,12 @@ func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 }
 
 // 撮合成交
-func (b *ExSim) matchOrder(order *Order, immediate bool) (changed bool, err error) {
+func (b *ExSim) matchOrder(order *Order, immediate bool) (match bool, err error) {
 	switch order.Type {
 	case OrderTypeMarket:
-		changed, err = b.matchMarketOrder(order)
+		match, err = b.matchMarketOrder(order)
 	case OrderTypeLimit:
-		changed, err = b.matchLimitOrder(order, immediate)
+		match, err = b.matchLimitOrder(order, immediate)
 	}
 	return
 }
@@ -186,7 +195,8 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		return
 	}
 
-	position := b.getPosition(order.Symbol)
+	side := b.getOrderSide(order)
+	position := b.getPosition(order.Symbol, side)
 
 	if int(position.Size+order.Amount) > PositionSizeLimit ||
 		int(position.Size-order.Amount) < -PositionSizeLimit {
@@ -223,7 +233,7 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		b.addBalance(-fee)
 
 		// Update position
-		pnl := b.updatePosition(order.Symbol, filledAmount, avgPrice)
+		pnl := b.updatePosition(order.Symbol, filledAmount, avgPrice, side)
 		order.Pnl += pnl
 		order.Commission += fee
 		order.AvgPrice = avgPrice
@@ -243,7 +253,7 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		b.addBalance(-fee)
 
 		// Update position
-		pnl := b.updatePosition(order.Symbol, -filledAmount, avgPrice)
+		pnl := b.updatePosition(order.Symbol, -filledAmount, avgPrice, side)
 		order.Pnl += pnl
 		order.Commission += fee
 		order.AvgPrice = avgPrice
@@ -255,10 +265,32 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 	return
 }
 
-func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err error) {
+func (b *ExSim) getOrderSide(order *Order) (side int) {
+	if b.hedgedPosition {
+		switch order.Direction {
+		case Buy:
+			if order.ReduceOnly {
+				side = 1
+			} else {
+				side = 0
+			}
+		case Sell:
+			if order.ReduceOnly {
+				side = 0
+			} else {
+				side = 1
+			}
+		}
+	}
+	return
+}
+
+func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
+
+	side := b.getOrderSide(order)
 
 	ob := b.data.GetOrderBook()
 	if order.Direction == Buy { // Bid order
@@ -271,7 +303,7 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err
 		if immediate && order.PostOnly {
 			order.UpdateTime = ob.Time
 			order.Status = OrderStatusRejected
-			changed = true
+			match = true
 			return
 		}
 
@@ -289,14 +321,14 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, filledAmount, avgPrice)
+		b.updatePosition(order.Symbol, filledAmount, avgPrice, side)
 
 		order.Commission -= fee
 		order.AvgPrice = avgPrice
 		order.FilledAmount = filledAmount
 		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
-		changed = true
+		match = true
 	} else { // Ask order
 		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Asks...)
 		//if order.Price > ob.BidPrice() {
@@ -307,7 +339,7 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err
 		if immediate && order.PostOnly {
 			order.UpdateTime = ob.Time
 			order.Status = OrderStatusRejected
-			changed = true
+			match = true
 			return
 		}
 
@@ -325,14 +357,14 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (changed bool, err
 		b.addBalance(-fee)
 
 		// Update position
-		b.updatePosition(order.Symbol, -filledAmount, avgPrice)
+		b.updatePosition(order.Symbol, -filledAmount, avgPrice, side)
 
 		order.Commission -= fee
 		order.AvgPrice = avgPrice
 		order.FilledAmount = filledAmount
 		order.UpdateTime = ob.Time
 		order.Status = OrderStatusFilled
-		changed = true
+		match = true
 	}
 	return
 }
@@ -426,12 +458,14 @@ func (b *ExSim) matchAsk(size float64, bids ...Item) (filledSize float64, avgPri
 }
 
 // 更新持仓
-func (b *ExSim) updatePosition(symbol string, size float64, price float64) (pnl float64) {
-	position := b.getPosition(symbol)
-	if position == nil {
+// side: 0-Long 1-Short
+func (b *ExSim) updatePosition(symbol string, size float64, price float64, side int) (pnl float64) {
+	positions := b.getPositions(symbol)
+	if positions == nil {
 		log.Fatalf("position error symbol=%v", symbol)
 	}
 
+	position := (*positions)[side]
 	if position.Size > 0 && size < 0 || position.Size < 0 && size > 0 {
 		pnl, _ = b.closePosition(position, size, price)
 	} else {
@@ -509,20 +543,49 @@ func (b *ExSim) addPnl(pnl float64) {
 	b.balance += pnl
 }
 
+func (b *ExSim) getPosition(symbol string, side int) *Position {
+	if !b.hedgedPosition {
+		side = 0
+	}
+	positions := b.getPositions(symbol)
+	return (*positions)[side]
+}
+
 // 获取持仓
-func (b *ExSim) getPosition(symbol string) *Position {
-	if position, ok := b.positions[symbol]; ok {
-		return position
+func (b *ExSim) getPositions(symbol string) *Positions {
+	if positions, ok := b.positions[symbol]; ok {
+		return positions
 	} else {
-		position = &Position{
-			Symbol:    symbol,
-			OpenTime:  time.Time{},
-			OpenPrice: 0,
-			Size:      0,
-			AvgPrice:  0,
+		if b.hedgedPosition {
+			positions = &Positions{
+				&Position{
+					Symbol:    symbol,
+					OpenTime:  time.Time{},
+					OpenPrice: 0,
+					Size:      0,
+					AvgPrice:  0,
+				},
+				&Position{
+					Symbol:    symbol,
+					OpenTime:  time.Time{},
+					OpenPrice: 0,
+					Size:      0,
+					AvgPrice:  0,
+				},
+			}
+		} else {
+			positions = &Positions{
+				&Position{
+					Symbol:    symbol,
+					OpenTime:  time.Time{},
+					OpenPrice: 0,
+					Size:      0,
+					AvgPrice:  0,
+				},
+			}
 		}
-		b.positions[symbol] = position
-		return position
+		b.positions[symbol] = positions
+		return positions
 	}
 }
 
@@ -593,12 +656,12 @@ func (b *ExSim) AmendOrder(symbol string, id string, price float64, size float64
 }
 
 func (b *ExSim) GetPositions(symbol string) (result []*Position, err error) {
-	position, ok := b.positions[symbol]
+	positions, ok := b.positions[symbol]
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = []*Position{position}
+	result = *positions
 	return
 }
 
@@ -623,10 +686,10 @@ func (b *ExSim) SetExchangeLogger(l ExchangeLogger) {
 }
 
 func (b *ExSim) RunEventLoopOnce() (err error) {
-	var changed bool
+	var match bool
 	for _, order := range b.openOrders {
-		changed, err = b.matchOrder(order, false)
-		if changed {
+		match, err = b.matchOrder(order, false)
+		if match {
 			b.logOrderInfo("Match order", SimEventDeal, order)
 		}
 	}
@@ -639,24 +702,30 @@ func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 	}
 
 	ob := b.data.GetOrderBook()
-	position := b.getPosition(order.Symbol)
+	positions := b.getPositions(order.Symbol)
 	b.eLog.Infow(msg,
 		SimEventKey, event,
 		"order", order,
 		"orderbook", ob,
 		"balance", b.balance,
-		"positions", []*Position{position})
+		"positions", *positions)
 }
 
-func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64) *ExSim {
+// NewExSim 创建模拟交易所
+// cash: 初始资金
+// makerFeeRate: Maker 费率
+// takerFeeRate: Taker 费率
+// hedgedPosition: 双向持仓
+func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, hedgedPosition bool) *ExSim {
 	return &ExSim{
-		data:          data,
-		balance:       cash,
-		makerFeeRate:  makerFeeRate, // -0.00025 // Maker 费率
-		takerFeeRate:  takerFeeRate, // 0.00075	// Taker 费率
-		orders:        make(map[string]*Order),
-		openOrders:    make(map[string]*Order),
-		historyOrders: make(map[string]*Order),
-		positions:     make(map[string]*Position),
+		data:           data,
+		balance:        cash,
+		makerFeeRate:   makerFeeRate, // -0.00025 // Maker 费率
+		takerFeeRate:   takerFeeRate, // 0.00075	// Taker 费率
+		hedgedPosition: hedgedPosition,
+		orders:         make(map[string]*Order),
+		openOrders:     make(map[string]*Order),
+		historyOrders:  make(map[string]*Order),
+		positions:      make(map[string]*Positions),
 	}
 }
