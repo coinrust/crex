@@ -7,6 +7,7 @@ import (
 
 type DataLoader interface {
 	Setup(start time.Time, end time.Time) error
-	ReadData() []*OrderBook
+	ReadOrderBooks() []*OrderBook
+	ReadRecords(limit int) []*Record
 	HasMoreData() bool
 }

@@ -52,16 +52,17 @@ func main() {
 	start, _ := time.Parse("2006-01-02 15:04:05", "2019-10-01 00:00:00")
 	end, _ := time.Parse("2006-01-02 15:04:05", "2019-10-02 00:00:00")
 
-	//data := dataloader.NewCsvData("../../data-samples/deribit/deribit_BTC-PERPETUAL_and_futures_tick_by_tick_book_snapshots_10_levels_2019-10-01_2019-11-01.csv")
-
+	var datas []*dataloader.Data
 	var exchanges []ExchangeSim
 	for i := 0; i < 2; i++ {
+		datas = append(datas, data)
 		ex := exsim.NewExSim(data, 5.0, -0.00025, 0.00075, false)
 		exchanges = append(exchanges, ex)
 	}
+
 	s := &BasicStrategy{}
 	outputDir := "./output"
-	bt := backtest.NewBacktest(data,
+	bt := backtest.NewBacktest(datas,
 		"BTC",
 		start,
 		end,

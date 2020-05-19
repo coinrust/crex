@@ -3,6 +3,7 @@ package exsim
 import (
 	"errors"
 	"fmt"
+	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"log"
@@ -36,7 +37,8 @@ type ExSim struct {
 	historyOrders  map[string]*Order     // History orders
 	positions      map[string]*Positions // Position key: symbol
 
-	eLog ExchangeLogger
+	emitter *emission.Emitter
+	eLog    ExchangeLogger
 }
 
 func (b *ExSim) GetName() (name string) {
@@ -164,7 +166,12 @@ func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 
 	b.orders[id] = order
 	result = order
+
 	b.logOrderInfo("Place order", SimEventOrder, order)
+
+	var orders = []*Order{order}
+	b.emitter.Emit(WSEventOrder, orders)
+
 	return
 }
 
@@ -691,6 +698,8 @@ func (b *ExSim) RunEventLoopOnce() (err error) {
 		match, err = b.matchOrder(order, false)
 		if match {
 			b.logOrderInfo("Match order", SimEventDeal, order)
+			var orders = []*Order{order}
+			b.emitter.Emit(WSEventOrder, orders)
 		}
 	}
 	return
@@ -727,5 +736,6 @@ func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFe
 		openOrders:     make(map[string]*Order),
 		historyOrders:  make(map[string]*Order),
 		positions:      make(map[string]*Positions),
+		emitter:        emission.NewEmitter(),
 	}
 }

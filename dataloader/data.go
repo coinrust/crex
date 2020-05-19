@@ -37,6 +37,10 @@ func (d *Data) GetOrderBook() *OrderBook {
 	return d.data[d.index]
 }
 
+func (d *Data) GetRecords(size int) []*Record {
+	return nil
+}
+
 func (d *Data) Next() bool {
 	if d.index < d.maxIndex {
 		d.index++
@@ -54,7 +58,7 @@ func (d *Data) readMore() int {
 	if !d.dataLoader.HasMoreData() {
 		return 0
 	}
-	data := d.dataLoader.ReadData()
+	data := d.dataLoader.ReadOrderBooks()
 	if len(data) == 0 {
 		return 0
 	}

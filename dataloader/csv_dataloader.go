@@ -23,7 +23,7 @@ func (l *CsvDataLoader) Setup(start time.Time, end time.Time) error {
 	return nil
 }
 
-func (l *CsvDataLoader) ReadData() (result []*OrderBook) {
+func (l *CsvDataLoader) ReadOrderBooks() (result []*OrderBook) {
 	if !l.hasMoreData {
 		return nil
 	}
@@ -52,6 +52,10 @@ func (l *CsvDataLoader) ReadData() (result []*OrderBook) {
 	}
 
 	return
+}
+
+func (l *CsvDataLoader) ReadRecords(limit int) []*Record {
+	return nil
 }
 
 func (l *CsvDataLoader) HasMoreData() bool {

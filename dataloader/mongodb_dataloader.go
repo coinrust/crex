@@ -45,7 +45,7 @@ func (l *MongoDBDataLoader) Setup(start time.Time, end time.Time) error {
 	return nil
 }
 
-func (l *MongoDBDataLoader) ReadData() (result []*OrderBook) {
+func (l *MongoDBDataLoader) ReadOrderBooks() (result []*OrderBook) {
 	if !l.hasMoreData {
 		return nil
 	}
@@ -63,6 +63,10 @@ func (l *MongoDBDataLoader) ReadData() (result []*OrderBook) {
 	}
 
 	return l.convert(batch...)
+}
+
+func (l *MongoDBDataLoader) ReadRecords(limit int) []*Record {
+	return nil
 }
 
 func (l *MongoDBDataLoader) convert(r ...bson.Raw) (result []*OrderBook) {

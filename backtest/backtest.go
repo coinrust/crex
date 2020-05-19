@@ -37,8 +37,13 @@ type PlotData struct {
 	Equities  []float64
 }
 
+type DataState struct {
+	Time  int64 // ns
+	Index int   // datas 中的索引
+}
+
 type Backtest struct {
-	data             *dataloader.Data
+	datas            []*dataloader.Data
 	symbol           string
 	strategy         Strategy
 	exchanges        []ExchangeSim
@@ -50,8 +55,10 @@ type Backtest struct {
 
 	eLoggers []ExchangeLogger
 
-	start time.Time // 开始时间
-	end   time.Time // 结束时间
+	start         time.Time // 开始时间
+	end           time.Time // 结束时间
+	currentTimeNS int64     // ns
+	sortedDatas   []*DataState
 
 	startedAt time.Time // 运行开始时间
 	endedAt   time.Time // 运行结束时间
@@ -82,9 +89,9 @@ func init() {
 // NewBacktest Create backtest
 // data: The data
 // outputDir: 日志输出目录
-func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time.Time, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
+func NewBacktest(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
 	b := &Backtest{
-		data:          data,
+		datas:         datas,
 		symbol:        symbol,
 		start:         start,
 		end:           end,
@@ -105,16 +112,16 @@ func NewBacktest(data *dataloader.Data, symbol string, start time.Time, end time
 }
 
 // SetData Set data for backtest
-func (b *Backtest) SetData(data *dataloader.Data) {
-	b.data = data
+func (b *Backtest) SetDatas(datas []*dataloader.Data) {
+	b.datas = datas
 }
 
 // GetTime get current time
 func (b *Backtest) GetTime() time.Time {
-	if b.data == nil {
+	if len(b.datas) == 0 {
 		return time.Now()
 	}
-	return b.data.GetOrderBook().Time
+	return time.Unix(0, b.currentTimeNS)
 }
 
 // Run Run backtest
@@ -151,20 +158,31 @@ func (b *Backtest) Run() {
 
 	b.startedAt = time.Now()
 
-	b.data.Reset(b.start, b.end)
+	for _, data := range b.datas {
+		data.Reset(b.start, b.end)
+	}
+
+	// 初始化数据
+	b.sortedDatas = make([]*DataState, 0, len(b.datas))
+	for i := 0; i < len(b.datas); i++ {
+		b.sortedDatas = append(b.sortedDatas, &DataState{
+			Time:  0,
+			Index: i,
+		})
+	}
+
+	// 设置数据缓存
+	b.setCacheData()
 
 	// 初始净值
-	if ob := b.data.GetOrderBook(); ob != nil {
-		item := &LogItem{
-			Time:    ob.Time,
-			RawTime: ob.Time,
-			Ask:     ob.AskPrice(),
-			Bid:     ob.BidPrice(),
-			Stats:   nil,
-		}
-		b.fetchItemStats(item)
-		b.logs = append(b.logs, item)
+	item := &LogItem{
+		Time:    time.Unix(0, b.currentTimeNS),
+		RawTime: time.Unix(0, b.currentTimeNS),
+		Prices:  b.getPrices(),
+		Stats:   nil,
 	}
+	b.fetchItemStats(item)
+	b.logs = append(b.logs, item)
 
 	// Init
 	b.strategy.OnInit()
@@ -173,7 +191,7 @@ func (b *Backtest) Run() {
 		b.strategy.OnTick()
 		b.runEventLoopOnce()
 		b.addItemStats()
-		if !b.data.Next() {
+		if !b.next() {
 			break
 		}
 	}
@@ -191,6 +209,64 @@ func (b *Backtest) Run() {
 	b.endedAt = time.Now()
 }
 
+func (b *Backtest) next() bool {
+	if b.currentTimeNS == 0 {
+		return b.nextInternal()
+	}
+
+	for _, data := range b.sortedDatas {
+		if b.currentTimeNS < data.Time {
+			b.currentTimeNS = data.Time
+			return true
+		}
+	}
+
+	return b.nextInternal()
+}
+
+func (b *Backtest) nextInternal() bool {
+	if len(b.datas) == 1 {
+		ret := b.datas[0].Next()
+		if ret {
+			b.currentTimeNS = b.datas[0].GetOrderBook().Time.UnixNano()
+		}
+		return ret
+	}
+
+	for _, data := range b.datas {
+		if !data.Next() {
+			return false
+		}
+	}
+
+	b.setCacheData()
+
+	return true
+}
+
+func (b *Backtest) setCacheData() {
+	// 数据对齐，提前排序
+	n := len(b.datas)
+
+	for i := 0; i < n; i++ {
+		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
+		b.sortedDatas[i].Index = i
+	}
+
+	sort.Slice(b.sortedDatas, func(i, j int) bool {
+		return b.sortedDatas[i].Time < b.sortedDatas[j].Time
+	})
+
+	b.currentTimeNS = b.sortedDatas[0].Time
+}
+
+func (b *Backtest) getPrices() (result []float64) {
+	for _, data := range b.datas {
+		result = append(result, data.GetOrderBook().Price())
+	}
+	return
+}
+
 func (b *Backtest) runEventLoopOnce() {
 	for _, exchange := range b.exchanges {
 		exchange.RunEventLoopOnce()
@@ -198,8 +274,7 @@ func (b *Backtest) runEventLoopOnce() {
 }
 
 func (b *Backtest) addItemStats() {
-	ob := b.data.GetOrderBook()
-	tm := ob.Time
+	tm := b.GetTime()
 	update := false
 	timestamp := time.Date(tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute()+1, 0, 0, time.UTC)
 	var lastItem *LogItem
@@ -214,17 +289,15 @@ func (b *Backtest) addItemStats() {
 	var item *LogItem
 	if update {
 		item = lastItem
-		item.RawTime = ob.Time
-		item.Ask = ob.AskPrice()
-		item.Bid = ob.BidPrice()
+		item.RawTime = tm
+		item.Prices = b.getPrices()
 		item.Stats = nil
 		b.fetchItemStats(item)
 	} else {
 		item = &LogItem{
 			Time:    timestamp,
-			RawTime: ob.Time,
-			Ask:     ob.AskPrice(),
-			Bid:     ob.BidPrice(),
+			RawTime: tm,
+			Prices:  b.getPrices(),
 			Stats:   nil,
 		}
 		b.fetchItemStats(item)
@@ -267,8 +340,8 @@ func (b *Backtest) ComputeStats() (result *Stats) {
 	result.End = logs[n-1].Time
 	result.Duration = result.End.Sub(result.Start)
 	result.RunDuration = b.endedAt.Sub(b.startedAt)
-	result.EntryPrice = logs[0].Price()
-	result.ExitPrice = logs[n-1].Price()
+	result.EntryPrice = logs[0].Prices[0]
+	result.ExitPrice = logs[n-1].Prices[0]
 	result.EntryEquity = logs[0].TotalEquity()
 	result.ExitEquity = logs[n-1].TotalEquity()
 	result.BaHReturn = (result.ExitPrice - result.EntryPrice) / result.EntryPrice * result.EntryEquity
@@ -521,7 +594,7 @@ func (b *Backtest) Plot() {
 
 	for _, v := range b.logs {
 		plotData.NameItems = append(plotData.NameItems, v.Time.Format(SimpleDateTimeFormat))
-		plotData.Prices = append(plotData.Prices, v.Price())
+		plotData.Prices = append(plotData.Prices, v.Prices[0])
 		plotData.Equities = append(plotData.Equities, v.TotalEquity())
 	}
 
@@ -576,7 +649,7 @@ func (b *Backtest) PlotOld() {
 
 	for _, v := range b.logs {
 		nameItems = append(nameItems, v.Time.Format(SimpleDateTimeFormat))
-		prices = append(prices, v.Price())
+		prices = append(prices, v.Prices[0])
 		equities = append(equities, v.TotalEquity())
 	}
 

@@ -14,7 +14,7 @@ func TestMongoDBDataLoader_Setup(t *testing.T) {
 
 	t.Log("------------")
 	s := time.Now()
-	result := loader.ReadData()
+	result := loader.ReadOrderBooks()
 	//for _, v := range result {
 	//	t.Logf("%v", v.Time)
 	//}
@@ -23,7 +23,7 @@ func TestMongoDBDataLoader_Setup(t *testing.T) {
 
 	t.Log("------------")
 	s = time.Now()
-	result = loader.ReadData()
+	result = loader.ReadOrderBooks()
 	//for _, v := range result {
 	//	t.Logf("%v", v.Time)
 	//}
