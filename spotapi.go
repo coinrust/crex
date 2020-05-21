@@ -57,3 +57,14 @@ type SpotExchange interface {
 	// 撤销单个委托单
 	CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error)
 }
+
+// SpotExchangeSim 模拟交易所接口
+type SpotExchangeSim interface {
+	SpotExchange
+
+	// 设置交易撮合日志组件
+	SetExchangeLogger(l ExchangeLogger)
+
+	// 运行一次(回测系统调用)
+	RunEventLoopOnce() (err error) // Run sim match for backtest only
+}
