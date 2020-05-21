@@ -81,7 +81,7 @@ func (o *OrderBook) BidAvePrice(size float64) float64 {
 	return avePrice(o.Bids, size)
 }
 
-func (o *OrderBook) matchOrderbook(size float64, ob []Item) (filledSize float64, avgPrice float64) {
+func (o *OrderBook) MatchOrderbook(size float64, ob []Item) (filledSize float64, avgPrice float64) {
 	type item = struct {
 		Amount float64
 		Price  float64
@@ -125,12 +125,12 @@ func (o *OrderBook) matchOrderbook(size float64, ob []Item) (filledSize float64,
 	return
 }
 
-func (o *OrderBook) MatchBid(size float64) (filledSize float64, avgPrice float64) {
-	return o.matchOrderbook(size, o.Bids)
+func (o *OrderBook) MatchBids(size float64) (filledSize float64, avgPrice float64) {
+	return o.MatchOrderbook(size, o.Bids)
 }
 
-func (o *OrderBook) MatchAsk(size float64) (filledSize float64, avgPrice float64) {
-	return o.matchOrderbook(size, o.Asks)
+func (o *OrderBook) MatchAsks(size float64) (filledSize float64, avgPrice float64) {
+	return o.MatchOrderbook(size, o.Asks)
 }
 
 // BidPrice 买一价
