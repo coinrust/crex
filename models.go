@@ -58,7 +58,6 @@ func avePrice(items []Item, size float64) float64 {
 			totalValue += items[i].Amount * items[i].Price
 			lSize -= items[i].Amount
 		} else {
-			// size := lSize
 			totalSize += lSize
 			totalValue += lSize * items[i].Price
 			lSize = 0
@@ -72,14 +71,66 @@ func avePrice(items []Item, size float64) float64 {
 		return -1
 	}
 	return totalValue / totalSize
-
 }
+
 func (o *OrderBook) AskAvePrice(size float64) float64 {
 	return avePrice(o.Asks, size)
 }
 
 func (o *OrderBook) BidAvePrice(size float64) float64 {
 	return avePrice(o.Bids, size)
+}
+
+func (o *OrderBook) matchOrderbook(size float64, ob []Item) (filledSize float64, avgPrice float64) {
+	type item = struct {
+		Amount float64
+		Price  float64
+	}
+
+	var items []item
+	lSize := size
+	for i := 0; i < len(ob); i++ {
+		if lSize >= ob[i].Amount {
+			items = append(items, item{
+				Amount: ob[i].Amount,
+				Price:  ob[i].Price,
+			})
+			lSize -= ob[i].Amount
+		} else {
+			items = append(items, item{
+				Amount: lSize,
+				Price:  ob[i].Price,
+			})
+			lSize = 0
+		}
+		if lSize <= 0 {
+			break
+		}
+	}
+
+	if lSize != 0 {
+		return
+	}
+
+	// 计算平均价
+	amount := 0.0
+	for _, v := range items {
+		amount += v.Price * v.Amount
+		filledSize += v.Amount
+	}
+	if filledSize == 0 {
+		return
+	}
+	avgPrice = amount / filledSize
+	return
+}
+
+func (o *OrderBook) MatchBid(size float64) (filledSize float64, avgPrice float64) {
+	return o.matchOrderbook(size, o.Bids)
+}
+
+func (o *OrderBook) MatchAsk(size float64) (filledSize float64, avgPrice float64) {
+	return o.matchOrderbook(size, o.Asks)
 }
 
 // BidPrice 买一价

@@ -32,10 +32,10 @@ type SpotExchange interface {
 	// period: 数据周期. 分钟或者关键字1m(minute) 1h 1d 1w 1M(month) 1y 枚举值：1 3 5 15 30 60 120 240 360 720 "5m" "4h" "1d" ...
 	GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error)
 
-	// 开多
+	// 买
 	Buy(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
-	// 开空
+	// 卖
 	Sell(symbol string, orderType OrderType, price float64, size float64) (result *Order, err error)
 
 	// 下单
