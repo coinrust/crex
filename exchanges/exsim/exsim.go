@@ -42,7 +42,7 @@ type ExSim struct {
 }
 
 func (b *ExSim) GetName() (name string) {
-	return "deribit"
+	return "exsim"
 }
 
 func (b *ExSim) GetTime() (tm int64, err error) {
