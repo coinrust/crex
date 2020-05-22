@@ -31,6 +31,7 @@ type GenerateSim struct {
 	positionCnt        float64
 	positionWinCnt     float64
 	logger             *logrus.Logger
+	backtest           IBacktest
 	eLog               ExchangeLogger
 }
 
@@ -59,10 +60,12 @@ func (s *GenerateSim) GetName() (name string) {
 }
 
 func (s *GenerateSim) GetTime() (tm int64, err error) {
-	if s.data != nil && s.data.GetOrderBook() != nil {
-		return s.data.GetOrderBook().Time.UnixNano() / int64(time.Millisecond), nil
-	}
-	return time.Now().UnixNano() / (int64(time.Millisecond)), nil
+	//if s.data != nil && s.data.GetOrderBook() != nil {
+	//	return s.data.GetOrderBook().Time.UnixNano() / int64(time.Millisecond), nil
+	//}
+	//return time.Now().UnixNano() / (int64(time.Millisecond)), nil
+	tm = s.backtest.GetTime().UnixNano() / int64(time.Millisecond)
+	return
 }
 
 func (s *GenerateSim) SetData(data *dataloader.Data) {
@@ -615,6 +618,10 @@ func (s *GenerateSim) SubscribeOrders(market Market, callback func(orders []*Ord
 
 func (s *GenerateSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
+}
+
+func (s *GenerateSim) SetBacktest(backtest IBacktest) {
+	s.backtest = backtest
 }
 
 func (s *GenerateSim) SetExchangeLogger(l ExchangeLogger) {

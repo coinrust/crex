@@ -2,6 +2,7 @@ package crex
 
 import (
 	"net/http"
+	"time"
 )
 
 type Parameters struct {
@@ -155,9 +156,18 @@ func ParsePlaceOrderParameter(opts ...PlaceOrderOption) *PlaceOrderParameter {
 	return p
 }
 
+// IBacktest 回测的接口
+type IBacktest interface {
+	// 获取当前时间
+	GetTime() time.Time
+}
+
 // ExchangeSim 模拟交易所接口
 type ExchangeSim interface {
 	Exchange
+
+	// 设置回测组件
+	SetBacktest(backtest IBacktest)
 
 	// 设置交易撮合日志组件
 	SetExchangeLogger(l ExchangeLogger)

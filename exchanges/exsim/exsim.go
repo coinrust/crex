@@ -37,8 +37,9 @@ type ExSim struct {
 	historyOrders  map[string]*Order     // History orders
 	positions      map[string]*Positions // Position key: symbol
 
-	emitter *emission.Emitter
-	eLog    ExchangeLogger
+	emitter  *emission.Emitter
+	backtest IBacktest
+	eLog     ExchangeLogger
 }
 
 func (b *ExSim) GetName() (name string) {
@@ -46,7 +47,7 @@ func (b *ExSim) GetName() (name string) {
 }
 
 func (b *ExSim) GetTime() (tm int64, err error) {
-	err = ErrNotImplemented
+	tm = b.backtest.GetTime().UnixNano() / int64(time.Millisecond)
 	return
 }
 
@@ -686,6 +687,10 @@ func (b *ExSim) SubscribeOrders(market Market, callback func(orders []*Order)) e
 
 func (b *ExSim) SubscribePositions(market Market, callback func(positions []*Position)) error {
 	return nil
+}
+
+func (b *ExSim) SetBacktest(backtest IBacktest) {
+	b.backtest = backtest
 }
 
 func (b *ExSim) SetExchangeLogger(l ExchangeLogger) {

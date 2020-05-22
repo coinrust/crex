@@ -118,9 +118,6 @@ func (b *Backtest) SetDatas(datas []*dataloader.Data) {
 
 // GetTime get current time
 func (b *Backtest) GetTime() time.Time {
-	if len(b.datas) == 0 {
-		return time.Now()
-	}
 	return time.Unix(0, b.currentTimeNS)
 }
 
@@ -145,6 +142,8 @@ func (b *Backtest) Run() {
 	log.SetLogger(logger)
 
 	for i := 0; i < len(b.exchanges); i++ {
+		b.exchanges[i].SetBacktest(b)
+
 		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
 		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
 		eLogger := NewBtLogger(b,
