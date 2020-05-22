@@ -164,7 +164,7 @@ type IBacktest interface {
 
 // ExchangeSim 模拟交易所接口
 type ExchangeSim interface {
-	Exchange
+	//Exchange
 
 	// 设置回测组件
 	SetBacktest(backtest IBacktest)

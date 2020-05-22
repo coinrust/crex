@@ -99,13 +99,16 @@ func NewBacktest(datas []*dataloader.Data, symbol string, start time.Time, end t
 		baseOutputDir: outputDir,
 	}
 	b.exchanges = exchanges
-	var exs []Exchange
+	var exs []interface{}
 	for _, v := range exchanges {
 		exs = append(exs, v)
 	}
 
 	if strategy != nil {
-		strategy.Setup(TradeModeBacktest, exs...)
+		err := strategy.Setup(TradeModeBacktest, exs...)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	return b
@@ -308,14 +311,34 @@ func (b *Backtest) addItemStats() {
 func (b *Backtest) fetchItemStats(item *LogItem) {
 	n := len(b.exchanges)
 	for i := 0; i < n; i++ {
-		balance, err := b.exchanges[i].GetBalance(b.symbol)
-		if err != nil {
-			panic(err)
+		// 期货
+		ex, ok := b.exchanges[i].(Exchange)
+		if ok {
+			balance, err := ex.GetBalance(b.symbol)
+			if err != nil {
+				panic(err)
+			}
+			item.Stats = append(item.Stats, LogStats{
+				Balance: balance.Available,
+				Equity:  balance.Equity,
+			})
 		}
-		item.Stats = append(item.Stats, LogStats{
-			Balance: balance.Available,
-			Equity:  balance.Equity,
-		})
+
+		// 现货
+		spotEx, ok := b.exchanges[i].(SpotExchange)
+		if ok {
+			balance, err := spotEx.GetBalance(b.symbol)
+			if err != nil {
+				panic(err)
+			}
+			total := balance.Base.Available + balance.Base.Frozen
+			totalQuote := balance.Quote.Available + balance.Quote.Frozen
+			price := item.Prices[i]
+			item.Stats = append(item.Stats, LogStats{
+				Balance: total,
+				Equity:  total + totalQuote*price,
+			})
+		}
 	}
 }
 

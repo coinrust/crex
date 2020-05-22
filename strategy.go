@@ -26,7 +26,8 @@ type Strategy interface {
 	Name() string
 	SetName(name string)
 	SetSelf(self Strategy) error
-	Setup(mode TradeMode, exchanges ...Exchange) error
+	//Setup(mode TradeMode, exchanges ...Exchange) error
+	Setup(mode TradeMode, exchanges ...interface{}) error
 	TradeMode() TradeMode
 	SetOptions(options map[string]interface{}) error
 	Run() error
@@ -51,23 +52,105 @@ func (s *StrategyBase) SetSelf(self Strategy) error {
 }
 
 // Setup Setups the exchanges
-func (s *StrategyBase) Setup(mode TradeMode, exchanges ...Exchange) error {
+func (s *StrategyBase) Setup(mode TradeMode, exchanges ...interface{}) error { // Exchange
 	if len(exchanges) == 0 {
 		return fmt.Errorf("no exchanges")
 	}
 	s.tradeMode = mode
-	s.Exchanges = append(s.Exchanges, exchanges...)
-	s.Exchange = exchanges[0]
+	for _, v := range exchanges {
+		ex, ok := v.(Exchange)
+		if !ok {
+			return fmt.Errorf("Exchange Only")
+		}
+		s.Exchanges = append(s.Exchanges, ex)
+	}
+	s.Exchange = s.Exchanges[0]
 	return nil
 }
 
 // SetOptions Sets the options for the strategy
 func (s *StrategyBase) SetOptions(options map[string]interface{}) error {
+	return setOptions(s.self, options)
+}
+
+// GetOptions Returns the options of strategy
+func (s *StrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
+	return getOptions(s.self)
+}
+
+func (s *StrategyBase) TradeMode() TradeMode {
+	return s.tradeMode
+}
+
+func (s *StrategyBase) SetName(name string) {
+	s.name = name
+}
+
+func (s *StrategyBase) Name() string {
+	return s.name
+}
+
+// SpotStrategyBase Strategy base class
+type SpotStrategyBase struct {
+	self      interface{}
+	name      string
+	tradeMode TradeMode
+	Exchanges []SpotExchange
+	Exchange  SpotExchange
+}
+
+// SetSelf 设置 self 对象
+func (s *SpotStrategyBase) SetSelf(self Strategy) error {
+	s.self = self.(interface{})
+	return nil
+}
+
+// Setup Setups the exchanges
+func (s *SpotStrategyBase) Setup(mode TradeMode, exchanges ...interface{}) error { // Exchange
+	if len(exchanges) == 0 {
+		return fmt.Errorf("no exchanges")
+	}
+	s.tradeMode = mode
+	for _, v := range exchanges {
+		ex, ok := v.(SpotExchange)
+		if !ok {
+			return fmt.Errorf("SpotExchange only")
+		}
+		s.Exchanges = append(s.Exchanges, ex)
+	}
+	s.Exchange = s.Exchanges[0]
+	return nil
+}
+
+// SetOptions Sets the options for the strategy
+func (s *SpotStrategyBase) SetOptions(options map[string]interface{}) error {
+	return setOptions(s.self, options)
+}
+
+// GetOptions Returns the options of strategy
+func (s *SpotStrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
+	return getOptions(s.self)
+}
+
+func (s *SpotStrategyBase) TradeMode() TradeMode {
+	return s.tradeMode
+}
+
+func (s *SpotStrategyBase) SetName(name string) {
+	s.name = name
+}
+
+func (s *SpotStrategyBase) Name() string {
+	return s.name
+}
+
+// SetOptions Sets the options for the strategy
+func setOptions(s interface{}, options map[string]interface{}) error {
 	if len(options) == 0 {
 		return nil
 	}
 
-	rawOptionsOrigin := s.GetOptions()
+	rawOptionsOrigin := getOptions(s)
 	rawOptions := map[string]*StrategyOption{}
 
 	for k, v := range rawOptionsOrigin {
@@ -76,7 +159,7 @@ func (s *StrategyBase) SetOptions(options map[string]interface{}) error {
 	}
 
 	// 反射成员变量
-	val := reflect.ValueOf(s.self)
+	val := reflect.ValueOf(s)
 
 	// If it's an interface or a pointer, unwrap it.
 	if val.Kind() == reflect.Ptr && val.Elem().Kind() == reflect.Struct {
@@ -141,16 +224,15 @@ func (s *StrategyBase) SetOptions(options map[string]interface{}) error {
 	return nil
 }
 
-// GetOptions Returns the options of strategy
-func (s *StrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
+func getOptions(s interface{}) (optionMap map[string]*StrategyOption) {
 	//log.Info("GetOptions")
 	optionMap = map[string]*StrategyOption{}
 
-	if s.self == nil {
+	if s == nil {
 		return
 	}
 
-	val := reflect.ValueOf(s.self)
+	val := reflect.ValueOf(s)
 
 	// If it's an interface or a pointer, unwrap it.
 	if val.Kind() == reflect.Ptr && val.Elem().Kind() == reflect.Struct {
@@ -193,7 +275,7 @@ func (s *StrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
 			description = option
 		}
 		value := field.Interface()
-		defaultValue := s.getDefaultValue(fieldKind, defaultValueString)
+		defaultValue := getDefaultValue(fieldKind, defaultValueString)
 
 		optionMap[fieldName] = &StrategyOption{
 			Name:         fieldName,
@@ -208,7 +290,7 @@ func (s *StrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
 	return
 }
 
-func (s *StrategyBase) getDefaultValue(kind reflect.Kind, value string) interface{} {
+func getDefaultValue(kind reflect.Kind, value string) interface{} {
 	switch kind {
 	case reflect.Bool:
 		return cast.ToBool(value)
@@ -240,16 +322,4 @@ func (s *StrategyBase) getDefaultValue(kind reflect.Kind, value string) interfac
 		return cast.ToFloat64(value)
 	}
 	return 0
-}
-
-func (s *StrategyBase) TradeMode() TradeMode {
-	return s.tradeMode
-}
-
-func (s *StrategyBase) SetName(name string) {
-	s.name = name
-}
-
-func (s *StrategyBase) Name() string {
-	return s.name
 }
