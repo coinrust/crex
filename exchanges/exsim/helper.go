@@ -14,7 +14,7 @@ import (
 // 计算收益
 // pnl: 收益(BTC/ETH)
 // pnlUsd: 收益(USD)
-func CalcPnl(side Direction, positionSize float64, entryPrice float64, exitPrice float64) (pnl float64, pnlUsd float64) {
+func CalcPnl(side Direction, positionSize float64, entryPrice float64, exitPrice float64, forwardContract bool) (pnl float64, pnlUsd float64) {
 	//side := "Short" // "Short"
 	//positionSize := 3850.0
 	//entryPrice := 3850.0
@@ -22,6 +22,14 @@ func CalcPnl(side Direction, positionSize float64, entryPrice float64, exitPrice
 	//pnl := 0.0
 	//pnlUsd := 0.0
 	if positionSize == 0 {
+		return
+	}
+	if forwardContract {
+		if side == Buy {
+			pnl = positionSize * (exitPrice - entryPrice)
+		} else if side == Sell {
+			pnl = positionSize * (entryPrice - exitPrice)
+		}
 		return
 	}
 	if side == Buy {

@@ -56,7 +56,8 @@ func main() {
 	var exchanges []ExchangeSim
 	for i := 0; i < 2; i++ {
 		datas = append(datas, data)
-		ex := exsim.NewExSim(data, 5.0, -0.00025, 0.00075, false)
+		ex := exsim.NewExSim(data,
+			5.0, -0.00025, 0.00075, false, false)
 		exchanges = append(exchanges, ex)
 	}
 
