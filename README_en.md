@@ -30,9 +30,12 @@ See [@backtest](https://github.com/coinrust/crex/blob/master/examples/backtest/m
 [https://github.com/coinrust/trading-strategies](https://github.com/coinrust/trading-strategies)
 
 ### Main Features
-* Ease of use.
-* Tick-level backtesting.
-* WebSocket Supported
+* easy to use.
+* Tick level backtest.
+* Public policy code for firm offer and backtest.
+* support WebSocket public and private subscriptions.
+* support futures and spot back testing.
+* support two-way futures contracts, forward and reverse contracts
 
 ### Supported Exchanges
 The CREX library currently supports the following 8 cryptocurrency exchange markets and trading APIs:
