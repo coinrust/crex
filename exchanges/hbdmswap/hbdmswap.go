@@ -457,7 +457,7 @@ func NewHbdmSwap(params *Parameters) *HbdmSwap {
 		AccessKey:          params.AccessKey,
 		SecretKey:          params.SecretKey,
 		EnablePrivateSign:  false,
-		Url:                baseUri,
+		BaseURL:            baseUri,
 		PrivateKeyPrime256: "",
 		HttpClient:         params.HttpClient,
 	}

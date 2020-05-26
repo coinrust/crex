@@ -11,7 +11,7 @@ require (
 	github.com/frankrap/bitmex-api v1.0.1
 	github.com/frankrap/bybit-api v1.0.1
 	github.com/frankrap/deribit-api v1.0.3
-	github.com/frankrap/huobi-api v1.0.0
+	github.com/frankrap/huobi-api v1.0.2
 	github.com/frankrap/okex-api v1.0.2
 	github.com/go-echarts/go-echarts v0.0.0-20190915064101-cbb3b43ade5d
 	github.com/gobuffalo/packr v1.30.1 // indirect

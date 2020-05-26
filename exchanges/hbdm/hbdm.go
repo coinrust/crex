@@ -532,7 +532,7 @@ func NewHbdm(params *Parameters) *Hbdm {
 		AccessKey:          params.AccessKey,
 		SecretKey:          params.SecretKey,
 		EnablePrivateSign:  false,
-		Url:                baseUri,
+		BaseURL:            baseUri,
 		PrivateKeyPrime256: "",
 		HttpClient:         params.HttpClient,
 		ProxyURL:           params.ProxyURL,
