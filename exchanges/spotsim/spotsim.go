@@ -14,6 +14,7 @@ type SpotSim struct {
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
 	initBalance   SpotBalance
 	balance       SpotBalance
+	backtest      IBacktest
 	eLog          ExchangeLogger
 	orders        map[string]*Order // All orders key: OrderID value: Order
 	openOrders    map[string]*Order // Open orders
@@ -110,7 +111,7 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 		"params", params,
 	)
 
-	err = s.matchOrder(order, true)
+	_, err = s.matchOrder(order, true)
 	if err != nil {
 		s.eLog.Error(err)
 		return
@@ -130,17 +131,17 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 }
 
 // 撮合成交
-func (s *SpotSim) matchOrder(order *Order, immediate bool) (err error) {
+func (s *SpotSim) matchOrder(order *Order, immediate bool) (match bool, err error) {
 	switch order.Type {
 	case OrderTypeMarket:
-		err = s.matchMarketOrder(order)
+		match, err = s.matchMarketOrder(order)
 	case OrderTypeLimit:
-		err = s.matchLimitOrder(order, immediate)
+		match, err = s.matchLimitOrder(order, immediate)
 	}
 	return
 }
 
-func (s *SpotSim) matchMarketOrder(order *Order) (err error) {
+func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 	if !order.IsOpen() {
 		err = errors.New("order is closed")
 		return
@@ -194,10 +195,11 @@ func (s *SpotSim) matchMarketOrder(order *Order) (err error) {
 		order.Status = OrderStatusFilled
 	}
 	order.UpdateTime = ob.Time
+	match = true
 	return
 }
 
-func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (err error) {
+func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err error) {
 	if !order.IsOpen() {
 		return
 	}
@@ -239,6 +241,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 			} else {
 				order.Status = OrderStatusFilled
 			}
+			match = true
 		}
 	} else { // Ask order
 		if order.Price <= ob.BidPrice() {
@@ -280,6 +283,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (err error) {
 			} else {
 				order.Status = OrderStatusFilled
 			}
+			match = true
 		}
 	}
 	return
@@ -357,6 +361,27 @@ func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (re
 		}
 	} else {
 		err = errors.New("not found")
+	}
+	return
+}
+
+func (s *SpotSim) SetBacktest(backtest IBacktest) {
+	s.backtest = backtest
+}
+
+func (s *SpotSim) SetExchangeLogger(l ExchangeLogger) {
+	s.eLog = l
+}
+
+func (s *SpotSim) RunEventLoopOnce() (err error) {
+	var match bool
+	for _, order := range s.openOrders {
+		match, err = s.matchOrder(order, false)
+		if match {
+			s.logOrderInfo("Match order", SimEventDeal, order)
+			//var orders = []*Order{order}
+			//s.emitter.Emit(WSEventOrder, orders)
+		}
 	}
 	return
 }
