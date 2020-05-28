@@ -87,7 +87,12 @@ func (b *ExSim) SetContractType(pair string, contractType string) (err error) {
 }
 
 func (b *ExSim) GetContractID() (symbol string, err error) {
-	return
+	var ob *OrderBook
+	ob, err = b.GetOrderBook("", 1)
+	if err != nil {
+		return
+	}
+	return ob.Symbol, nil
 }
 
 func (b *ExSim) SetLeverRate(value float64) (err error) {
