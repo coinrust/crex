@@ -33,6 +33,7 @@ func New(data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, t
 		orders:        make(map[string]*Order),
 		openOrders:    make(map[string]*Order),
 		historyOrders: make(map[string]*Order),
+		emitter:       emission.NewEmitter(),
 	}
 }
 
