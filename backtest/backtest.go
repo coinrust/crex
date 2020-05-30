@@ -335,8 +335,8 @@ func (b *Backtest) fetchItemStats(item *LogItem) {
 			totalQuote := balance.Quote.Available + balance.Quote.Frozen
 			price := item.Prices[i]
 			item.Stats = append(item.Stats, LogStats{
-				Balance: total,
-				Equity:  total + totalQuote*price,
+				Balance: totalQuote,
+				Equity:  total*price + totalQuote,
 			})
 		}
 	}
