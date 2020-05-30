@@ -2,6 +2,7 @@ package spotsim
 
 import (
 	"errors"
+	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"log"
@@ -19,7 +20,7 @@ type SpotSim struct {
 	orders        map[string]*Order // All orders key: OrderID value: Order
 	openOrders    map[string]*Order // Open orders
 	historyOrders map[string]*Order // History orders
-
+	emitter       *emission.Emitter
 }
 
 func New(data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, takerFeeRate float64) *SpotSim {
@@ -379,24 +380,24 @@ func (s *SpotSim) RunEventLoopOnce() (err error) {
 		match, err = s.matchOrder(order, false)
 		if match {
 			s.logOrderInfo("Match order", SimEventDeal, order)
-			//var orders = []*Order{order}
-			//s.emitter.Emit(WSEventOrder, orders)
+			var orders = []*Order{order}
+			s.emitter.Emit(WSEventOrder, orders)
 		}
 	}
 	return
 }
 
 func (s *SpotSim) logOrderInfo(msg string, event string, order *Order) {
-	//ob := s.data.GetOrderBook()
-	//s.eLog.Infow(
-	//	msg,
-	//	SimEventKey,
-	//	event,
-	//	"order", order,
-	//	"orderbook", ob,
-	//	"balance", s.balance,
-	//	"positions", position,
-	//)
+	ob := s.data.GetOrderBook()
+	s.eLog.Infow(
+		msg,
+		SimEventKey,
+		event,
+		"order", order,
+		"orderbook", ob,
+		"balance", (s.balance.Base.Available+s.balance.Base.Frozen)*ob.Price()+s.balance.Quote.Available+s.balance.Quote.Frozen,
+		//"positions", position,
+	)
 }
 
 func (s *SpotSim) matchAsk(price, size float64, asks []Item) (filledSize float64, avgPrice float64) {
