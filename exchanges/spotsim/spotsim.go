@@ -6,34 +6,33 @@ import (
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
 	"log"
+	"sync"
 	"time"
 )
 
 type SpotSim struct {
-	data          *dataloader.Data
-	makerFeeRate  float64 // -0.00025	// Maker fee rate
-	takerFeeRate  float64 // 0.00075	// Taker fee rate
-	initBalance   SpotBalance
-	balance       SpotBalance
-	backtest      IBacktest
-	eLog          ExchangeLogger
-	orders        map[string]*Order // All orders key: OrderID value: Order
-	openOrders    map[string]*Order // Open orders
-	historyOrders map[string]*Order // History orders
+	data         *dataloader.Data
+	makerFeeRate float64 // -0.00025	// Maker fee rate
+	takerFeeRate float64 // 0.00075	// Taker fee rate
+	initBalance  SpotBalance
+	balance      SpotBalance
+	backtest     IBacktest
+	eLog         ExchangeLogger
+
+	orders        sync.Map // All orders key: OrderID value: Order
+	openOrders    sync.Map // Open orders
+	historyOrders sync.Map // History orders
 	emitter       *emission.Emitter
 }
 
 func New(data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, takerFeeRate float64) *SpotSim {
 	return &SpotSim{
-		data:          data,
-		makerFeeRate:  makerFeeRate,
-		takerFeeRate:  takerFeeRate,
-		initBalance:   initBalance,
-		balance:       initBalance,
-		orders:        make(map[string]*Order),
-		openOrders:    make(map[string]*Order),
-		historyOrders: make(map[string]*Order),
-		emitter:       emission.NewEmitter(),
+		data:         data,
+		makerFeeRate: makerFeeRate,
+		takerFeeRate: takerFeeRate,
+		initBalance:  initBalance,
+		balance:      initBalance,
+		emitter:      emission.NewEmitter(),
 	}
 }
 
@@ -120,12 +119,12 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 	}
 
 	if order.IsOpen() {
-		s.openOrders[id] = order
+		s.openOrders.Store(id, order)
 	} else {
-		s.historyOrders[id] = order
+		s.historyOrders.Store(id, order)
 	}
 
-	s.orders[id] = order
+	s.orders.Store(id, order)
 	result = order
 	s.logOrderInfo("Place order", SimEventOrder, order)
 	return
@@ -293,32 +292,36 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 
 // 获取活跃委托单列表
 func (s *SpotSim) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
-	for _, v := range s.openOrders {
+	s.openOrders.Range(func(key, value interface{}) bool {
+		v := value.(*Order)
 		if v.Symbol == symbol {
 			result = append(result, v)
 		}
-	}
+		return true
+	})
 	return
 }
 
 // 获取历史委托列表
 func (s *SpotSim) GetHistoryOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {
-	for _, v := range s.historyOrders {
+	s.historyOrders.Range(func(key, value interface{}) bool {
+		v := value.(*Order)
 		if v.Symbol == symbol {
 			result = append(result, v)
 		}
-	}
+		return true
+	})
 	return
 }
 
 // 获取委托信息
 func (s *SpotSim) GetOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
-	order, ok := s.orders[id]
+	order, ok := s.orders.Load(id)
 	if !ok {
 		err = errors.New("not found")
 		return
 	}
-	result = order
+	result = order.(*Order)
 	return
 }
 
@@ -326,10 +329,11 @@ func (s *SpotSim) GetOrder(symbol string, id string, opts ...OrderOption) (resul
 func (s *SpotSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error) {
 	var idsToBeRemoved []string
 
-	for _, order := range s.openOrders {
+	s.openOrders.Range(func(key, value interface{}) bool {
+		order := value.(*Order)
 		if !order.IsOpen() {
 			log.Printf("Order error: %#v", order)
-			continue
+			return true
 		}
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
@@ -337,18 +341,21 @@ func (s *SpotSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error
 			idsToBeRemoved = append(idsToBeRemoved, order.ID)
 		default:
 			err = errors.New("error")
+			return false
 		}
-	}
+		return true
+	})
 
 	for _, id := range idsToBeRemoved {
-		delete(s.openOrders, id)
+		s.openOrders.Delete(id)
 	}
 	return
 }
 
 // 撤销单个委托单
 func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (result *Order, err error) {
-	if order, ok := s.orders[id]; ok {
+	if value, ok := s.orders.Load(id); ok {
+		order := value.(*Order)
 		if !order.IsOpen() {
 			err = errors.New("status error")
 			return
@@ -357,7 +364,7 @@ func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (re
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
 			result = order
-			delete(s.openOrders, id)
+			s.openOrders.Delete(id)
 		default:
 			err = errors.New("error")
 		}
@@ -377,14 +384,16 @@ func (s *SpotSim) SetExchangeLogger(l ExchangeLogger) {
 
 func (s *SpotSim) RunEventLoopOnce() (err error) {
 	var match bool
-	for _, order := range s.openOrders {
+	s.openOrders.Range(func(key, value interface{}) bool {
+		order := value.(*Order)
 		match, err = s.matchOrder(order, false)
 		if match {
 			s.logOrderInfo("Match order", SimEventDeal, order)
 			var orders = []*Order{order}
 			s.emitter.Emit(WSEventOrder, orders)
 		}
-	}
+		return true
+	})
 	return
 }
 
