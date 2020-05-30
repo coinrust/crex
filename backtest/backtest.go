@@ -546,9 +546,11 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 		if err != nil {
 			return
 		}
-		err = json.Unmarshal([]byte(positionsJson), &positions)
-		if err != nil {
-			return
+		if positionsJson != "" {
+			err = json.Unmarshal([]byte(positionsJson), &positions)
+			if err != nil {
+				return
+			}
 		}
 		var ts time.Time
 		ts, err = time.Parse("2006-01-02T15:04:05.000Z0700", tsString)
