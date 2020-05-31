@@ -11,14 +11,13 @@ import (
 )
 
 type SpotSim struct {
-	data         *dataloader.Data
-	makerFeeRate float64 // -0.00025	// Maker fee rate
-	takerFeeRate float64 // 0.00075	// Taker fee rate
-	initBalance  SpotBalance
-	balance      SpotBalance
-	backtest     IBacktest
-	eLog         ExchangeLogger
-
+	data          *dataloader.Data
+	makerFeeRate  float64 // -0.00025	// Maker fee rate
+	takerFeeRate  float64 // 0.00075	// Taker fee rate
+	initBalance   SpotBalance
+	balance       SpotBalance
+	backtest      IBacktest
+	eLog          ExchangeLogger
 	orders        sync.Map // All orders key: OrderID value: Order
 	openOrders    sync.Map // Open orders
 	historyOrders sync.Map // History orders
@@ -159,7 +158,7 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 			return
 		}
 		value := size * price
-		fee := value * s.takerFeeRate
+		fee := size * s.takerFeeRate // 买扣币，卖扣钱
 		if fee+value > s.balance.Quote.Available {
 			err = errors.New("no more money")
 			return
@@ -168,8 +167,8 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 		order.FilledAmount = size
 		order.AvgPrice = price
 		order.Commission += fee
-		s.balance.Quote.Available = s.balance.Quote.Available - fee - value
-		s.balance.Base.Available += size
+		s.balance.Quote.Available -= value
+		s.balance.Base.Available += size - fee
 		order.Status = OrderStatusFilled
 	} else if order.Direction == Sell {
 
@@ -180,7 +179,8 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 			return
 		}
 
-		fee := size * s.takerFeeRate
+		value := size * price
+		fee := value * s.takerFeeRate // 买扣币，卖扣钱
 		if fee+size > s.balance.Quote.Available {
 			err = errors.New("no more stock")
 			return
@@ -191,8 +191,8 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 
 		// Update balance
 		order.Commission += fee
-		s.balance.Base.Available = s.balance.Base.Available - size - fee
-		s.balance.Quote.Available = s.balance.Quote.Available - size*price
+		s.balance.Base.Available = s.balance.Base.Available - size
+		s.balance.Quote.Available = s.balance.Quote.Available + value - fee
 		order.Status = OrderStatusFilled
 	}
 	order.UpdateTime = ob.Time
