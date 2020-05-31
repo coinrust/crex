@@ -213,8 +213,8 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 			value := order.Price * order.Amount
-			fee := value * s.takerFeeRate
-			if fee+value > s.balance.Quote.Available {
+
+			if value > s.balance.Quote.Available {
 				err = errors.New("no more money")
 				return
 			}
@@ -225,20 +225,18 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 			value = size * price
-			fee = value * s.takerFeeRate
+			fee := size * s.makerFeeRate
 
 			order.FilledAmount = size
 			order.AvgPrice = price
 			order.Commission += fee
-			s.balance.Quote.Available = s.balance.Quote.Available - fee - value
-			s.balance.Base.Available += size
+			s.balance.Quote.Available = s.balance.Quote.Available - value
+			s.balance.Base.Available += size - fee
 
 			if size < order.Amount {
 				order.Status = OrderStatusPartiallyFilled
 				value = (order.Amount - size) * order.Price
-				fee = value * s.takerFeeRate
-				s.balance.Quote.Available = s.balance.Quote.Available - fee - value
-				s.balance.Quote.Frozen = fee + value
+				s.balance.Quote.Frozen = value
 			} else {
 				order.Status = OrderStatusFilled
 			}
@@ -252,8 +250,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 			}
 
 			value := order.Amount
-			fee := value * s.takerFeeRate
-			if fee+value > s.balance.Base.Available {
+			if order.Amount > s.balance.Base.Available {
 				err = errors.New("no more stock")
 				return
 			}
@@ -263,24 +260,19 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				err = errors.New("size is bigger than orderbook")
 				return
 			}
-			value = size
-			fee = value * s.takerFeeRate
-
-			//s.balance.Base.Available = s.balance.Base.Available - size - fee
-			//s.balance.Quote.Available = s.balance.Quote.Available - size * price
+			value = size * price
+			fee := value * s.makerFeeRate
 
 			order.FilledAmount = size
 			order.AvgPrice = price
 			order.Commission += fee
-			s.balance.Base.Available = s.balance.Base.Available - fee - value
-			s.balance.Quote.Available += size * price
+			s.balance.Base.Available = s.balance.Base.Available - size
+			s.balance.Quote.Available += value - fee
 
 			if size < order.Amount {
 				order.Status = OrderStatusPartiallyFilled
 				value = order.Amount - size
-				fee = value * s.takerFeeRate
-				s.balance.Base.Available = s.balance.Base.Available - fee - value
-				s.balance.Base.Frozen = fee + value
+				s.balance.Base.Frozen = value
 			} else {
 				order.Status = OrderStatusFilled
 			}
@@ -442,19 +434,23 @@ func (s *SpotSim) matchAsk(price, size float64, asks []Item) (filledSize float64
 
 	if lSize != 0 {
 		return
+	} else {
+
+		filledSize, avgPrice = size, price
+		return
 	}
 
 	// 计算平均价
-	amount := 0.0
-	for _, v := range items {
-		amount += v.Price * v.Amount
-		filledSize += v.Amount
-	}
-	if filledSize == 0 {
-		return
-	}
-	avgPrice = amount / filledSize
-	return
+	//value := 0.0
+	//for _, v := range items {
+	//	value += v.Price * v.Amount
+	//	filledSize += v.Amount
+	//}
+	//if filledSize == 0 {
+	//	return
+	//}
+	//avgPrice = value / filledSize
+	//return
 }
 
 func (s *SpotSim) matchBid(price, size float64, bids []Item) (filledSize float64, avgPrice float64) {
@@ -489,17 +485,20 @@ func (s *SpotSim) matchBid(price, size float64, bids []Item) (filledSize float64
 
 	if lSize != 0 {
 		return
+	} else {
+		filledSize, avgPrice = size, price
+		return
 	}
 
 	// 计算平均价
-	amount := 0.0
-	for _, v := range items {
-		amount += v.Price * v.Amount
-		filledSize += v.Amount
-	}
-	if filledSize == 0 {
-		return
-	}
-	avgPrice = amount / filledSize
-	return
+	//amount := 0.0
+	//for _, v := range items {
+	//	amount += v.Price * v.Amount
+	//	filledSize += v.Amount
+	//}
+	//if filledSize == 0 {
+	//	return
+	//}
+	//avgPrice = amount / filledSize
+	//return
 }
