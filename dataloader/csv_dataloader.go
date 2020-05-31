@@ -17,9 +17,13 @@ type CsvDataLoader struct {
 	reader      *bufio.Reader
 	filename    string
 	hasMoreData bool
+	start       int64
+	end         int64
 }
 
 func (l *CsvDataLoader) Setup(start time.Time, end time.Time) error {
+	l.start = start.UnixNano() / int64(time.Millisecond)
+	l.end = end.UnixNano() / int64(time.Millisecond)
 	return nil
 }
 
@@ -98,6 +102,11 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if t < l.start || t > l.end { // filter with timestamp
+		return
+	}
+
 	timestamp := time.Unix(0, t*int64(time.Millisecond))
 
 	nDepth := (n - 1) / 4
