@@ -178,8 +178,8 @@ func (b *Backtest) Run() {
 
 	// 初始净值
 	item := &LogItem{
-		Time:    time.Unix(0, b.currentTimeNS),
-		RawTime: time.Unix(0, b.currentTimeNS),
+		Time:    time.Unix(0, b.currentTimeNS).Local(),
+		RawTime: time.Unix(0, b.currentTimeNS).Local(),
 		Prices:  b.getPrices(),
 		Stats:   nil,
 	}
@@ -276,7 +276,7 @@ func (b *Backtest) runEventLoopOnce() {
 }
 
 func (b *Backtest) addItemStats() {
-	tm := b.GetTime()
+	tm := b.GetTime().Local()
 	update := false
 	timestamp := time.Date(tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute()+1, 0, 0, time.Local)
 	var lastItem *LogItem
