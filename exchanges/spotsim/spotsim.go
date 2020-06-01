@@ -219,7 +219,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 
-			size, price := s.matchAsk(order.Price, order.Amount, ob.Asks)
+			size, price := s.matchAsk(order.Price, order.Amount, ob.Asks, immediate)
 			if price <= 0 {
 				err = errors.New("size is bigger than orderbook")
 				return
@@ -260,7 +260,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 
-			size, price := s.matchBid(order.Price, order.Amount, ob.Bids)
+			size, price := s.matchBid(order.Price, order.Amount, ob.Bids, immediate)
 			if price <= 0 {
 				err = errors.New("size is bigger than orderbook")
 				return
@@ -412,7 +412,7 @@ func (s *SpotSim) logOrderInfo(msg string, event string, order *Order) {
 	)
 }
 
-func (s *SpotSim) matchAsk(price, size float64, asks []Item) (filledSize float64, avgPrice float64) {
+func (s *SpotSim) matchAsk(price, size float64, asks []Item, immediate bool) (filledSize float64, avgPrice float64) {
 	type item = struct {
 		Amount float64
 		Price  float64
@@ -444,26 +444,26 @@ func (s *SpotSim) matchAsk(price, size float64, asks []Item) (filledSize float64
 
 	if lSize != 0 {
 		return
-	} else {
-
-		filledSize, avgPrice = size, price
-		return
 	}
 
 	// 计算平均价
-	//value := 0.0
-	//for _, v := range items {
-	//	value += v.Price * v.Amount
-	//	filledSize += v.Amount
-	//}
-	//if filledSize == 0 {
-	//	return
-	//}
-	//avgPrice = value / filledSize
-	//return
+	if immediate {
+		value := 0.0
+		for _, v := range items {
+			value += v.Price * v.Amount
+			filledSize += v.Amount
+		}
+		if filledSize == 0 {
+			return
+		}
+		avgPrice = value / filledSize
+	} else {
+		filledSize, avgPrice = size, price
+	}
+	return
 }
 
-func (s *SpotSim) matchBid(price, size float64, bids []Item) (filledSize float64, avgPrice float64) {
+func (s *SpotSim) matchBid(price, size float64, bids []Item, immediate bool) (filledSize float64, avgPrice float64) {
 	type item = struct {
 		Amount float64
 		Price  float64
@@ -495,20 +495,21 @@ func (s *SpotSim) matchBid(price, size float64, bids []Item) (filledSize float64
 
 	if lSize != 0 {
 		return
-	} else {
-		filledSize, avgPrice = size, price
-		return
 	}
 
 	// 计算平均价
-	//amount := 0.0
-	//for _, v := range items {
-	//	amount += v.Price * v.Amount
-	//	filledSize += v.Amount
-	//}
-	//if filledSize == 0 {
-	//	return
-	//}
-	//avgPrice = amount / filledSize
-	//return
+	if immediate {
+		amount := 0.0
+		for _, v := range items {
+			amount += v.Price * v.Amount
+			filledSize += v.Amount
+		}
+		if filledSize == 0 {
+			return
+		}
+		avgPrice = amount / filledSize
+	} else {
+		filledSize, avgPrice = size, price
+	}
+	return
 }
