@@ -225,7 +225,12 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 			value = size * price
-			fee := size * s.makerFeeRate
+			fee := 0.0
+			if immediate {
+				fee = size * s.takerFeeRate
+			} else {
+				fee = size * s.makerFeeRate
+			}
 
 			order.FilledAmount = size
 			order.AvgPrice = price
@@ -261,7 +266,12 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				return
 			}
 			value = size * price
-			fee := value * s.makerFeeRate
+			fee := 0.0
+			if immediate {
+				fee = value * s.takerFeeRate
+			} else {
+				fee = value * s.makerFeeRate
+			}
 
 			order.FilledAmount = size
 			order.AvgPrice = price
