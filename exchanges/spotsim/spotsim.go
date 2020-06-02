@@ -246,6 +246,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				order.Status = OrderStatusFilled
 			}
 			match = true
+			order.UpdateTime = ob.Time
 		}
 	} else { // Ask order
 		if order.Price <= ob.BidPrice() {
@@ -286,6 +287,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 			} else {
 				order.Status = OrderStatusFilled
 			}
+			order.UpdateTime = ob.Time
 			match = true
 		}
 	}
