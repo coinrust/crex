@@ -474,7 +474,7 @@ func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
 			positions += fmt.Sprintf("%v", v.Size)
 		}
 		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))                  // #FFFFFF
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006.01.02 15:04:05.000"))) // 2018.07.06 11:08:44
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006-01-02 15:04:05.000"))) // 2018.07.06 11:08:44
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                     // 11573668
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Symbol))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, orderType))                             // buy limit/buy
@@ -488,7 +488,7 @@ func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
 		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Pnl))
 		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Commission))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.Balance))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006.01.02 15:04:05.000")))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006-01-02 15:04:05.000")))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, positions))
 		s.WriteString(`</tr>`)
