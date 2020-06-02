@@ -249,7 +249,9 @@ func (b *Backtest) nextInternal() bool {
 func (b *Backtest) setCacheData() {
 	// 数据对齐，提前排序
 	n := len(b.datas)
-
+	if n == 0 {
+		return
+	}
 	for i := 0; i < n; i++ {
 		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
 		b.sortedDatas[i].Index = i

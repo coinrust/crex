@@ -48,8 +48,10 @@ func (l *CsvDataLoader) ReadOrderBooks() (result []*OrderBook) {
 
 		line := strings.TrimSpace(string(rawLine))
 		tick, ok := l.readLine(line)
-		if !ok || tick == nil {
+		if !ok {
 			continue
+		} else if tick == nil {
+			return
 		}
 		result = append(result, tick)
 		count++
@@ -85,16 +87,17 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 	ss := strings.Split(line, ",")
 	n := len(ss)
 	if n < 5 {
-		//log.Printf("End [line: %v]", line)
+		ok = false
 		return
 	}
 	if (n-1)%4 != 0 {
+		ok = false
 		return
 	}
 
 	// 忽略标题行
 	if ss[0] == "t" {
-		ok = true
+		ok = false
 		return
 	}
 
@@ -103,7 +106,12 @@ func (l *CsvDataLoader) readLine(line string) (result *OrderBook, ok bool) {
 		log.Fatal(err)
 	}
 
-	if t < l.start || t > l.end { // filter with timestamp
+	if t < l.start { // filter with timestamp
+		ok = false
+		return
+	}
+	if t > l.end { // filter with timestamp
+		ok = true
 		return
 	}
 

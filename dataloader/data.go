@@ -34,6 +34,9 @@ func (d *Data) Reset(start time.Time, end time.Time) {
 }
 
 func (d *Data) GetOrderBook() *OrderBook {
+	if d.data == nil {
+		return nil
+	}
 	return d.data[d.index]
 }
 
