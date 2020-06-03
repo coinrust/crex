@@ -150,7 +150,7 @@ func (o *OrderBook) Price() float64 {
 	return latest
 }
 
-func (o *OrderBook) String() string {
+func (o *OrderBook) Table() string {
 	askPrice := dataframe.NewSeriesFloat64("ask price", nil)
 	bidPrice := dataframe.NewSeriesFloat64("bid price", nil)
 	askAmount := dataframe.NewSeriesFloat64("ask amount", nil)
