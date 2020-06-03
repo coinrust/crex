@@ -480,14 +480,18 @@ func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, orderType))                             // buy limit/buy
 		s.WriteString(fmt.Sprintf(`<td>%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, price))                                 // 1.16673
+		var avgPriceString string
 		if order.AvgPrice > 0 {
-			s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.AvgPrice))
-		} else {
-			s.WriteString(`<td></td>`)
+			avgPriceString = fmt.Sprintf(`%v`, order.AvgPrice)
 		}
-		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Pnl))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, avgPriceString))
+		var pnlString string
+		if order.Pnl != 0 {
+			pnlString = fmt.Sprintf("%.8f", order.Pnl)
+		}
+		s.WriteString(fmt.Sprintf(`<td>%s</td>`, pnlString))
 		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Commission))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.Balance))
+		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.BalancesString()))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006-01-02 15:04:05.000")))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, positions))
@@ -515,9 +519,9 @@ func (b *Backtest) readTradeLog(path string) (orders []*SOrder, dealOrders []*SO
 			return
 		}
 		switch event {
-		case "order":
+		case SimEventOrder:
 			orders = append(orders, so)
-		case "deal":
+		case SimEventDeal:
 			dealOrders = append(dealOrders, so)
 		}
 	}
@@ -538,7 +542,12 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 		orderJson := ret.Get("order").String()
 		orderbookJson := ret.Get("orderbook").String()
 		positionsJson := ret.Get("positions").String()
-		balance := ret.Get("balance").Float()
+		var balances []float64
+		if v := ret.Get("balances"); v.Exists() {
+			balances = v.Value().([]float64)
+		} else if v := ret.Get("balance"); v.Exists() {
+			balances = []float64{v.Float()}
+		}
 
 		err = json.Unmarshal([]byte(orderJson), &order)
 		if err != nil {
@@ -564,7 +573,7 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 			Order:     &order,
 			OrderBook: &orderbook,
 			Positions: positions,
-			Balance:   balance,
+			Balances:  balances,
 			Comment:   msg,
 		}
 	}

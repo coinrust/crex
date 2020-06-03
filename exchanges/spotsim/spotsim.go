@@ -352,6 +352,15 @@ func (s *SpotSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error
 
 	for _, id := range idsToBeRemoved {
 		s.openOrders.Delete(id)
+		orderValue, ok := s.orders.Load(id)
+		if !ok {
+			continue
+		}
+		order, ok := orderValue.(*Order)
+		if !ok {
+			continue
+		}
+		s.logOrderInfo("Cancel order", SimEventOrder, order)
 	}
 	return
 }
@@ -369,6 +378,7 @@ func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (re
 			order.Status = OrderStatusCancelled
 			result = order
 			s.openOrders.Delete(id)
+			s.logOrderInfo("Cancel order", SimEventOrder, order)
 		default:
 			err = errors.New("error")
 		}
@@ -403,14 +413,16 @@ func (s *SpotSim) RunEventLoopOnce() (err error) {
 
 func (s *SpotSim) logOrderInfo(msg string, event string, order *Order) {
 	ob := s.data.GetOrderBook()
+	baseBalance := s.balance.Base.Available + s.balance.Base.Frozen
+	quoteBalance := s.balance.Quote.Available + s.balance.Quote.Frozen
 	s.eLog.Infow(
 		msg,
 		SimEventKey,
 		event,
 		"order", order,
 		"orderbook", ob,
-		"balance", (s.balance.Base.Available+s.balance.Base.Frozen)*ob.Price()+s.balance.Quote.Available+s.balance.Quote.Frozen,
-		//"positions", position,
+		"balance", baseBalance*ob.Price()+quoteBalance,
+		"balances", []float64{baseBalance, quoteBalance},
 	)
 }
 
