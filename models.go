@@ -1,6 +1,9 @@
 package crex
 
-import "time"
+import (
+	"github.com/rocketlaunchr/dataframe-go"
+	"time"
+)
 
 type Balance struct {
 	Equity        float64 // 净值
@@ -145,6 +148,24 @@ func (o *OrderBook) BidPrice() (result float64) {
 func (o *OrderBook) Price() float64 {
 	latest := (o.Bid().Price + o.Ask().Price) / float64(2)
 	return latest
+}
+
+func (o *OrderBook) String() string {
+	askPrice := dataframe.NewSeriesFloat64("ask price", nil)
+	bidPrice := dataframe.NewSeriesFloat64("bid price", nil)
+	askAmount := dataframe.NewSeriesFloat64("ask amount", nil)
+	bidAmount := dataframe.NewSeriesFloat64("bid amount", nil)
+
+	for _, v := range o.Asks {
+		askPrice.Append(v.Price)
+		askAmount.Append(v.Amount)
+	}
+	for _, v := range o.Bids {
+		bidPrice.Append(v.Price)
+		bidAmount.Append(v.Amount)
+	}
+	df := dataframe.NewDataFrame(askPrice, askAmount, bidPrice, bidAmount)
+	return df.Table()
 }
 
 // Record 表示K线数据

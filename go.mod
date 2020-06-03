@@ -17,6 +17,7 @@ require (
 	github.com/gobuffalo/packr v1.30.1 // indirect
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/rakyll/statik v0.1.7
+	github.com/rocketlaunchr/dataframe-go v0.0.0-20200525081431-b8b481c96d94
 	github.com/sirupsen/logrus v1.6.0
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.3.1
