@@ -13,6 +13,7 @@ import (
 	"github.com/go-echarts/go-echarts/charts"
 	"github.com/go-echarts/go-echarts/datatypes"
 	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	slog "log"
@@ -544,7 +545,10 @@ func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
 		positionsJson := ret.Get("positions").String()
 		var balances []float64
 		if v := ret.Get("balances"); v.Exists() {
-			balances = v.Value().([]float64)
+			values := v.Value().([]interface{})
+			for _, v := range values {
+				balances = append(balances, cast.ToFloat64(v))
+			}
 		} else if v := ret.Get("balance"); v.Exists() {
 			balances = []float64{v.Float()}
 		}
