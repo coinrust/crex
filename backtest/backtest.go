@@ -439,6 +439,26 @@ func (b *Backtest) buildReportHtml(sOrders []*SOrder, dealOrders []*SOrder) (htm
 	html = strings.Replace(html, `<!--{order-rows}-->`, s, -1)
 	s = b.buildSOrders(dealOrders)
 	html = strings.Replace(html, `<!--{deal-order-rows}-->`, s, -1)
+
+	var orderCommissionTotal float64
+	var dealCommissionTotal float64
+	for _, v := range sOrders {
+		orderCommissionTotal += v.Order.Commission
+	}
+	for _, v := range dealOrders {
+		dealCommissionTotal += v.Order.Commission
+	}
+
+	var orderCommissionTotalString string
+	if orderCommissionTotal != 0 {
+		orderCommissionTotalString = fmt.Sprintf("%.8f", orderCommissionTotal)
+	}
+	var dealCommissionTotalString string
+	if dealCommissionTotal != 0 {
+		dealCommissionTotalString = fmt.Sprintf("%.8f", dealCommissionTotal)
+	}
+	html = strings.Replace(html, `<!--{order-commission-total}-->`, orderCommissionTotalString, -1)
+	html = strings.Replace(html, `<!--{deal-commission-total}-->`, dealCommissionTotalString, -1)
 	return
 }
 
@@ -491,7 +511,11 @@ func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
 			pnlString = fmt.Sprintf("%.8f", order.Pnl)
 		}
 		s.WriteString(fmt.Sprintf(`<td>%s</td>`, pnlString))
-		s.WriteString(fmt.Sprintf(`<td>%.8f</td>`, order.Commission))
+		var commissionString string
+		if order.Commission != 0 {
+			commissionString = fmt.Sprintf(`%.8f`, order.Commission)
+		}
+		s.WriteString(fmt.Sprintf(`<td>%s</td>`, commissionString))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.BalancesString()))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006-01-02 15:04:05.000")))
 		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
