@@ -5,6 +5,7 @@ type SpotAsset struct {
 	Name      string  // BTC
 	Available float64 // 可用
 	Frozen    float64 // 冻结
+	Borrow    float64 // 借币
 }
 
 // SpotBalance 现货账号资产
