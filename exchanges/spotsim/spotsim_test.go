@@ -6,10 +6,11 @@ import (
 )
 
 var ss = New(
+	"huobi",
 	nil,
 	crex.SpotBalance{
-		Base:  crex.SpotAsset{"BTC", 1, 0},
-		Quote: crex.SpotAsset{"USDT", 10000, 0},
+		Base:  crex.SpotAsset{Name: "BTC", Available: 1, Frozen: 0},
+		Quote: crex.SpotAsset{Name: "USDT", Available: 10000, Frozen: 0},
 	},
 	0.0001,
 	0.0003,

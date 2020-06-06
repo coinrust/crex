@@ -11,6 +11,7 @@ import (
 )
 
 type SpotSim struct {
+	name          string
 	data          *dataloader.Data
 	makerFeeRate  float64 // -0.00025	// Maker fee rate
 	takerFeeRate  float64 // 0.00075	// Taker fee rate
@@ -24,8 +25,9 @@ type SpotSim struct {
 	emitter       *emission.Emitter
 }
 
-func New(data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, takerFeeRate float64) *SpotSim {
+func New(name string, data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, takerFeeRate float64) *SpotSim {
 	return &SpotSim{
+		name:         name,
 		data:         data,
 		makerFeeRate: makerFeeRate,
 		takerFeeRate: takerFeeRate,
@@ -37,7 +39,7 @@ func New(data *dataloader.Data, initBalance SpotBalance, makerFeeRate float64, t
 
 // 获取 Exchange 名称
 func (s *SpotSim) GetName() (name string) {
-	return "spot_sim"
+	return s.name + "_spot_sim"
 }
 
 // 获取交易所时间(ms)
