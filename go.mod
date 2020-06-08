@@ -21,7 +21,7 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/sony/sonyflake v1.0.0
 	github.com/spf13/cast v1.3.1
-	github.com/stretchr/testify v1.6.0
+	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.6.0
 	go.mongodb.org/mongo-driver v1.3.4
 	go.uber.org/zap v1.15.0
