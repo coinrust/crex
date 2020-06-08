@@ -73,7 +73,7 @@ func SetupStrategyFromConfig(strategy Strategy) (err error) {
 		err = fmt.Errorf("no exchange found")
 		return
 	}
-	var exs []Exchange
+	var exs []interface{}
 	for _, ex := range c.Exchanges {
 		exchange := exchanges.NewExchange(ex.Name,
 			ApiDebugModeOption(ex.DebugMode),
