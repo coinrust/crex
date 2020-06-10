@@ -38,9 +38,10 @@ type ExSim struct {
 	historyOrders   map[string]*Order     // History orders
 	positions       map[string]*Positions // Position key: symbol
 
-	emitter  *emission.Emitter
-	backtest IBacktest
-	eLog     ExchangeLogger
+	leverRate float64 // 杠杆
+	emitter   *emission.Emitter
+	backtest  IBacktest
+	eLog      ExchangeLogger
 }
 
 func (b *ExSim) GetName() (name string) {
@@ -69,8 +70,25 @@ func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 		}
 		pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price, b.forwardContract)
 		result.Equity += pnl
+		// OKEx 期货已用保证金计算公式:
+		// 开仓保证金=面值*张数*最新标记价格/杠杆
+		// USDT保证金:
+		// 面值: 0.01 BTC 0.1 ETH
+		if b.leverRate != 0 {
+			pValue := b.GetPValue(symbol)
+			result.Margin += pValue * math.Abs(position.Size) * price / b.leverRate
+		}
 	}
 	return
+}
+
+// 返回面值
+func (b *ExSim) GetPValue(symbol string) float64 {
+	value := 0.1 // 面值
+	if symbol == "BTC" {
+		value = 0.01
+	}
+	return value
 }
 
 func (b *ExSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
@@ -96,6 +114,7 @@ func (b *ExSim) GetContractID() (symbol string, err error) {
 }
 
 func (b *ExSim) SetLeverRate(value float64) (err error) {
+	b.leverRate = value
 	return
 }
 

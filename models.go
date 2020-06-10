@@ -8,6 +8,7 @@ import (
 type Balance struct {
 	Equity        float64 // 净值
 	Available     float64 // 可用余额
+	Margin        float64 // 已用保证金
 	RealizedPnl   float64
 	UnrealisedPnl float64
 }
