@@ -193,6 +193,7 @@ type Trade struct {
 // Order 委托
 type Order struct {
 	ID           string      `json:"id"`            // ID
+	ClientOId    string      `json:"client_oid"`    // 客户端订单ID
 	Symbol       string      `json:"symbol"`        // 标
 	Time         time.Time   `json:"time"`          // 订单时间
 	Price        float64     `json:"price"`         // 价格

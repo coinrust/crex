@@ -108,6 +108,7 @@ type PlaceOrderParameter struct {
 	PostOnly   bool
 	ReduceOnly bool
 	PriceType  string
+	ClientOId  string
 }
 
 // 订单选项
@@ -145,6 +146,12 @@ func OrderReduceOnlyOption(reduceOnly bool) PlaceOrderOption {
 func OrderPriceTypeOption(priceType string) PlaceOrderOption {
 	return func(p *PlaceOrderParameter) {
 		p.PriceType = priceType
+	}
+}
+
+func OrderClientOIdOption(clientOId string) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
+		p.ClientOId = clientOId
 	}
 }
 

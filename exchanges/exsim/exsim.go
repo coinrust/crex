@@ -141,6 +141,7 @@ func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 	ob := b.data.GetOrderBook()
 	order := &Order{
 		ID:           id,
+		ClientOId:    params.ClientOId,
 		Time:         ob.Time,
 		Symbol:       symbol,
 		Price:        price,

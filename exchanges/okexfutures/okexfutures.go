@@ -264,6 +264,9 @@ func (b *OkexFutures) PlaceOrder(symbol string, direction Direction, orderType O
 	newOrderParams.Price = fmt.Sprintf("%v", price)           // "3000.0" // 每张合约的价格
 	newOrderParams.Size = fmt.Sprintf("%v", size)             // "1"       // 买入或卖出合约的数量（以张计数）
 	newOrderParams.MatchPrice = fmt.Sprintf("%v", matchPrice) // "0" // 是否以对手价下单(0:不是 1:是)，默认为0，当取值为1时。price字段无效，当以对手价下单，order_type只能选择0:普通委托
+	if params.ClientOId != "" {
+		newOrderParams.ClientOid = params.ClientOId
+	}
 	var ret okex.FuturesNewOrderResult
 	var resp []byte
 	resp, ret, err = b.client.FuturesOrder(newOrderParams)
@@ -403,6 +406,7 @@ func (b *OkexFutures) GetPositions(symbol string) (result []*Position, err error
 func (b *OkexFutures) convertOrder(symbol string, order *okex.FuturesGetOrderResult) (result *Order) {
 	result = &Order{}
 	result.ID = order.OrderId
+	result.ClientOId = order.ClientOId
 	result.Symbol = symbol
 	result.Price = order.Price
 	result.StopPx = 0
