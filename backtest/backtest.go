@@ -44,10 +44,11 @@ type DataState struct {
 }
 
 type Backtest struct {
-	datas            []*dataloader.Data
-	symbol           string
-	strategy         Strategy
-	exchanges        []ExchangeSim
+	datas          []*dataloader.Data
+	symbol         string
+	strategyTester *StrategyTester
+	//strategy         Strategy
+	//exchanges        []ExchangeSim
 	baseOutputDir    string
 	outputDir        string
 	exchangeLogFiles []string // 撮合日志记录文件
@@ -87,30 +88,82 @@ func init() {
 	reportHistoryTemplate = string(d)
 }
 
-// NewBacktest Create backtest
-// data: The data
-// outputDir: 日志输出目录
+type StrategyTester struct {
+	strategy  Strategy
+	exchanges []ExchangeSim
+}
+
+func (h *StrategyTester) Setup() error {
+	if h.strategy == nil {
+		return nil
+	}
+
+	var exs []interface{}
+	for _, v := range h.exchanges {
+		exs = append(exs, v)
+	}
+
+	err := h.strategy.Setup(TradeModeBacktest, exs...)
+	return err
+}
+
+func (h *StrategyTester) RunEventLoopOnce() {
+	for _, v := range h.exchanges {
+		v.RunEventLoopOnce()
+	}
+}
+
+// NewBacktest 创建回测
+// datas: 数据
+// symbol: 标
+// start: 起始时间
+// end: 结束时间
+// strategyHold: 策略和交易所
+// outputDir: 回测输出目录
+func NewBacktestFromHold(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyTester *StrategyTester, outputDir string) *Backtest {
+	b := &Backtest{
+		datas:          datas,
+		symbol:         symbol,
+		start:          start,
+		end:            end,
+		strategyTester: strategyTester,
+		baseOutputDir:  outputDir,
+	}
+
+	if err := strategyTester.Setup(); err != nil {
+		panic(err)
+	}
+
+	return b
+}
+
+// NewBacktest 创建回测
+// datas: 数据
+// symbol: 标
+// start: 起始时间
+// end: 结束时间
+// strategy: 策略
+// exchanges: 交易所对象
+// outputDir: 回测输出目录
 func NewBacktest(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategy Strategy, exchanges []ExchangeSim, outputDir string) *Backtest {
 	b := &Backtest{
 		datas:         datas,
 		symbol:        symbol,
 		start:         start,
 		end:           end,
-		strategy:      strategy,
 		baseOutputDir: outputDir,
 	}
-	b.exchanges = exchanges
-	var exs []interface{}
-	for _, v := range exchanges {
-		exs = append(exs, v)
+
+	strategyTester := &StrategyTester{
+		strategy:  strategy,
+		exchanges: exchanges,
 	}
 
-	if strategy != nil {
-		err := strategy.Setup(TradeModeBacktest, exs...)
-		if err != nil {
-			panic(err)
-		}
+	if err := strategyTester.Setup(); err != nil {
+		panic(err)
 	}
+
+	b.strategyTester = strategyTester
 
 	return b
 }
@@ -145,8 +198,8 @@ func (b *Backtest) Run() {
 		true)
 	log.SetLogger(logger)
 
-	for i := 0; i < len(b.exchanges); i++ {
-		b.exchanges[i].SetBacktest(b)
+	for i := 0; i < len(b.strategyTester.exchanges); i++ {
+		b.strategyTester.exchanges[i].SetBacktest(b)
 
 		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
 		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
@@ -155,7 +208,7 @@ func (b *Backtest) Run() {
 			log.DebugLevel,
 			true,
 			false)
-		b.exchanges[i].SetExchangeLogger(eLogger)
+		b.strategyTester.exchanges[i].SetExchangeLogger(eLogger)
 		b.eLoggers = append(b.eLoggers, eLogger)
 	}
 
@@ -188,11 +241,14 @@ func (b *Backtest) Run() {
 	b.logs = append(b.logs, item)
 
 	// Init
-	b.strategy.OnInit()
+	strategy := b.strategyTester.strategy
+	strategyHold := b.strategyTester
+
+	strategy.OnInit()
 
 	for {
-		b.strategy.OnTick()
-		b.runEventLoopOnce()
+		strategy.OnTick()
+		strategyHold.RunEventLoopOnce()
 		b.addItemStats()
 		if !b.next() {
 			break
@@ -200,7 +256,7 @@ func (b *Backtest) Run() {
 	}
 
 	// Exit
-	b.strategy.OnExit()
+	strategy.OnExit()
 
 	// Sync logs
 	log.Sync()
@@ -272,12 +328,6 @@ func (b *Backtest) getPrices() (result []float64) {
 	return
 }
 
-func (b *Backtest) runEventLoopOnce() {
-	for _, exchange := range b.exchanges {
-		exchange.RunEventLoopOnce()
-	}
-}
-
 func (b *Backtest) addItemStats() {
 	tm := b.GetTime().Local()
 	update := false
@@ -312,10 +362,10 @@ func (b *Backtest) addItemStats() {
 }
 
 func (b *Backtest) fetchItemStats(item *LogItem) {
-	n := len(b.exchanges)
+	n := len(b.strategyTester.exchanges)
 	for i := 0; i < n; i++ {
 		// 期货
-		ex, ok := b.exchanges[i].(Exchange)
+		ex, ok := b.strategyTester.exchanges[i].(Exchange)
 		if ok {
 			balance, err := ex.GetBalance(b.symbol)
 			if err != nil {
@@ -328,7 +378,7 @@ func (b *Backtest) fetchItemStats(item *LogItem) {
 		}
 
 		// 现货
-		spotEx, ok := b.exchanges[i].(SpotExchange)
+		spotEx, ok := b.strategyTester.exchanges[i].(SpotExchange)
 		if ok {
 			balance, err := spotEx.GetBalance(b.symbol)
 			if err != nil {
