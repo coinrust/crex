@@ -2,9 +2,6 @@
 package backtest
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	. "github.com/coinrust/crex"
 	_ "github.com/coinrust/crex/backtest/statik"
 	"github.com/coinrust/crex/dataloader"
@@ -12,15 +9,13 @@ import (
 	"github.com/coinrust/crex/utils"
 	"github.com/go-echarts/go-echarts/charts"
 	"github.com/go-echarts/go-echarts/datatypes"
+	"github.com/json-iterator/go"
 	"github.com/rakyll/statik/fs"
-	"github.com/spf13/cast"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	slog "log"
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 )
 
@@ -30,47 +25,15 @@ const (
 
 	OriginEChartsBulmaCss = "https://go-echarts.github.io/go-echarts-assets/assets/bulma.min.css"
 	MyEChartsBulmaCss     = "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css"
+
+	SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 )
-
-type PlotData struct {
-	NameItems []string
-	Prices    []float64
-	Equities  []float64
-}
-
-type DataState struct {
-	Time  int64 // ns
-	Index int   // datas 中的索引
-}
-
-type Backtest struct {
-	datas          []*dataloader.Data
-	symbol         string
-	strategyTester *StrategyTester
-	//strategy         Strategy
-	//exchanges        []ExchangeSim
-	baseOutputDir    string
-	outputDir        string
-	exchangeLogFiles []string // 撮合日志记录文件
-
-	logs LogItems
-
-	eLoggers []ExchangeLogger
-
-	start         time.Time // 开始时间
-	end           time.Time // 结束时间
-	currentTimeNS int64     // ns
-	sortedDatas   []*DataState
-
-	startedAt time.Time // 运行开始时间
-	endedAt   time.Time // 运行结束时间
-}
-
-const SimpleDateTimeFormat = "2006-01-02 15:04:05.000"
 
 var (
 	reportHistoryTemplate string
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 func init() {
 	statikFS, err := fs.New()
@@ -88,29 +51,31 @@ func init() {
 	reportHistoryTemplate = string(d)
 }
 
-type StrategyTester struct {
-	strategy  Strategy
-	exchanges []ExchangeSim
+type PlotData struct {
+	NameItems []string
+	Prices    []float64
+	Equities  []float64
 }
 
-func (h *StrategyTester) Setup() error {
-	if h.strategy == nil {
-		return nil
-	}
-
-	var exs []interface{}
-	for _, v := range h.exchanges {
-		exs = append(exs, v)
-	}
-
-	err := h.strategy.Setup(TradeModeBacktest, exs...)
-	return err
+type DataState struct {
+	Time  int64 // ns
+	Index int   // datas 中的索引
 }
 
-func (h *StrategyTester) RunEventLoopOnce() {
-	for _, v := range h.exchanges {
-		v.RunEventLoopOnce()
-	}
+type Backtest struct {
+	datas          []*dataloader.Data
+	symbol         string
+	strategyTester *StrategyTester
+	baseOutputDir  string
+	outputDir      string
+
+	start         time.Time // 开始时间
+	end           time.Time // 结束时间
+	currentTimeNS int64     // ns
+	sortedDatas   []*DataState
+
+	startedAt time.Time // 运行开始时间
+	endedAt   time.Time // 运行结束时间
 }
 
 // NewBacktest 创建回测
@@ -120,7 +85,10 @@ func (h *StrategyTester) RunEventLoopOnce() {
 // end: 结束时间
 // strategyHold: 策略和交易所
 // outputDir: 回测输出目录
-func NewBacktestFromHold(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyTester *StrategyTester, outputDir string) *Backtest {
+func NewBacktestFromParams(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyParams *StrategyTesterParams, outputDir string) *Backtest {
+	strategyTester := &StrategyTester{
+		StrategyTesterParams: strategyParams,
+	}
 	b := &Backtest{
 		datas:          datas,
 		symbol:         symbol,
@@ -129,6 +97,8 @@ func NewBacktestFromHold(datas []*dataloader.Data, symbol string, start time.Tim
 		strategyTester: strategyTester,
 		baseOutputDir:  outputDir,
 	}
+
+	strategyTester.backtest = b
 
 	if err := strategyTester.Setup(); err != nil {
 		panic(err)
@@ -155,8 +125,11 @@ func NewBacktest(datas []*dataloader.Data, symbol string, start time.Time, end t
 	}
 
 	strategyTester := &StrategyTester{
-		strategy:  strategy,
-		exchanges: exchanges,
+		StrategyTesterParams: &StrategyTesterParams{
+			strategy:  strategy,
+			exchanges: exchanges,
+		},
+		backtest: b,
 	}
 
 	if err := strategyTester.Setup(); err != nil {
@@ -180,7 +153,7 @@ func (b *Backtest) GetTime() time.Time {
 
 // Run Run backtest
 func (b *Backtest) Run() {
-	b.logs = LogItems{}
+	strategyTester := b.strategyTester
 
 	SetIdGenerate(utils.NewIdGenerate(b.start))
 
@@ -198,19 +171,7 @@ func (b *Backtest) Run() {
 		true)
 	log.SetLogger(logger)
 
-	for i := 0; i < len(b.strategyTester.exchanges); i++ {
-		b.strategyTester.exchanges[i].SetBacktest(b)
-
-		path := filepath.Join(b.outputDir, fmt.Sprintf("trade_%v.log", i))
-		b.exchangeLogFiles = append(b.exchangeLogFiles, path)
-		eLogger := NewBtLogger(b,
-			path,
-			log.DebugLevel,
-			true,
-			false)
-		b.strategyTester.exchanges[i].SetExchangeLogger(eLogger)
-		b.eLoggers = append(b.eLoggers, eLogger)
-	}
+	strategyTester.Init()
 
 	b.startedAt = time.Now()
 
@@ -228,42 +189,28 @@ func (b *Backtest) Run() {
 	}
 
 	// 设置数据缓存
-	b.setCacheData()
+	b.setDataCache()
 
 	// 初始净值
-	item := &LogItem{
-		Time:    time.Unix(0, b.currentTimeNS).Local(),
-		RawTime: time.Unix(0, b.currentTimeNS).Local(),
-		Prices:  b.getPrices(),
-		Stats:   nil,
-	}
-	b.fetchItemStats(item)
-	b.logs = append(b.logs, item)
-
-	// Init
-	strategy := b.strategyTester.strategy
-	strategyHold := b.strategyTester
-
-	strategy.OnInit()
+	strategyTester.addInitItemStats()
+	strategyTester.OnInit()
 
 	for {
-		strategy.OnTick()
-		strategyHold.RunEventLoopOnce()
-		b.addItemStats()
+		strategyTester.OnTick()
+		strategyTester.RunEventLoopOnce()
+		strategyTester.addItemStats()
 		if !b.next() {
 			break
 		}
 	}
 
 	// Exit
-	strategy.OnExit()
+	strategyTester.OnExit()
 
 	// Sync logs
-	log.Sync()
+	strategyTester.Sync()
 
-	for _, v := range b.eLoggers {
-		v.Sync()
-	}
+	log.Sync()
 
 	b.endedAt = time.Now()
 }
@@ -298,17 +245,18 @@ func (b *Backtest) nextInternal() bool {
 		}
 	}
 
-	b.setCacheData()
+	b.setDataCache()
 
 	return true
 }
 
-func (b *Backtest) setCacheData() {
+func (b *Backtest) setDataCache() {
 	// 数据对齐，提前排序
 	n := len(b.datas)
 	if n == 0 {
 		return
 	}
+
 	for i := 0; i < n; i++ {
 		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
 		b.sortedDatas[i].Index = i
@@ -321,341 +269,27 @@ func (b *Backtest) setCacheData() {
 	b.currentTimeNS = b.sortedDatas[0].Time
 }
 
-func (b *Backtest) getPrices() (result []float64) {
-	for _, data := range b.datas {
-		result = append(result, data.GetOrderBook().Price())
+func (b *Backtest) GetPrices() (result []float64) {
+	n := len(b.datas)
+	result = make([]float64, n)
+	for i := 0; i < n; i++ {
+		result[i] = b.datas[i].GetOrderBook().Price()
 	}
 	return
 }
 
-func (b *Backtest) addItemStats() {
-	tm := b.GetTime().Local()
-	update := false
-	timestamp := time.Date(tm.Year(), tm.Month(), tm.Day(), tm.Hour(), tm.Minute()+1, 0, 0, time.Local)
-	var lastItem *LogItem
-
-	if len(b.logs) > 0 {
-		lastItem = b.logs[len(b.logs)-1]
-		if timestamp.Unix() == lastItem.Time.Unix() {
-			update = true
-			return
-		}
-	}
-	var item *LogItem
-	if update {
-		item = lastItem
-		item.RawTime = tm
-		item.Prices = b.getPrices()
-		item.Stats = nil
-		b.fetchItemStats(item)
-	} else {
-		item = &LogItem{
-			Time:    timestamp,
-			RawTime: tm,
-			Prices:  b.getPrices(),
-			Stats:   nil,
-		}
-		b.fetchItemStats(item)
-		b.logs = append(b.logs, item)
-		//log.Printf("%v / %v", tick.Timestamp, timestamp)
-	}
-}
-
-func (b *Backtest) fetchItemStats(item *LogItem) {
-	n := len(b.strategyTester.exchanges)
-	for i := 0; i < n; i++ {
-		// 期货
-		ex, ok := b.strategyTester.exchanges[i].(Exchange)
-		if ok {
-			balance, err := ex.GetBalance(b.symbol)
-			if err != nil {
-				panic(err)
-			}
-			item.Stats = append(item.Stats, LogStats{
-				Balance: balance.Available,
-				Equity:  balance.Equity,
-			})
-		}
-
-		// 现货
-		spotEx, ok := b.strategyTester.exchanges[i].(SpotExchange)
-		if ok {
-			balance, err := spotEx.GetBalance(b.symbol)
-			if err != nil {
-				panic(err)
-			}
-			total := balance.Base.Available + balance.Base.Frozen - balance.Base.Borrow
-			totalQuote := balance.Quote.Available + balance.Quote.Frozen - balance.Quote.Borrow
-			price := item.Prices[i]
-			item.Stats = append(item.Stats, LogStats{
-				Balance: totalQuote,
-				Equity:  total*price + totalQuote,
-			})
-		}
-	}
-}
-
 func (b *Backtest) GetLogs() LogItems {
-	return b.logs
+	return b.strategyTester.GetLogs()
 }
 
 // ComputeStats Calculating Backtest Statistics
 func (b *Backtest) ComputeStats() (result *Stats) {
-	result = &Stats{}
-
-	if len(b.logs) == 0 {
-		return
-	}
-
-	logs := b.logs
-
-	n := len(logs)
-
-	result.Start = logs[0].Time
-	result.End = logs[n-1].Time
-	result.Duration = result.End.Sub(result.Start)
-	result.RunDuration = b.endedAt.Sub(b.startedAt)
-	result.EntryPrice = logs[0].Prices[0]
-	result.ExitPrice = logs[n-1].Prices[0]
-	result.EntryEquity = logs[0].TotalEquity()
-	result.ExitEquity = logs[n-1].TotalEquity()
-	result.BaHReturn = (result.ExitPrice - result.EntryPrice) / result.EntryPrice * result.EntryEquity
-	result.BaHReturnPnt = (result.ExitPrice - result.EntryPrice) / result.EntryPrice
-	result.EquityReturn = result.ExitEquity - result.EntryEquity
-	result.EquityReturnPnt = result.EquityReturn / result.EntryEquity
-
-	return
+	return b.strategyTester.ComputeStats()
 }
 
 // HTMLReport 创建Html报告文件
 func (b *Backtest) HtmlReport() {
-	for _, v := range b.exchangeLogFiles {
-		b.htmlReport(v)
-	}
-}
-
-func (b *Backtest) htmlReport(path string) (err error) {
-	dir := filepath.Dir(path)
-	name := filepath.Base(path)
-	ext := filepath.Ext(path)
-	name = name[:len(name)-len(ext)]
-	//slog.Printf("%v", name)
-	htmlPath := filepath.Join(dir, name+".html")
-	//slog.Printf("htmlPath: %v", htmlPath)
-
-	var sOrders []*SOrder
-	var dealOrders []*SOrder
-	sOrders, dealOrders, err = b.readTradeLog(path)
-	if err != nil {
-		return
-	}
-
-	//for _, v := range sOrders {
-	//	slog.Printf("sOrders Ts: %v Order: %v OrderBook: %v Comment: %v",
-	//		v.Ts, v.Order, v.OrderBook, v.Comment)
-	//}
-
-	var html string
-	html, err = b.buildReportHtml(sOrders, dealOrders)
-	err = ioutil.WriteFile(htmlPath, []byte(html), os.ModePerm)
-	return
-}
-
-func (b *Backtest) buildReportHtml(sOrders []*SOrder, dealOrders []*SOrder) (html string, err error) {
-	//var templateData []byte
-	//templateData, err = ioutil.ReadFile("./ReportHistory-template.html")
-	//if err != nil {
-	//	slog.Printf("%v", err)
-	//	return
-	//}
-	//reportHistoryTemplate := string(templateData)
-	//slog.Printf("%v", reportHistoryTemplate)
-	// <tr bgcolor="#FFFFFF" align="right"><td>2018.07.06 11:08:44</td><td>11573668</td><td>EURUSD</td><td>buy limit</td><td colspan="2">0.20 / 0.00</td><td>1.16673</td><td></td><td></td><td colspan="2">2018.07.06 11:17:24</td><td>canceled</td><td></td></tr>
-	// <tr bgcolor="#F7F7F7" align="right"><td>2018.07.06 11:08:57</td><td>11573671</td><td>EURUSD</td><td>sell limit</td><td colspan="2">0.20 / 0.00</td><td>1.17106</td><td></td><td></td><td colspan="2">2018.07.06 11:13:03</td><td>canceled</td><td></td></tr>
-	// <!--{order-row}-->
-	html = strings.ReplaceAll(reportHistoryTemplate, "<!--{Symbol}-->", b.symbol)
-	html = strings.ReplaceAll(html, "<!--{Period}-->", fmt.Sprintf("%v - %v", b.start.String(), b.end.String())) // 2018.11.01 - 2018.12.01
-	// Parameters: A=1
-	stats := b.ComputeStats()
-	html = strings.ReplaceAll(html, "<!--Initial Equity-->", fmt.Sprint(stats.EntryEquity))
-	html = strings.ReplaceAll(html, "<!--Exit Equity-->", fmt.Sprint(stats.ExitEquity))
-	html = strings.ReplaceAll(html, "<!--Duration-->", stats.Duration.String())
-	html = strings.ReplaceAll(html, "<!--Return-->", fmt.Sprintf("%.8f", stats.EquityReturn))
-	html = strings.ReplaceAll(html, "<!--Return [%]-->", fmt.Sprintf("%.4f", stats.EquityReturnPnt*100))
-	html = strings.ReplaceAll(html, "<!--Run Duration-->", stats.RunDuration.String())
-	html = strings.ReplaceAll(html, "<!--Buy & Hold Return-->", fmt.Sprintf("%.8f", stats.BaHReturn))
-	html = strings.ReplaceAll(html, "<!--Buy & Hold Return [%]-->", fmt.Sprintf("%.4f", stats.BaHReturnPnt*100))
-	s := b.buildSOrders(sOrders)
-	html = strings.Replace(html, `<!--{order-rows}-->`, s, -1)
-	s = b.buildSOrders(dealOrders)
-	html = strings.Replace(html, `<!--{deal-order-rows}-->`, s, -1)
-
-	var orderCommissionTotal float64
-	var dealCommissionTotal float64
-	for _, v := range sOrders {
-		orderCommissionTotal += v.Order.Commission
-	}
-	for _, v := range dealOrders {
-		dealCommissionTotal += v.Order.Commission
-	}
-
-	var orderCommissionTotalString string
-	if orderCommissionTotal != 0 {
-		orderCommissionTotalString = fmt.Sprintf("%.8f", orderCommissionTotal)
-	}
-	var dealCommissionTotalString string
-	if dealCommissionTotal != 0 {
-		dealCommissionTotalString = fmt.Sprintf("%.8f", dealCommissionTotal)
-	}
-	html = strings.Replace(html, `<!--{order-commission-total}-->`, orderCommissionTotalString, -1)
-	html = strings.Replace(html, `<!--{deal-commission-total}-->`, dealCommissionTotalString, -1)
-	return
-}
-
-func (b *Backtest) buildSOrders(sOrders []*SOrder) string {
-	s := bytes.Buffer{}
-	for i := 0; i < len(sOrders); i++ {
-		sOrder := sOrders[i]
-		order := sOrders[i].Order
-		bgColor := "#FFFFFF"
-		if i%2 != 0 {
-			bgColor = "#F7F7F7"
-		}
-		price := fmt.Sprintf("%v", order.Price)
-		orderType := strings.ToLower(order.Direction.String())
-		if order.Type == OrderTypeMarket {
-			price = "market"
-		} else {
-			orderType += " " + strings.ToLower(order.Type.String())
-		}
-		if order.PostOnly {
-			orderType += " postOnly"
-		}
-		if order.ReduceOnly {
-			orderType += " reduceOnly"
-		}
-		positions := ""
-		sort.Slice(sOrder.Positions, func(i, j int) bool {
-			return sOrder.Positions[i].Size > sOrder.Positions[j].Size
-		})
-		for _, v := range sOrder.Positions {
-			if positions != "" {
-				positions += " / "
-			}
-			positions += fmt.Sprintf("%v", v.Size)
-		}
-		s.WriteString(fmt.Sprintf(`<tr bgcolor="%v" align="right">`, bgColor))                  // #FFFFFF
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Time.Format("2006-01-02 15:04:05.000"))) // 2018.07.06 11:08:44
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.ID))                                     // 11573668
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Symbol))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, orderType))                             // buy limit/buy
-		s.WriteString(fmt.Sprintf(`<td>%v / %v</td>`, order.Amount, order.FilledAmount)) // 0.20 / 0.00
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, price))                                 // 1.16673
-		var avgPriceString string
-		if order.AvgPrice > 0 {
-			avgPriceString = fmt.Sprintf(`%v`, order.AvgPrice)
-		}
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, avgPriceString))
-		var pnlString string
-		if order.Pnl != 0 {
-			pnlString = fmt.Sprintf("%.8f", order.Pnl)
-		}
-		s.WriteString(fmt.Sprintf(`<td>%s</td>`, pnlString))
-		var commissionString string
-		if order.Commission != 0 {
-			commissionString = fmt.Sprintf(`%.8f`, order.Commission)
-		}
-		s.WriteString(fmt.Sprintf(`<td>%s</td>`, commissionString))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, sOrder.BalancesString()))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.UpdateTime.Format("2006-01-02 15:04:05.000")))
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, order.Status.String())) // canceled
-		s.WriteString(fmt.Sprintf(`<td>%v</td>`, positions))
-		s.WriteString(`</tr>`)
-	}
-	return s.String()
-}
-
-func (b *Backtest) readTradeLog(path string) (orders []*SOrder, dealOrders []*SOrder, err error) {
-	var data []byte
-	data, err = ioutil.ReadFile(path)
-	if err != nil {
-		return
-	}
-	ss := strings.Split(string(data), "\n")
-
-	for _, s := range ss {
-		if s == "" {
-			continue
-		}
-		var event string
-		var so *SOrder
-		event, so, err = b.parseSOrder(s)
-		if err != nil {
-			return
-		}
-		switch event {
-		case SimEventOrder:
-			orders = append(orders, so)
-		case SimEventDeal:
-			dealOrders = append(dealOrders, so)
-		}
-	}
-
-	return
-}
-
-func (b *Backtest) parseSOrder(s string) (event string, so *SOrder, err error) {
-	ret := gjson.Parse(s)
-	if eventValue := ret.Get("event"); eventValue.Exists() {
-		var order Order
-		var orderbook OrderBook
-		var positions []*Position
-
-		event = eventValue.String()
-		tsString := ret.Get("ts").String() // 2019-10-01T08:00:00.143+0800
-		msg := ret.Get("msg").String()
-		orderJson := ret.Get("order").String()
-		orderbookJson := ret.Get("orderbook").String()
-		positionsJson := ret.Get("positions").String()
-		var balances []float64
-		if v := ret.Get("balances"); v.Exists() {
-			values := v.Value().([]interface{})
-			for _, v := range values {
-				balances = append(balances, cast.ToFloat64(v))
-			}
-		} else if v := ret.Get("balance"); v.Exists() {
-			balances = []float64{v.Float()}
-		}
-
-		err = json.Unmarshal([]byte(orderJson), &order)
-		if err != nil {
-			return
-		}
-		err = json.Unmarshal([]byte(orderbookJson), &orderbook)
-		if err != nil {
-			return
-		}
-		if positionsJson != "" {
-			err = json.Unmarshal([]byte(positionsJson), &positions)
-			if err != nil {
-				return
-			}
-		}
-		var ts time.Time
-		ts, err = time.Parse("2006-01-02T15:04:05.000Z0700", tsString)
-		if err != nil {
-			return
-		}
-		so = &SOrder{
-			Ts:        ts,
-			Order:     &order,
-			OrderBook: &orderbook,
-			Positions: positions,
-			Balances:  balances,
-			Comment:   msg,
-		}
-	}
-	return
+	b.strategyTester.HtmlReport()
 }
 
 func (b *Backtest) priceLine(plotData *PlotData) *charts.Line {
@@ -705,7 +339,7 @@ func (b *Backtest) equityLine(plotData *PlotData) *charts.Line {
 func (b *Backtest) Plot() {
 	var plotData PlotData
 
-	for _, v := range b.logs {
+	for _, v := range b.strategyTester.logs {
 		plotData.NameItems = append(plotData.NameItems, v.Time.Format(SimpleDateTimeFormat))
 		plotData.Prices = append(plotData.Prices, v.Prices[0])
 		plotData.Equities = append(plotData.Equities, v.TotalEquity())
@@ -741,52 +375,4 @@ func replaceCssAssets(cssAssets *datatypes.OrderedSet) {
 			cssAssets.Values[i] = MyEChartsBulmaCss
 		}
 	}
-}
-
-func (b *Backtest) PlotOld() {
-	line := charts.NewLine()
-	line.SetGlobalOptions(
-		charts.InitOpts{PageTitle: "回测", Width: "1270px", Height: "600px"},
-		charts.ToolboxOpts{Show: true},
-		charts.ToolboxOpts{Show: true},
-		charts.TitleOpts{Title: "回测"},
-		charts.TooltipOpts{Show: true, Trigger: "axis", TriggerOn: "mousemove|click"},
-		charts.DataZoomOpts{Type: "slider", Start: 0, End: 100},
-		//charts.LegendOpts{Right: "80%"},
-		//charts.SplitLineOpts{Show: true},
-		//charts.SplitAreaOpts{Show: true},
-	)
-	nameItems := make([]string, 0)
-	prices := make([]float64, 0)
-	equities := make([]float64, 0)
-
-	for _, v := range b.logs {
-		nameItems = append(nameItems, v.Time.Format(SimpleDateTimeFormat))
-		prices = append(prices, v.Prices[0])
-		equities = append(equities, v.TotalEquity())
-	}
-
-	line.AddXAxis(nameItems)
-	line.AddYAxis("price", prices,
-		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
-		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
-		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
-	//charts.LineOpts{Smooth: true, YAxisIndex: 0},
-	)
-
-	line.AddYAxis("equity", equities,
-		charts.MPNameTypeItem{Name: "最大值", Type: "max"},
-		charts.MPNameTypeItem{Name: "最小值", Type: "min"},
-		charts.MPStyleOpts{Label: charts.LabelTextOpts{Show: true}},
-	//charts.LineOpts{Smooth: true, YAxisIndex: 0},
-	)
-
-	line.SetGlobalOptions(charts.YAxisOpts{SplitLine: charts.SplitLineOpts{Show: true}, Scale: true})
-
-	filename := filepath.Join(b.outputDir, "result.html")
-	f, err := os.Create(filename)
-	if err != nil {
-		log.Error(err)
-	}
-	line.Render(f)
 }
