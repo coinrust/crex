@@ -15,7 +15,7 @@ require (
 	github.com/frankrap/okex-api v1.0.3
 	github.com/go-echarts/go-echarts v0.0.0-20190915064101-cbb3b43ade5d
 	github.com/gobuffalo/packr v1.30.1 // indirect
-	github.com/json-iterator/go v1.1.9
+	github.com/json-iterator/go v1.1.10
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/rocketlaunchr/dataframe-go v0.0.0-20200525081431-b8b481c96d94
