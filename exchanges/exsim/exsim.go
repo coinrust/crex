@@ -599,7 +599,7 @@ func (b *ExSim) closePosition(position *Position, size float64, price float64) (
 		position.Size = 0
 	} else {
 		// 部分平仓
-		pnl, _ = CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, b.forwardContract)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, b.forwardContract)
 		b.addPnl(pnl)
 		//position.AvgPrice = position.AvgPrice
 		position.Size = position.Size + size
