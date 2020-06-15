@@ -796,6 +796,7 @@ func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 // cash: 初始资金
 // makerFeeRate: Maker 费率
 // takerFeeRate: Taker 费率
+// valueOfContract: 合约单张面值
 // hedgedPosition: 双向持仓
 // forwardContract: true-正向合约 false-反向合约
 func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, valueOfContract float64, hedgedPosition bool, forwardContract bool) *ExSim {
