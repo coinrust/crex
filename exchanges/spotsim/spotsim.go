@@ -44,10 +44,8 @@ func (s *SpotSim) GetName() (name string) {
 
 // 获取交易所时间(ms)
 func (s *SpotSim) GetTime() (tm int64, err error) {
-	if s.data != nil && s.data.GetOrderBook() != nil {
-		return s.data.GetOrderBook().Time.UnixNano() / int64(time.Millisecond), nil
-	}
-	return time.Now().UnixNano() / (int64(time.Millisecond)), nil
+	tm = s.backtest.GetTime().UnixNano() / int64(time.Millisecond)
+	return
 }
 
 // 获取账号余额
