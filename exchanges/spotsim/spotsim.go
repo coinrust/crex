@@ -85,11 +85,11 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 	}
 	params := ParsePlaceOrderParameter(opts...)
 	id := GenOrderId()
-	ob := s.data.GetOrderBook()
+	//ob := s.data.GetOrderBook()
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
-		Time:         ob.Time,
+		Time:         s.backtest.GetTime(),
 		Price:        price,
 		Amount:       size,
 		AvgPrice:     0,
@@ -98,7 +98,7 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 		Type:         orderType,
 		PostOnly:     params.PostOnly,
 		ReduceOnly:   params.ReduceOnly,
-		UpdateTime:   ob.Time,
+		UpdateTime:   s.backtest.GetTime(),
 		Status:       OrderStatusNew,
 	}
 	s.eLog.Infow(
@@ -195,7 +195,7 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 		s.balance.Quote.Available = s.balance.Quote.Available + value - fee
 		order.Status = OrderStatusFilled
 	}
-	order.UpdateTime = ob.Time
+	order.UpdateTime = s.backtest.GetTime()
 	match = true
 	return
 }
@@ -246,7 +246,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 				order.Status = OrderStatusFilled
 			}
 			match = true
-			order.UpdateTime = ob.Time
+			order.UpdateTime = s.backtest.GetTime()
 		}
 	} else { // Ask order
 		if order.Price <= ob.BidPrice() {
@@ -287,7 +287,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 			} else {
 				order.Status = OrderStatusFilled
 			}
-			order.UpdateTime = ob.Time
+			order.UpdateTime = s.backtest.GetTime()
 			match = true
 		}
 	}
