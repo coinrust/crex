@@ -32,6 +32,7 @@ type ExSim struct {
 	takerFeeRate    float64               // 0.00075	// Taker fee rate
 	hedgedPosition  bool                  // 双向持仓
 	forwardContract bool                  // 合约类型 true-正向合约 false-反向合约
+	valueOfContract float64               // 合约面值
 	balance         float64               // 余额
 	orders          map[string]*Order     // All orders key: OrderID value: Order
 	openOrders      map[string]*Order     // Open orders
@@ -68,7 +69,7 @@ func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 		} else if side == Sell {
 			price = ob.BidPrice()
 		}
-		pnl, _ := CalcPnl(side, math.Abs(position.Size), position.AvgPrice, price, b.forwardContract)
+		pnl, _ := CalcPnl(side, math.Abs(position.Size)*b.valueOfContract, position.AvgPrice, price, b.forwardContract)
 		result.Equity += pnl
 		// OKEx 期货已用保证金计算公式:
 		// 开仓保证金=面值*张数*最新标记价格/杠杆
@@ -263,16 +264,16 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		// trade fee
 		var fee float64
 		if b.forwardContract {
-			fee = filledAmount * avgPrice * b.takerFeeRate
+			fee = filledAmount * b.valueOfContract * avgPrice * b.takerFeeRate
 		} else {
-			fee = filledAmount / avgPrice * b.takerFeeRate
+			fee = filledAmount * b.valueOfContract / avgPrice * b.takerFeeRate
 		}
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		pnl := b.updatePosition(order.Symbol, filledAmount, avgPrice, side)
+		pnl := b.updatePosition(order.Symbol, filledAmount*b.valueOfContract, avgPrice, side)
 		order.Pnl += pnl
 		order.Commission += fee
 		order.AvgPrice = avgPrice
@@ -288,16 +289,16 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		// trade fee
 		var fee float64
 		if b.forwardContract {
-			fee = filledAmount * avgPrice * b.takerFeeRate
+			fee = filledAmount * b.valueOfContract * avgPrice * b.takerFeeRate
 		} else {
-			fee = filledAmount / avgPrice * b.takerFeeRate
+			fee = filledAmount * b.valueOfContract / avgPrice * b.takerFeeRate
 		}
 
 		// Update balance
 		b.addBalance(-fee)
 
 		// Update position
-		pnl := b.updatePosition(order.Symbol, -filledAmount, avgPrice, side)
+		pnl := b.updatePosition(order.Symbol, -filledAmount*b.valueOfContract, avgPrice, side)
 		order.Pnl += pnl
 		order.Commission += fee
 		order.AvgPrice = avgPrice
@@ -357,15 +358,15 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err e
 		// trade fee
 		if immediate {
 			if b.forwardContract {
-				fee = filledAmount * avgPrice * b.takerFeeRate
+				fee = filledAmount * b.valueOfContract * avgPrice * b.takerFeeRate
 			} else {
-				fee = filledAmount / avgPrice * b.takerFeeRate
+				fee = filledAmount * b.valueOfContract / avgPrice * b.takerFeeRate
 			}
 		} else {
 			if b.forwardContract {
-				fee = filledAmount * avgPrice * b.makerFeeRate
+				fee = filledAmount * b.valueOfContract * avgPrice * b.makerFeeRate
 			} else {
-				fee = filledAmount / avgPrice * b.makerFeeRate
+				fee = filledAmount * b.valueOfContract / avgPrice * b.makerFeeRate
 			}
 		}
 
@@ -401,15 +402,15 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err e
 		// trade fee
 		if immediate {
 			if b.forwardContract {
-				fee = filledAmount * avgPrice * b.takerFeeRate
+				fee = filledAmount * b.valueOfContract * avgPrice * b.takerFeeRate
 			} else {
-				fee = filledAmount / avgPrice * b.takerFeeRate
+				fee = filledAmount * b.valueOfContract / avgPrice * b.takerFeeRate
 			}
 		} else {
 			if b.forwardContract {
-				fee = filledAmount * avgPrice * b.makerFeeRate
+				fee = filledAmount * b.valueOfContract * avgPrice * b.makerFeeRate
 			} else {
-				fee = filledAmount / avgPrice * b.makerFeeRate
+				fee = filledAmount * b.valueOfContract / avgPrice * b.makerFeeRate
 			}
 		}
 
@@ -587,19 +588,19 @@ func (b *ExSim) closePosition(position *Position, size float64, price float64) (
 	if remaining > 0 {
 		// 先平掉原有持仓
 		// 计算盈利
-		pnl, _ = CalcPnl(position.Side(), math.Abs(position.Size), position.AvgPrice, price, b.forwardContract)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(position.Size)*b.valueOfContract, position.AvgPrice, price, b.forwardContract)
 		b.addPnl(pnl)
 		position.AvgPrice = price
 		position.Size = position.Size + size
 	} else if remaining == 0 {
 		// 完全平仓
-		pnl, _ = CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, b.forwardContract)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(size)*b.valueOfContract, position.AvgPrice, price, b.forwardContract)
 		b.addPnl(pnl)
 		position.AvgPrice = 0
 		position.Size = 0
 	} else {
 		// 部分平仓
-		pnl, _ = CalcPnl(position.Side(), math.Abs(size), position.AvgPrice, price, b.forwardContract)
+		pnl, _ = CalcPnl(position.Side(), math.Abs(size)*b.valueOfContract, position.AvgPrice, price, b.forwardContract)
 		b.addPnl(pnl)
 		//position.AvgPrice = position.AvgPrice
 		position.Size = position.Size + size
@@ -795,9 +796,13 @@ func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 // cash: 初始资金
 // makerFeeRate: Maker 费率
 // takerFeeRate: Taker 费率
+// valueOfContract: 合约单张面值
 // hedgedPosition: 双向持仓
 // forwardContract: true-正向合约 false-反向合约
-func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, hedgedPosition bool, forwardContract bool) *ExSim {
+func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFeeRate float64, valueOfContract float64, hedgedPosition bool, forwardContract bool) *ExSim {
+	if valueOfContract == 0 {
+		panic("valueOfContract is zero")
+	}
 	return &ExSim{
 		data:            data,
 		balance:         cash,
@@ -805,6 +810,7 @@ func NewExSim(data *dataloader.Data, cash float64, makerFeeRate float64, takerFe
 		takerFeeRate:    takerFeeRate, // 0.00075	// Taker 费率
 		hedgedPosition:  hedgedPosition,
 		forwardContract: forwardContract,
+		valueOfContract: valueOfContract,
 		orders:          make(map[string]*Order),
 		openOrders:      make(map[string]*Order),
 		historyOrders:   make(map[string]*Order),
