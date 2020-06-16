@@ -15,7 +15,6 @@ import (
 	slog "log"
 	"os"
 	"path/filepath"
-	"sort"
 	"time"
 )
 
@@ -58,8 +57,9 @@ type PlotData struct {
 }
 
 type DataState struct {
-	Time  int64 // ns
-	Index int   // datas 中的索引
+	PrevTime int64 // ns
+	Time     int64 // ns
+	Index    int   // datas 中的索引
 }
 
 type Backtest struct {
@@ -72,7 +72,7 @@ type Backtest struct {
 	start         time.Time // 开始时间
 	end           time.Time // 结束时间
 	currentTimeNS int64     // ns
-	sortedDatas   []*DataState
+	timeNsDatas   []int64
 
 	startedAt time.Time // 运行开始时间
 	endedAt   time.Time // 运行结束时间
@@ -179,17 +179,10 @@ func (b *Backtest) Run() {
 		data.Reset(b.start, b.end)
 	}
 
-	// 初始化数据
-	b.sortedDatas = make([]*DataState, 0, len(b.datas))
-	for i := 0; i < len(b.datas); i++ {
-		b.sortedDatas = append(b.sortedDatas, &DataState{
-			Time:  0,
-			Index: i,
-		})
+	if !b.next() {
+		log.Error("error")
+		return
 	}
-
-	// 设置数据缓存
-	b.setDataCache()
 
 	// 初始净值
 	strategyTester.addInitItemStats()
@@ -215,59 +208,162 @@ func (b *Backtest) Run() {
 	b.endedAt = time.Now()
 }
 
+// 新的 next 方法
 func (b *Backtest) next() bool {
+	if len(b.datas) == 1 {
+		return b.nextOne()
+	}
+
 	if b.currentTimeNS == 0 {
-		return b.nextInternal()
-	}
-
-	for _, data := range b.sortedDatas {
-		if b.currentTimeNS < data.Time {
-			b.currentTimeNS = data.Time
-			return true
+		for _, data := range b.datas {
+			if !data.Next() {
+				return false
+			}
 		}
+
+		b.resetSortedDatas()
+
+		// 取时间最大项
+		b.currentTimeNS = b.timeNsDatas[len(b.timeNsDatas)-1]
+		n := len(b.datas)
+		for i := 0; i < n; i++ {
+			data := b.datas[i]
+			for {
+				if data.GetOrderBook().Time.UnixNano() >= b.currentTimeNS {
+					break
+				}
+				if !data.Next() {
+					return false
+				}
+			}
+		}
+		return true
 	}
 
-	return b.nextInternal()
+	for {
+		for _, timeNs := range b.timeNsDatas {
+			if b.currentTimeNS < timeNs {
+				b.currentTimeNS = timeNs
+				if !b.ensureMoveNext(b.currentTimeNS) {
+					return false
+				}
+				return true
+			}
+		}
+
+		for _, data := range b.datas {
+			if !data.Next() {
+				return false
+			}
+		}
+
+		b.resetSortedDatas()
+	}
 }
 
-func (b *Backtest) nextInternal() bool {
-	if len(b.datas) == 1 {
-		ret := b.datas[0].Next()
-		if ret {
-			b.currentTimeNS = b.datas[0].GetOrderBook().Time.UnixNano()
+func (b *Backtest) ensureMoveNext(ns int64) bool {
+	n := len(b.datas)
+	count := 0
+	for i := 0; i < n; i++ {
+		data := b.datas[i]
+		for {
+			if data.GetOrderBook().Time.UnixNano() >= ns {
+				break
+			}
+			if !data.Next() {
+				return false
+			}
+			count++
 		}
-		return ret
 	}
-
-	for _, data := range b.datas {
-		if !data.Next() {
-			return false
-		}
+	if count > 0 {
+		// 重新排序
+		b.resetSortedDatas()
 	}
-
-	b.setDataCache()
-
 	return true
 }
 
-func (b *Backtest) setDataCache() {
-	// 数据对齐，提前排序
-	n := len(b.datas)
-	if n == 0 {
-		return
+func (b *Backtest) resetSortedDatas() {
+	nDatas := len(b.datas)
+	if len(b.timeNsDatas) != nDatas*2 {
+		b.timeNsDatas = make([]int64, nDatas*2)
 	}
 
-	for i := 0; i < n; i++ {
-		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
-		b.sortedDatas[i].Index = i
+	for i := 0; i < nDatas; i++ {
+		index := i * 2
+		b.timeNsDatas[index] = b.datas[i].GetOrderBookRaw(1).Time.UnixNano()
+		b.timeNsDatas[index+1] = b.datas[i].GetOrderBook().Time.UnixNano()
 	}
 
-	sort.Slice(b.sortedDatas, func(i, j int) bool {
-		return b.sortedDatas[i].Time < b.sortedDatas[j].Time
-	})
-
-	b.currentTimeNS = b.sortedDatas[0].Time
+	utils.SortInt64(b.timeNsDatas)
 }
+
+func (b *Backtest) nextOne() bool {
+	ret := b.datas[0].Next()
+	if ret {
+		b.currentTimeNS = b.datas[0].GetOrderBook().Time.UnixNano()
+	}
+	return ret
+}
+
+//func (b *Backtest) next() bool {
+//	if b.currentTimeNS == 0 {
+//		return b.nextInternal()
+//	}
+//
+//	for _, data := range b.sortedDatas {
+//		if b.currentTimeNS < data.Time {
+//			b.currentTimeNS = data.Time
+//			return true
+//		}
+//	}
+//
+//	return b.nextInternal()
+//}
+
+//func (b *Backtest) nextInternal() bool {
+//	if len(b.datas) == 1 {
+//		ret := b.datas[0].Next()
+//		if ret {
+//			b.currentTimeNS = b.datas[0].GetOrderBook().Time.UnixNano()
+//		}
+//		return ret
+//	}
+//
+//	for _, data := range b.datas {
+//		if !data.Next() {
+//			return false
+//		}
+//	}
+//
+//	b.setDataCache()
+//
+//	return true
+//}
+
+//func (b *Backtest) setDataCache() {
+//	// 数据对齐，提前排序
+//	n := len(b.datas)
+//	if n == 0 {
+//		return
+//	}
+//
+//	for i := 0; i < n; i++ {
+//		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
+//		b.sortedDatas[i].Index = i
+//	}
+//
+//	sort.Slice(b.sortedDatas, func(i, j int) bool {
+//		return b.sortedDatas[i].Time < b.sortedDatas[j].Time
+//	})
+//
+//	if b.currentTimeNS == 0 {
+//		// 第一次按右对齐
+//		b.currentTimeNS = b.sortedDatas[len(b.sortedDatas)-1].Time
+//	} else {
+//		b.currentTimeNS = b.sortedDatas[0].Time
+//	}
+//}
 
 func (b *Backtest) GetPrices() (result []float64) {
 	n := len(b.datas)

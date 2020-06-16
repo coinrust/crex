@@ -33,11 +33,36 @@ func (d *Data) Reset(start time.Time, end time.Time) {
 	d.maxIndex = len(d.data) - 1
 }
 
+func (d *Data) GetOrderBookByNS(ns int64) *OrderBook {
+	if d.data == nil {
+		return nil
+	}
+	ob := d.data[d.index]
+	if ob.Time.UnixNano() <= ns {
+		return ob
+	} else if ob = d.GetOrderBookRaw(1); ob != nil && ob.Time.UnixNano() <= ns {
+		return ob
+	} else {
+		return nil
+	}
+}
+
 func (d *Data) GetOrderBook() *OrderBook {
 	if d.data == nil {
 		return nil
 	}
 	return d.data[d.index]
+}
+
+func (d *Data) GetOrderBookRaw(offset int) *OrderBook {
+	if d.data == nil {
+		return nil
+	}
+	index := d.index - offset
+	if index < 0 {
+		return nil
+	}
+	return d.data[index]
 }
 
 func (d *Data) GetRecords(size int) []*Record {
@@ -49,25 +74,36 @@ func (d *Data) Next() bool {
 		d.index++
 		return true
 	}
-	if n := d.readMore(); n > 0 {
-		d.index = 0
+	if o, n := d.readMore(); n > 0 {
+		d.index = o
 		d.maxIndex = n - 1
 		return true
 	}
 	return false
 }
 
-func (d *Data) readMore() int {
+func (d *Data) readMore() (offset int, count int) {
 	if !d.dataLoader.HasMoreData() {
-		return 0
+		return 0, 0
 	}
 	data := d.dataLoader.ReadOrderBooks()
 	if len(data) == 0 {
-		return 0
+		return 0, 0
 	}
-	d.offset += len(d.data)
-	d.data = data
-	return len(data)
+	d.offset += len(data)
+	dataCount := len(d.data)
+	if dataCount > 0 {
+		n := 5 // 需要保留的周期
+		if dataCount < n {
+			n = dataCount
+		}
+		d.data = append(d.data[dataCount-n:], data...)
+		offset = n
+	} else {
+		d.data = data
+	}
+	count = len(d.data)
+	return
 }
 
 func NewData(loader DataLoader) *Data {

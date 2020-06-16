@@ -56,8 +56,12 @@ func (s *SpotSim) GetBalance(currency string) (result *SpotBalance, err error) {
 
 // 获取订单薄(OrderBook)
 func (s *SpotSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
-	result = s.data.GetOrderBook()
+	result = s.data.GetOrderBookByNS(s.backtest.GetTime().UnixNano())
 	return
+}
+
+func (s *SpotSim) getOrderBook() *OrderBook {
+	return s.data.GetOrderBookByNS(s.backtest.GetTime().UnixNano())
 }
 
 // 获取K线数据
@@ -85,7 +89,6 @@ func (s *SpotSim) PlaceOrder(symbol string, direction Direction, orderType Order
 	}
 	params := ParsePlaceOrderParameter(opts...)
 	id := GenOrderId()
-	//ob := s.data.GetOrderBook()
 	order := &Order{
 		ID:           id,
 		Symbol:       symbol,
@@ -147,7 +150,7 @@ func (s *SpotSim) matchMarketOrder(order *Order) (match bool, err error) {
 		return
 	}
 
-	ob := s.data.GetOrderBook()
+	ob := s.getOrderBook()
 
 	// 市价成交
 	if order.Direction == Buy {
@@ -205,7 +208,7 @@ func (s *SpotSim) matchLimitOrder(order *Order, immediate bool) (match bool, err
 		return
 	}
 
-	ob := s.data.GetOrderBook()
+	ob := s.getOrderBook()
 	if order.Direction == Buy { // Bid order
 		if order.Price >= ob.AskPrice() {
 			if immediate && order.PostOnly {
@@ -412,7 +415,7 @@ func (s *SpotSim) RunEventLoopOnce() (err error) {
 }
 
 func (s *SpotSim) logOrderInfo(msg string, event string, order *Order) {
-	ob := s.data.GetOrderBook()
+	ob := s.getOrderBook()
 	baseBalance := s.balance.Base.Available + s.balance.Base.Frozen
 	quoteBalance := s.balance.Quote.Available + s.balance.Quote.Frozen
 	s.eLog.Infow(
