@@ -58,7 +58,7 @@ func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
 	positions := b.getPositions(symbol)
-	ob := b.data.GetOrderBook()
+	ob := b.getOrderBook()
 
 	result.Equity = result.Available
 	for _, position := range *positions {
@@ -93,8 +93,12 @@ func (b *ExSim) GetPValue(symbol string) float64 {
 }
 
 func (b *ExSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
-	result = b.data.GetOrderBook()
+	result = b.data.GetOrderBookByNS(b.backtest.GetTime().UnixNano())
 	return
+}
+
+func (b *ExSim) getOrderBook() *OrderBook {
+	return b.data.GetOrderBookByNS(b.backtest.GetTime().UnixNano())
 }
 
 func (b *ExSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {
@@ -139,7 +143,7 @@ func (b *ExSim) PlaceOrder(symbol string, direction Direction, orderType OrderTy
 	size float64, opts ...PlaceOrderOption) (result *Order, err error) {
 	params := ParsePlaceOrderParameter(opts...)
 	id := GenOrderId()
-	ob := b.data.GetOrderBook()
+	ob := b.getOrderBook()
 	order := &Order{
 		ID:           id,
 		ClientOId:    params.ClientOId,
@@ -239,7 +243,7 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		return
 	}
 
-	ob := b.data.GetOrderBook()
+	ob := b.getOrderBook()
 
 	// 判断开仓数量
 	margin := b.balance
@@ -337,7 +341,7 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err e
 
 	side := b.getOrderSide(order)
 
-	ob := b.data.GetOrderBook()
+	ob := b.getOrderBook()
 	if order.Direction == Buy { // Bid order
 		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Asks...)
 		//if order.Price < ob.AskPrice() {
@@ -782,7 +786,7 @@ func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 		return
 	}
 
-	ob := b.data.GetOrderBook()
+	ob := b.getOrderBook()
 	positions := b.getPositions(order.Symbol)
 	b.eLog.Infow(msg,
 		SimEventKey, event,
