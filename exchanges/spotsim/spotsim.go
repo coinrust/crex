@@ -345,6 +345,7 @@ func (s *SpotSim) CancelAllOrders(symbol string, opts ...OrderOption) (err error
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
+			order.UpdateTime = s.backtest.GetTime()
 			idsToBeRemoved = append(idsToBeRemoved, order.ID)
 		default:
 			err = errors.New("error")
@@ -379,6 +380,7 @@ func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (re
 		switch order.Status {
 		case OrderStatusCreated, OrderStatusNew, OrderStatusPartiallyFilled:
 			order.Status = OrderStatusCancelled
+			order.UpdateTime = s.backtest.GetTime()
 			result = order
 			s.openOrders.Delete(id)
 			s.logOrderInfo("Cancel order", SimEventOrder, order)
