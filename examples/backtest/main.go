@@ -5,7 +5,6 @@ import (
 	"github.com/coinrust/crex/backtest"
 	"github.com/coinrust/crex/dataloader"
 	"github.com/coinrust/crex/exchanges/exsim"
-	"github.com/coinrust/crex/log"
 	"time"
 )
 
@@ -18,8 +17,8 @@ func (s *BasicStrategy) OnInit() error {
 }
 
 func (s *BasicStrategy) OnTick() error {
-	ts, _ := s.Exchange.GetTime()
-	log.Infof("OnTick %v", ts)
+	//ts, _ := s.Exchange.GetTime()
+	//log.Infof("OnTick %v", ts)
 	currency := "BTC"
 	symbol := "BTC-PERPETUAL"
 

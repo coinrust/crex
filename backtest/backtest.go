@@ -63,11 +63,11 @@ type DataState struct {
 }
 
 type Backtest struct {
-	datas          []*dataloader.Data
-	symbol         string
-	strategyTester *StrategyTester
-	baseOutputDir  string
-	outputDir      string
+	datas           []*dataloader.Data
+	symbol          string
+	strategyTesters []*StrategyTester
+	baseOutputDir   string
+	outputDir       string
 
 	start         time.Time // 开始时间
 	end           time.Time // 结束时间
@@ -85,23 +85,29 @@ type Backtest struct {
 // end: 结束时间
 // strategyHold: 策略和交易所
 // outputDir: 回测输出目录
-func NewBacktestFromParams(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyParams *StrategyTesterParams, outputDir string) *Backtest {
-	strategyTester := &StrategyTester{
-		StrategyTesterParams: strategyParams,
+func NewBacktestFromParams(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyParamsList []*StrategyTesterParams, outputDir string) *Backtest {
+	var strategyTesters []*StrategyTester
+	for _, strategyParams := range strategyParamsList {
+		strategyTester := &StrategyTester{
+			StrategyTesterParams: strategyParams,
+		}
+		if err := strategyTester.Setup(); err != nil {
+			panic(err)
+		}
+		strategyTesters = append(strategyTesters, strategyTester)
 	}
+
 	b := &Backtest{
-		datas:          datas,
-		symbol:         symbol,
-		start:          start,
-		end:            end,
-		strategyTester: strategyTester,
-		baseOutputDir:  outputDir,
+		datas:           datas,
+		symbol:          symbol,
+		start:           start,
+		end:             end,
+		strategyTesters: strategyTesters,
+		baseOutputDir:   outputDir,
 	}
 
-	strategyTester.backtest = b
-
-	if err := strategyTester.Setup(); err != nil {
-		panic(err)
+	for _, v := range strategyTesters {
+		v.backtest = b
 	}
 
 	return b
@@ -136,7 +142,7 @@ func NewBacktest(datas []*dataloader.Data, symbol string, start time.Time, end t
 		panic(err)
 	}
 
-	b.strategyTester = strategyTester
+	b.strategyTesters = []*StrategyTester{strategyTester}
 
 	return b
 }
@@ -151,12 +157,7 @@ func (b *Backtest) GetTime() time.Time {
 	return time.Unix(0, b.currentTimeNS)
 }
 
-// Run Run backtest
-func (b *Backtest) Run() {
-	strategyTester := b.strategyTester
-
-	SetIdGenerate(utils.NewIdGenerate(b.start))
-
+func (b *Backtest) initLogs() {
 	err := os.MkdirAll(b.baseOutputDir, os.ModePerm)
 	if err != nil {
 		panic(err)
@@ -170,8 +171,17 @@ func (b *Backtest) Run() {
 		false,
 		true)
 	log.SetLogger(logger)
+}
 
-	strategyTester.Init()
+// Run Run backtest
+func (b *Backtest) Run() {
+	SetIdGenerate(utils.NewIdGenerate(b.start))
+
+	if len(b.strategyTesters) > 1 {
+		log.SetLogger(&EmptyLogger{})
+	} else {
+		b.initLogs()
+	}
 
 	b.startedAt = time.Now()
 
@@ -184,24 +194,34 @@ func (b *Backtest) Run() {
 		return
 	}
 
-	// 初始净值
-	strategyTester.addInitItemStats()
-	strategyTester.OnInit()
+	for _, strategyTester := range b.strategyTesters {
+		strategyTester.Init()
+		strategyTester.addInitItemStats()
+		strategyTester.OnInit()
+	}
 
 	for {
-		strategyTester.OnTick()
-		strategyTester.RunEventLoopOnce()
-		strategyTester.addItemStats()
+		for _, strategyTester := range b.strategyTesters {
+			strategyTester.OnTick()
+		}
+		for _, strategyTester := range b.strategyTesters {
+			strategyTester.RunEventLoopOnce()
+		}
+		for _, strategyTester := range b.strategyTesters {
+			strategyTester.addItemStats()
+		}
 		if !b.next() {
 			break
 		}
 	}
 
-	// Exit
-	strategyTester.OnExit()
+	for _, strategyTester := range b.strategyTesters {
+		// Exit
+		strategyTester.OnExit()
 
-	// Sync logs
-	strategyTester.Sync()
+		// Sync logs
+		strategyTester.Sync()
+	}
 
 	log.Sync()
 
@@ -306,65 +326,6 @@ func (b *Backtest) nextOne() bool {
 	return ret
 }
 
-//func (b *Backtest) next() bool {
-//	if b.currentTimeNS == 0 {
-//		return b.nextInternal()
-//	}
-//
-//	for _, data := range b.sortedDatas {
-//		if b.currentTimeNS < data.Time {
-//			b.currentTimeNS = data.Time
-//			return true
-//		}
-//	}
-//
-//	return b.nextInternal()
-//}
-
-//func (b *Backtest) nextInternal() bool {
-//	if len(b.datas) == 1 {
-//		ret := b.datas[0].Next()
-//		if ret {
-//			b.currentTimeNS = b.datas[0].GetOrderBook().Time.UnixNano()
-//		}
-//		return ret
-//	}
-//
-//	for _, data := range b.datas {
-//		if !data.Next() {
-//			return false
-//		}
-//	}
-//
-//	b.setDataCache()
-//
-//	return true
-//}
-
-//func (b *Backtest) setDataCache() {
-//	// 数据对齐，提前排序
-//	n := len(b.datas)
-//	if n == 0 {
-//		return
-//	}
-//
-//	for i := 0; i < n; i++ {
-//		b.sortedDatas[i].Time = b.datas[i].GetOrderBook().Time.UnixNano()
-//		b.sortedDatas[i].Index = i
-//	}
-//
-//	sort.Slice(b.sortedDatas, func(i, j int) bool {
-//		return b.sortedDatas[i].Time < b.sortedDatas[j].Time
-//	})
-//
-//	if b.currentTimeNS == 0 {
-//		// 第一次按右对齐
-//		b.currentTimeNS = b.sortedDatas[len(b.sortedDatas)-1].Time
-//	} else {
-//		b.currentTimeNS = b.sortedDatas[0].Time
-//	}
-//}
-
 func (b *Backtest) GetPrices() (result []float64) {
 	n := len(b.datas)
 	result = make([]float64, n)
@@ -374,18 +335,25 @@ func (b *Backtest) GetPrices() (result []float64) {
 	return
 }
 
-func (b *Backtest) GetLogs() LogItems {
-	return b.strategyTester.GetLogs()
+func (b *Backtest) GetLogs(index int) LogItems {
+	return b.strategyTesters[index].GetLogs()
 }
 
 // ComputeStats Calculating Backtest Statistics
 func (b *Backtest) ComputeStats() (result *Stats) {
-	return b.strategyTester.ComputeStats()
+	return b.ComputeStatsByIndex(0)
+}
+
+func (b *Backtest) ComputeStatsByIndex(index int) (result *Stats) {
+	if index >= len(b.strategyTesters) {
+		return nil
+	}
+	return b.strategyTesters[index].ComputeStats()
 }
 
 // HTMLReport 创建Html报告文件
 func (b *Backtest) HtmlReport() {
-	b.strategyTester.HtmlReport()
+	b.strategyTesters[0].HtmlReport()
 }
 
 func (b *Backtest) priceLine(plotData *PlotData) *charts.Line {
@@ -435,7 +403,9 @@ func (b *Backtest) equityLine(plotData *PlotData) *charts.Line {
 func (b *Backtest) Plot() {
 	var plotData PlotData
 
-	for _, v := range b.strategyTester.logs {
+	strategyTester := b.strategyTesters[0]
+
+	for _, v := range strategyTester.logs {
 		plotData.NameItems = append(plotData.NameItems, v.Time.Format(SimpleDateTimeFormat))
 		plotData.Prices = append(plotData.Prices, v.Prices[0])
 		plotData.Equities = append(plotData.Equities, v.TotalEquity())

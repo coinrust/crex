@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"sort"
@@ -195,8 +196,50 @@ func (t *StrategyTester) ComputeStats() (result *Stats) {
 	result.BaHReturnPnt = (result.ExitPrice - result.EntryPrice) / result.EntryPrice
 	result.EquityReturn = result.ExitEquity - result.EntryEquity
 	result.EquityReturnPnt = result.EquityReturn / result.EntryEquity
+	result.AnnReturn = t.CalAnnReturn(result)
+	result.MaxDrawDown = t.CalMaxDrawDown()
 
 	return
+}
+
+// 计算年化收益
+func (t *StrategyTester) CalAnnReturn(s *Stats) float64 {
+	days := s.Duration.Hours() / 24.0
+	if days < 2.0 { // 小于2天直接返回0
+		return 0
+	}
+	return math.Pow(s.EquityReturnPnt+1.0, 365.0/days) - 1
+}
+
+// 计算最大回撤
+func (t *StrategyTester) CalMaxDrawDown() (result float64) {
+	n := len(t.logs)
+	values := make([]float64, n)
+	for i := 0; i < n; i++ {
+		values[i] = t.logs[i].TotalEquity()
+	}
+
+	maxValueUntil := func(untilIdx int) float64 {
+		maxVal := 0.0
+		for i := 0; i <= untilIdx; i++ {
+			if values[i] > maxVal {
+				maxVal = values[i]
+			}
+		}
+		return maxVal
+	}
+
+	maxDrawDown := 0.0
+
+	for i := 0; i < n; i++ {
+		maxVal := maxValueUntil(i - 1)
+		drawDown := 1.0 - (values[i] / maxVal)
+		if drawDown > 0 && drawDown > maxDrawDown {
+			maxDrawDown = drawDown
+		}
+	}
+
+	return maxDrawDown
 }
 
 // HTMLReport 创建Html报告文件
