@@ -38,6 +38,7 @@ type ExSim struct {
 	openOrders      map[string]*Order     // Open orders
 	historyOrders   map[string]*Order     // History orders
 	positions       map[string]*Positions // Position key: symbol
+	symbol          string
 
 	leverRate float64 // 杠杆
 	emitter   *emission.Emitter
@@ -57,8 +58,8 @@ func (b *ExSim) GetTime() (tm int64, err error) {
 func (b *ExSim) GetBalance(symbol string) (result *Balance, err error) {
 	result = &Balance{}
 	result.Available = b.balance
-	positions := b.getPositions(symbol)
 	ob := b.getOrderBook()
+	positions := b.getPositions(ob.Symbol)
 
 	result.Equity = result.Available
 	for _, position := range *positions {
@@ -106,6 +107,7 @@ func (b *ExSim) GetRecords(symbol string, period string, from int64, end int64, 
 }
 
 func (b *ExSim) SetContractType(pair string, contractType string) (err error) {
+	b.symbol = b.getOrderBook().Symbol
 	return
 }
 
