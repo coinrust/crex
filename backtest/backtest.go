@@ -85,7 +85,8 @@ type Backtest struct {
 // end: 结束时间
 // strategyHold: 策略和交易所
 // outputDir: 回测输出目录
-func NewBacktestFromParams(datas []*dataloader.Data, symbol string, start time.Time, end time.Time, strategyParamsList []*StrategyTesterParams, outputDir string) *Backtest {
+func NewBacktestFromParams(datas []*dataloader.Data, symbol string, start time.Time, end time.Time,
+	strategyParamsList []*StrategyTesterParams, outputDir string) *Backtest {
 	var strategyTesters []*StrategyTester
 	for _, strategyParams := range strategyParamsList {
 		strategyTester := &StrategyTester{
@@ -158,12 +159,19 @@ func (b *Backtest) GetTime() time.Time {
 }
 
 func (b *Backtest) initLogs() {
-	err := os.MkdirAll(b.baseOutputDir, os.ModePerm)
-	if err != nil {
+	if b.baseOutputDir == "" {
+		log.SetLogger(&EmptyLogger{})
+		return
+	}
+
+	if err := os.MkdirAll(b.baseOutputDir, os.ModePerm); err != nil {
 		panic(err)
 	}
 
 	b.outputDir = filepath.Join(b.baseOutputDir, time.Now().Format("20060102150405"))
+	if err := os.MkdirAll(b.outputDir, os.ModePerm); err != nil {
+		panic(err)
+	}
 
 	logger := NewBtLogger(b,
 		filepath.Join(b.outputDir, "result.log"),
@@ -177,11 +185,7 @@ func (b *Backtest) initLogs() {
 func (b *Backtest) Run() {
 	SetIdGenerate(utils.NewIdGenerate(b.start))
 
-	if len(b.strategyTesters) > 1 {
-		log.SetLogger(&EmptyLogger{})
-	} else {
-		b.initLogs()
-	}
+	b.initLogs()
 
 	b.startedAt = time.Now()
 
