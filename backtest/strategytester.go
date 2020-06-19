@@ -21,6 +21,13 @@ type StrategyTesterParams struct {
 	exchanges []ExchangeSim
 }
 
+func NewStrategyTesterParams(strategy Strategy, exchanges []ExchangeSim) *StrategyTesterParams {
+	return &StrategyTesterParams{
+		strategy:  strategy,
+		exchanges: exchanges,
+	}
+}
+
 type StrategyTester struct {
 	*StrategyTesterParams
 
