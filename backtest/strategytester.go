@@ -67,8 +67,23 @@ func (t *StrategyTester) Init() {
 	}
 }
 
+func validPrices(prices ...float64) bool {
+	for _, v := range prices {
+		if v == 0 {
+			return false
+		}
+	}
+	return true
+}
+
 func (t *StrategyTester) addInitItemStats() {
 	b := t.backtest
+
+	prices := b.GetPrices()
+	if !validPrices(prices...) {
+		return
+	}
+
 	item := &LogItem{
 		Time:    time.Unix(0, b.currentTimeNS).Local(),
 		RawTime: time.Unix(0, b.currentTimeNS).Local(),
@@ -94,18 +109,23 @@ func (t *StrategyTester) addItemStats() {
 		}
 	}
 
+	prices := b.GetPrices()
+	if !validPrices(prices...) {
+		return
+	}
+
 	var item *LogItem
 	if update {
 		item = lastItem
 		item.RawTime = tm
-		item.Prices = b.GetPrices()
+		item.Prices = prices
 		item.Stats = nil
 		t.fetchItemStats(item)
 	} else {
 		item = &LogItem{
 			Time:    timestamp,
 			RawTime: tm,
-			Prices:  b.GetPrices(),
+			Prices:  prices,
 			Stats:   nil,
 		}
 		t.fetchItemStats(item)
