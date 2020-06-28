@@ -211,8 +211,15 @@ func (b *Backtest) Run() {
 		for _, strategyTester := range b.strategyTesters {
 			strategyTester.RunEventLoopOnce()
 		}
+		var stopped bool
 		for _, strategyTester := range b.strategyTesters {
 			strategyTester.addItemStats()
+			if strategyTester.strategy.IsStopped() {
+				stopped = true
+			}
+		}
+		if stopped {
+			break
 		}
 		if !b.next() {
 			break

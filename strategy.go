@@ -28,6 +28,8 @@ type Strategy interface {
 	SetSelf(self Strategy) error
 	//Setup(mode TradeMode, exchanges ...Exchange) error
 	Setup(mode TradeMode, exchanges ...interface{}) error
+	IsStopped() bool
+	StopNow()
 	TradeMode() TradeMode
 	SetOptions(options map[string]interface{}) error
 	Run() error
@@ -43,6 +45,7 @@ type StrategyBase struct {
 	tradeMode TradeMode
 	Exchanges []Exchange
 	Exchange  Exchange
+	stopped   bool
 }
 
 // SetSelf 设置 self 对象
@@ -65,6 +68,7 @@ func (s *StrategyBase) Setup(mode TradeMode, exchanges ...interface{}) error { /
 		s.Exchanges = append(s.Exchanges, ex)
 	}
 	s.Exchange = s.Exchanges[0]
+	s.stopped = false
 	return nil
 }
 
@@ -80,6 +84,14 @@ func (s *StrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
 
 func (s *StrategyBase) TradeMode() TradeMode {
 	return s.tradeMode
+}
+
+func (s *StrategyBase) IsStopped() bool {
+	return s.stopped
+}
+
+func (s *StrategyBase) StopNow() {
+	s.stopped = true
 }
 
 func (s *StrategyBase) SetName(name string) {
