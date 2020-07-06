@@ -36,7 +36,7 @@ func (d *Data) Reset(start time.Time, end time.Time) {
 }
 
 func (d *Data) GetOrderBookByNS(symbol string, ns int64) *OrderBook {
-	if ob := d.getOrderBookByNS(ns); ob != nil && ob.Symbol == symbol {
+	if ob := d.getOrderBookByNS(ns); ob != nil && (symbol == "" || ob.Symbol == symbol) {
 		return ob
 	}
 	if d.relData != nil {

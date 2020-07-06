@@ -56,12 +56,12 @@ func (s *SpotSim) GetBalance(currency string) (result *SpotBalance, err error) {
 
 // 获取订单薄(OrderBook)
 func (s *SpotSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
-	result = s.data.GetOrderBookByNS(s.backtest.GetTime().UnixNano())
+	result = s.data.GetOrderBookByNS(symbol, s.backtest.GetTime().UnixNano())
 	return
 }
 
 func (s *SpotSim) getOrderBook() *OrderBook {
-	return s.data.GetOrderBookByNS(s.backtest.GetTime().UnixNano())
+	return s.data.GetOrderBookByNS("", s.backtest.GetTime().UnixNano())
 }
 
 // 获取K线数据
