@@ -94,12 +94,12 @@ func (b *ExSim) GetPValue(symbol string) float64 {
 }
 
 func (b *ExSim) GetOrderBook(symbol string, depth int) (result *OrderBook, err error) {
-	result = b.data.GetOrderBookByNS(b.backtest.GetTime().UnixNano())
+	result = b.data.GetOrderBookByNS(symbol, b.backtest.GetTime().UnixNano())
 	return
 }
 
 func (b *ExSim) getOrderBook() *OrderBook {
-	return b.data.GetOrderBookByNS(b.backtest.GetTime().UnixNano())
+	return b.data.GetOrderBookByNS(b.symbol, b.backtest.GetTime().UnixNano())
 }
 
 func (b *ExSim) GetRecords(symbol string, period string, from int64, end int64, limit int) (records []*Record, err error) {

@@ -11,6 +11,8 @@ type Data struct {
 	maxIndex   int
 	data       []*OrderBook
 	dataLoader DataLoader
+
+	relData *Data // 关联 Data
 }
 
 func (d *Data) Len() int {
@@ -33,7 +35,17 @@ func (d *Data) Reset(start time.Time, end time.Time) {
 	d.maxIndex = len(d.data) - 1
 }
 
-func (d *Data) GetOrderBookByNS(ns int64) *OrderBook {
+func (d *Data) GetOrderBookByNS(symbol string, ns int64) *OrderBook {
+	if ob := d.getOrderBookByNS(ns); ob != nil && ob.Symbol == symbol {
+		return ob
+	}
+	if d.relData != nil {
+		return d.relData.GetOrderBookByNS(symbol, ns)
+	}
+	return nil
+}
+
+func (d *Data) getOrderBookByNS(ns int64) *OrderBook {
 	if d.data == nil {
 		return nil
 	}
@@ -104,6 +116,10 @@ func (d *Data) readMore() (offset int, count int) {
 	}
 	count = len(d.data)
 	return
+}
+
+func (d *Data) SetDataRel(relData *Data) {
+	d.relData = relData
 }
 
 func NewData(loader DataLoader) *Data {
