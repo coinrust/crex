@@ -118,6 +118,10 @@ func (d *Data) readMore() (offset int, count int) {
 	return
 }
 
+func (d *Data) GetDataRel() *Data {
+	return d.relData
+}
+
 func (d *Data) SetDataRel(relData *Data) {
 	d.relData = relData
 }
