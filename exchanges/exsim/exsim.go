@@ -107,7 +107,7 @@ func (b *ExSim) GetRecords(symbol string, period string, from int64, end int64, 
 }
 
 func (b *ExSim) SetContractType(pair string, contractType string) (err error) {
-	b.symbol = b.getOrderBook().Symbol
+	b.symbol = b.data.GetOrderBookByNS("", b.backtest.GetTime().UnixNano()).Symbol
 	return
 }
 
