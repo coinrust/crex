@@ -156,6 +156,63 @@ func (s *SpotStrategyBase) Name() string {
 	return s.name
 }
 
+// 组合策略，期现等
+// CStrategyBase Strategy base class
+type CStrategyBase struct {
+	self          interface{}
+	name          string
+	tradeMode     TradeMode
+	Exchanges     []Exchange
+	SpotExchanges []SpotExchange
+}
+
+// SetSelf 设置 self 对象
+func (s *CStrategyBase) SetSelf(self Strategy) error {
+	s.self = self.(interface{})
+	return nil
+}
+
+// Setup Setups the exchanges
+func (s *CStrategyBase) Setup(mode TradeMode, exchanges ...interface{}) error { // Exchange
+	if len(exchanges) == 0 {
+		return fmt.Errorf("no exchanges")
+	}
+	s.tradeMode = mode
+	for _, v := range exchanges {
+		if ex, ok := v.(Exchange); ok {
+			s.Exchanges = append(s.Exchanges, ex)
+			continue
+		}
+
+		if ex, ok := v.(SpotExchange); ok {
+			s.SpotExchanges = append(s.SpotExchanges, ex)
+		}
+	}
+	return nil
+}
+
+// SetOptions Sets the options for the strategy
+func (s *CStrategyBase) SetOptions(options map[string]interface{}) error {
+	return setOptions(s.self, options)
+}
+
+// GetOptions Returns the options of strategy
+func (s *CStrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
+	return getOptions(s.self)
+}
+
+func (s *CStrategyBase) TradeMode() TradeMode {
+	return s.tradeMode
+}
+
+func (s *CStrategyBase) SetName(name string) {
+	s.name = name
+}
+
+func (s *CStrategyBase) Name() string {
+	return s.name
+}
+
 // SetOptions Sets the options for the strategy
 func setOptions(s interface{}, options map[string]interface{}) error {
 	if len(options) == 0 {
