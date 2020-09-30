@@ -164,6 +164,7 @@ type CStrategyBase struct {
 	tradeMode     TradeMode
 	Exchanges     []Exchange
 	SpotExchanges []SpotExchange
+	stopped       bool
 }
 
 // SetSelf 设置 self 对象
@@ -188,6 +189,7 @@ func (s *CStrategyBase) Setup(mode TradeMode, exchanges ...interface{}) error { 
 			s.SpotExchanges = append(s.SpotExchanges, ex)
 		}
 	}
+	s.stopped = false
 	return nil
 }
 
@@ -203,6 +205,14 @@ func (s *CStrategyBase) GetOptions() (optionMap map[string]*StrategyOption) {
 
 func (s *CStrategyBase) TradeMode() TradeMode {
 	return s.tradeMode
+}
+
+func (s *CStrategyBase) IsStopped() bool {
+	return s.stopped
+}
+
+func (s *CStrategyBase) StopNow() {
+	s.stopped = true
 }
 
 func (s *CStrategyBase) SetName(name string) {
