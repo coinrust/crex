@@ -25,12 +25,13 @@ type SLog struct {
 }
 
 type SExchange struct {
-	Name      string `toml:"name"`
-	DebugMode bool   `toml:"debug_mode"`
-	AccessKey string `toml:"access_key"`
-	SecretKey string `toml:"secret_key"`
-	Testnet   bool   `toml:"testnet"`
-	WebSocket bool   `toml:"websocket"`
+	Name       string `toml:"name"`
+	DebugMode  bool   `toml:"debug_mode"`
+	AccessKey  string `toml:"access_key"`
+	SecretKey  string `toml:"secret_key"`
+	Passphrase string `toml:"passphrase"`
+	Testnet    bool   `toml:"testnet"`
+	WebSocket  bool   `toml:"websocket"`
 }
 
 // Serve 加载策略并执行
@@ -75,12 +76,18 @@ func SetupStrategyFromConfig(strategy Strategy) (err error) {
 	}
 	var exs []interface{}
 	for _, ex := range c.Exchanges {
-		exchange := exchanges.NewExchange(ex.Name,
+		var opts = []ApiOption{
 			ApiDebugModeOption(ex.DebugMode),
 			ApiAccessKeyOption(ex.AccessKey),
 			ApiSecretKeyOption(ex.SecretKey),
 			ApiTestnetOption(ex.Testnet),
-			ApiWebSocketOption(ex.WebSocket))
+			ApiWebSocketOption(ex.WebSocket),
+		}
+		if ex.Passphrase != "" {
+			opts = append(opts, ApiPassPhraseOption(ex.Passphrase))
+		}
+		exchange := exchanges.NewExchange(ex.Name,
+			opts...)
 		exs = append(exs, exchange)
 	}
 	if err = strategy.Setup(TradeModeLiveTrading, exs...); err != nil {

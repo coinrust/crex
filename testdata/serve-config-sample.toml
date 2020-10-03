@@ -3,6 +3,7 @@ name = "deribit"
 debug_mode = false
 access_key = ""
 secret_key = ""
+passphrase = "" # 可选，OKEX需要配置此参数
 testnet = true
 websocket = false
 
