@@ -447,6 +447,10 @@ func (b *HbdmSwap) SubscribePositions(market Market, callback func(positions []*
 	return b.ws.SubscribePositions(market, callback)
 }
 
+func (b *HbdmSwap) IO(name string, params string) (string, error) {
+	return "", nil
+}
+
 func NewHbdmSwap(params *Parameters) *HbdmSwap {
 	baseUri := "https://api.hbdm.com"
 	if params.ApiURL != "" {

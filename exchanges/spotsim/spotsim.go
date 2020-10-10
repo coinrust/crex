@@ -1,6 +1,7 @@
 package spotsim
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
@@ -391,6 +392,23 @@ func (s *SpotSim) CancelOrder(symbol string, id string, opts ...OrderOption) (re
 		err = errors.New("not found")
 	}
 	return
+}
+
+func (s *SpotSim) IO(name string, params string) (string, error) {
+	switch name {
+	case "AddBalance":
+		var b SpotBalance
+		if err := json.Unmarshal([]byte(params), &b); err != nil {
+			return "", err
+		}
+		s.balance.Base.Available += b.Base.Available
+		s.balance.Base.Borrow += b.Base.Borrow
+		s.balance.Base.Frozen += b.Base.Frozen
+		s.balance.Quote.Available += b.Quote.Available
+		s.balance.Quote.Borrow += b.Quote.Borrow
+		s.balance.Quote.Frozen += b.Quote.Frozen
+	}
+	return "", nil
 }
 
 func (s *SpotSim) SetBacktest(backtest IBacktest) {

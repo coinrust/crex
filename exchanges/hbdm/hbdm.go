@@ -522,6 +522,10 @@ func (b *Hbdm) SubscribePositions(market Market, callback func(positions []*Posi
 	return b.ws.SubscribePositions(rawSymbol, contractType, callback)
 }
 
+func (b *Hbdm) IO(name string, params string) (string, error) {
+	return "", nil
+}
+
 func NewHbdm(params *Parameters) *Hbdm {
 	baseUri := "https://api.hbdm.com"
 	if params.ApiURL != "" {

@@ -447,6 +447,10 @@ func (b *OkexSwap) SubscribePositions(market Market, callback func(positions []*
 	return b.ws.SubscribePositions(market, callback)
 }
 
+func (b *OkexSwap) IO(name string, params string) (string, error) {
+	return "", nil
+}
+
 func NewOkexSwap(params *Parameters) *OkexSwap {
 	var baseUri string
 	if params.ApiURL != "" {

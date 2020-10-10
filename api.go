@@ -294,4 +294,7 @@ type Exchange interface {
 
 	// 订阅持仓
 	SubscribePositions(market Market, callback func(positions []*Position)) error
+
+	// 调用其他功能
+	IO(name string, params string) (string, error)
 }

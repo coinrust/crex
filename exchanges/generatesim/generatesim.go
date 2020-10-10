@@ -658,3 +658,7 @@ func (s *GenerateSim) logOrderInfo(msg string, event string, order *Order) {
 		"positions", position,
 	)
 }
+
+func (s *GenerateSim) IO(name string, params string) (string, error) {
+	return "", nil
+}

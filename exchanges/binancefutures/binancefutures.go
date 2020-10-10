@@ -428,6 +428,10 @@ func (b *BinanceFutures) SubscribePositions(market Market, callback func(positio
 	return ErrNotImplemented
 }
 
+func (b *BinanceFutures) IO(name string, params string) (string, error) {
+	return "", nil
+}
+
 func NewBinanceFutures(params *Parameters) *BinanceFutures {
 	client := futures.NewClient(params.AccessKey, params.SecretKey)
 	b := &BinanceFutures{

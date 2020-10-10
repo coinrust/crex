@@ -505,6 +505,10 @@ func (b *OkexFutures) SubscribePositions(market Market, callback func(positions 
 	return b.ws.SubscribePositions(market, callback)
 }
 
+func (b *OkexFutures) IO(name string, params string) (string, error) {
+	return "", nil
+}
+
 func NewOkexFutures(params *Parameters) *OkexFutures {
 	var baseUri string
 	if params.ApiURL != "" {

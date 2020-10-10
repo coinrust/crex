@@ -6,6 +6,7 @@ import (
 	"github.com/chuckpreslar/emission"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/dataloader"
+	"github.com/spf13/cast"
 	"log"
 	"math"
 	"time"
@@ -796,6 +797,15 @@ func (b *ExSim) logOrderInfo(msg string, event string, order *Order) {
 		"orderbook", ob,
 		"balance", b.balance,
 		"positions", *positions)
+}
+
+func (b *ExSim) IO(name string, params string) (string, error) {
+	switch name {
+	case "AddBalance":
+		value := cast.ToFloat64(params)
+		b.balance += value
+	}
+	return "", nil
 }
 
 // NewExSim 创建模拟交易所
