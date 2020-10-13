@@ -11,7 +11,7 @@ func TestBacktest_HtmlReport(t *testing.T) {
 	b := NewBacktest(nil,
 		"BTC-USDT", start, end, nil, nil, "")
 	path := `../testdata/trade_0.log`
-	err := b.strategyTester.htmlReport(path)
+	err := b.strategyTesters[0].htmlReport(path)
 	if err != nil {
 		t.Error(err)
 		return
