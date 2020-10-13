@@ -390,7 +390,7 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err e
 		order.Status = OrderStatusFilled
 		match = true
 	} else { // Ask order
-		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Bids...)
+		filledAmount, avgPrice := b.matchAsk(order.Amount, ob.Bids...)
 		//if order.Price > ob.BidPrice() {
 		if filledAmount == 0 {
 			return
