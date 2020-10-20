@@ -246,7 +246,13 @@ func (b *ExSim) matchMarketOrder(order *Order) (changed bool, err error) {
 		return
 	}
 
-	ob := b.getOrderBook()
+	var ob *OrderBook
+	//ob := b.getOrderBook()
+	if order.Symbol != "" {
+		ob, _ = b.GetOrderBook(order.Symbol, 25)
+	} else {
+		ob = b.getOrderBook()
+	}
 
 	// 判断开仓数量
 	margin := b.balance
@@ -344,7 +350,13 @@ func (b *ExSim) matchLimitOrder(order *Order, immediate bool) (match bool, err e
 
 	side := b.getOrderSide(order)
 
-	ob := b.getOrderBook()
+	var ob *OrderBook
+	//ob := b.getOrderBook()
+	if order.Symbol != "" {
+		ob, _ = b.GetOrderBook(order.Symbol, 25)
+	} else {
+		ob = b.getOrderBook()
+	}
 	if order.Direction == Buy { // Bid order
 		filledAmount, avgPrice := b.matchBid(order.Amount, ob.Asks...)
 		//if order.Price < ob.AskPrice() {
