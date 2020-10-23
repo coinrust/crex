@@ -168,6 +168,8 @@ github.com/frankrap/bybit-api v1.0.1 h1:Y5vwR1Q0nAwcmikVDu3LLt6Ty9w63Xw/9sTWZSGZ
 github.com/frankrap/bybit-api v1.0.1/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/bybit-api v1.0.2 h1:OdkZQl4/3li5nEm5WtZEAnUjeQ47enLy+jEHQhn4NoE=
 github.com/frankrap/bybit-api v1.0.2/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
+github.com/frankrap/bybit-api v1.0.3 h1:8p1eVOqZ1EMWzrmx/8UWe98+7RmNvf596mqgOv3uiVQ=
+github.com/frankrap/bybit-api v1.0.3/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
 github.com/frankrap/deribit-api v1.0.3 h1:dr99UrQ4nT4T7B2voPKPRyQwcihBjIg8VDZrImUGF20=
 github.com/frankrap/deribit-api v1.0.3/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/huobi-api v1.0.2 h1:WWf4DTxPpKjC1tR2YBJeTdw5tCYWsu79F0WWcnl3tvk=
