@@ -322,6 +322,8 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result *Order) {
 	}
 	result.ReduceOnly = order.ReduceOnly
 	result.Status = b.orderStatus(order.Status)
+	result.Time = time.Unix(order.Time/int64(1e3), 0)
+	result.UpdateTime = time.Unix(order.UpdateTime/int64(1e3), 0)
 	return
 }
 
