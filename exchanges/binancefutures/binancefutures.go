@@ -3,13 +3,14 @@ package binancefutures
 import (
 	"context"
 	"fmt"
-	"github.com/adshao/go-binance/futures"
-	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/utils"
 	"net/http"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/adshao/go-binance/futures"
+	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/utils"
 )
 
 // BinanceFutures the Binance futures exchange
@@ -205,9 +206,15 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	if price > 0 {
 		service = service.Price(fmt.Sprint(price))
 	}
+
+	if orderType != OrderTypeMarket {
+		service = service.TimeInForce(resolveTimeInForce(params.TimeInForce))
+	}
+
 	if params.PostOnly {
 		service = service.TimeInForce(futures.TimeInForceTypeGTX)
 	}
+
 	service = service.Side(side).Type(_orderType)
 	var res *futures.CreateOrderResponse
 	res, err = service.Do(context.Background())
@@ -216,6 +223,25 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	}
 	result = b.convertOrder1(res)
 	return
+}
+
+func resolveTimeInForce(timeInForce string) futures.TimeInForceType {
+	var futuresTimeInForce futures.TimeInForceType
+
+	switch timeInForce {
+	case string(futures.TimeInForceTypeGTC):
+		futuresTimeInForce = futures.TimeInForceTypeGTC
+	case string(futures.TimeInForceTypeFOK):
+		futuresTimeInForce = futures.TimeInForceTypeFOK
+	case string(futures.TimeInForceTypeIOC):
+		futuresTimeInForce = futures.TimeInForceTypeIOC
+	case string(futures.TimeInForceTypeGTX):
+		futuresTimeInForce = futures.TimeInForceTypeGTX
+	default:
+		futuresTimeInForce = futures.TimeInForceTypeGTC
+	}
+
+	return futuresTimeInForce
 }
 
 func (b *BinanceFutures) GetOpenOrders(symbol string, opts ...OrderOption) (result []*Order, err error) {

@@ -103,12 +103,13 @@ func ParseOrderParameter(opts ...OrderOption) *OrderParameter {
 }
 
 type PlaceOrderParameter struct {
-	BasePrice  float64
-	StopPx     float64
-	PostOnly   bool
-	ReduceOnly bool
-	PriceType  string
-	ClientOId  string
+	BasePrice   float64
+	StopPx      float64
+	PostOnly    bool
+	ReduceOnly  bool
+	PriceType   string
+	ClientOId   string
+	TimeInForce string
 }
 
 // 订单选项
@@ -152,6 +153,12 @@ func OrderPriceTypeOption(priceType string) PlaceOrderOption {
 func OrderClientOIdOption(clientOId string) PlaceOrderOption {
 	return func(p *PlaceOrderParameter) {
 		p.ClientOId = clientOId
+	}
+}
+
+func OrderTimeInForceOption(timeInForce string) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
+		p.TimeInForce = timeInForce
 	}
 }
 
