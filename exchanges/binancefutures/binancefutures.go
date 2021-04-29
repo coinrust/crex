@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/adshao/go-binance/futures"
+	"github.com/adshao/go-binance/v2/futures"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/utils"
 )
@@ -465,6 +465,7 @@ func (b *BinanceFutures) IO(name string, params string) (string, error) {
 }
 
 func NewBinanceFutures(params *Parameters) *BinanceFutures {
+	futures.UseTestnet = params.Testnet
 	client := futures.NewClient(params.AccessKey, params.SecretKey)
 	b := &BinanceFutures{
 		client: client,

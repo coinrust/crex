@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/MauriceGit/skiplist v0.0.0-20191117202105-643e379adb62
+	github.com/adshao/go-binance/v2 v2.2.1 // indirect
 	github.com/beaquant/utils v0.0.0-20210215234655-6b25ba8e2337
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v1.0.1
