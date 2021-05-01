@@ -203,12 +203,12 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 		_orderType = futures.OrderTypeStop
 		service = service.StopPrice(fmt.Sprint(params.StopPx))
 	}
-	if price > 0 {
-		service = service.Price(fmt.Sprint(price))
-	}
 
 	if orderType != OrderTypeMarket {
 		service = service.TimeInForce(resolveTimeInForce(params.TimeInForce))
+		if price > 0 {
+			service = service.Price(fmt.Sprint(price))
+		}
 	}
 
 	if params.PostOnly {
