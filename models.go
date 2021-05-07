@@ -210,6 +210,10 @@ type Order struct {
 	Pnl          float64     `json:"pnl"`           // 盈亏
 	UpdateTime   time.Time   `json:"update_time"`   // 更新时间
 	Status       OrderStatus `json:"status"`        // 委托状态
+
+	ActivatePrice string `json:"activatePrice"`
+	PriceRate     string `json:"priceRate"`
+	ClosePosition bool   `json:"closePosition"`
 }
 
 // IsOpen 是否活跃委托

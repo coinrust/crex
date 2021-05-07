@@ -183,7 +183,10 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
 		Quantity(fmt.Sprint(size)).
-		ReduceOnly(params.ReduceOnly)
+		ReduceOnly(params.ReduceOnly).
+		ActivationPrice(fmt.Sprint(params.ActivationPrice)).
+		CallbackRate(fmt.Sprint(params.CallbackRate)).
+		ClosePosition(params.ClosePosition)
 	var side futures.SideType
 	if direction == Buy {
 		side = futures.SideTypeBuy
@@ -360,6 +363,8 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result *Order) {
 	result.Status = b.orderStatus(order.Status)
 	result.Time = time.Unix(order.Time/int64(1e3), 0)
 	result.UpdateTime = time.Unix(order.UpdateTime/int64(1e3), 0)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
 	return
 }
 
@@ -381,6 +386,9 @@ func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (resu
 	}
 	result.ReduceOnly = order.ReduceOnly
 	result.Status = b.orderStatus(order.Status)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
+	result.ClosePosition = order.ClosePosition
 	return
 }
 
@@ -401,6 +409,8 @@ func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (resu
 	}
 	result.ReduceOnly = order.ReduceOnly
 	result.Status = b.orderStatus(order.Status)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
 	return
 }
 

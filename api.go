@@ -110,6 +110,10 @@ type PlaceOrderParameter struct {
 	PriceType   string
 	ClientOId   string
 	TimeInForce string
+
+	ActivationPrice float64
+	CallbackRate    float64
+	ClosePosition   bool
 }
 
 // 订单选项
@@ -159,6 +163,24 @@ func OrderClientOIdOption(clientOId string) PlaceOrderOption {
 func OrderTimeInForceOption(timeInForce string) PlaceOrderOption {
 	return func(p *PlaceOrderParameter) {
 		p.TimeInForce = timeInForce
+	}
+}
+
+func OrderActivationPriceOption(activationPrice float64) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
+		p.ActivationPrice = activationPrice
+	}
+}
+
+func OrderCallbackRateOption(callbackRate float64) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
+		p.CallbackRate = callbackRate
+	}
+}
+
+func OrderClosePositionOption(closePosition bool) PlaceOrderOption {
+	return func(p *PlaceOrderParameter) {
+		p.ClosePosition = closePosition
 	}
 }
 
