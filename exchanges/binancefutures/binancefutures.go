@@ -58,9 +58,9 @@ func (b *BinanceFutures) GetBalance(currency string) (result *Balance, err error
 	result = &Balance{}
 	for _, v := range res {
 		if v.Asset == currency { // USDT
-			value := utils.ParseFloat64(v.Balance)
-			result.Equity = value
-			result.Available = value
+			result.Equity = utils.ParseFloat64(v.Balance)
+			result.Available = utils.ParseFloat64(v.AvailableBalance)
+			result.UnrealisedPnl = utils.ParseFloat64(v.CrossUnPnl)
 			break
 		}
 	}
