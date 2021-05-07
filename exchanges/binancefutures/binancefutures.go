@@ -326,7 +326,16 @@ func (b *BinanceFutures) GetPositions(symbol string) (result []*Position, err er
 			position.Size = size
 			position.OpenPrice = utils.ParseFloat64(v.EntryPrice)
 			position.AvgPrice = position.OpenPrice
+			position.Profit = utils.ParseFloat64(v.UnRealizedProfit)
 		}
+		position.MarginType = v.MarginType
+		position.IsAutoAddMargin = utils.ParseBool(v.IsAutoAddMargin)
+		position.IsolatedMargin = utils.ParseFloat64(v.IsolatedMargin)
+		position.Leverage = utils.ParseFloat64(v.Leverage)
+		position.LiquidationPrice = utils.ParseFloat64(v.LiquidationPrice)
+		position.MarkPrice = utils.ParseFloat64(v.MarkPrice)
+		position.MaxNotionalValue = utils.ParseFloat64(v.MaxNotionalValue)
+		position.PositionSide = v.PositionSide
 		result = append(result, position)
 	}
 	return

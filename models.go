@@ -1,8 +1,9 @@
 package crex
 
 import (
-	"github.com/rocketlaunchr/dataframe-go"
 	"time"
+
+	"github.com/rocketlaunchr/dataframe-go"
 )
 
 type Balance struct {
@@ -224,6 +225,15 @@ type Position struct {
 	Size      float64   `json:"size"`       // 仓位大小
 	AvgPrice  float64   `json:"avg_price"`  // 平均价
 	Profit    float64   `json:"profit"`     //浮动盈亏
+
+	MarginType       string  `json:"marginType"`
+	IsAutoAddMargin  bool    `json:"isAutoAddMargin"`
+	IsolatedMargin   float64 `json:"isolatedMargin"`
+	Leverage         float64 `json:"leverage"`
+	LiquidationPrice float64 `json:"liquidationPrice"`
+	MarkPrice        float64 `json:"markPrice"`
+	MaxNotionalValue float64 `json:"maxNotionalValue"`
+	PositionSide     string  `json:"positionSide"`
 }
 
 func (p *Position) Side() Direction {
