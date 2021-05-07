@@ -473,6 +473,14 @@ func (b *BinanceFutures) IO(name string, params string) (string, error) {
 	return "", nil
 }
 
+func (b *BinanceFutures) ChangeLeverage(symbol string, leverage int) (err error) {
+	_, err = b.client.NewChangeLeverageService().
+		Symbol(symbol).
+		Leverage(leverage).
+		Do(context.Background())
+	return err
+}
+
 func NewBinanceFutures(params *Parameters) *BinanceFutures {
 	futures.UseTestnet = params.Testnet
 	client := futures.NewClient(params.AccessKey, params.SecretKey)
