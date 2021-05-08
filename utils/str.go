@@ -11,3 +11,8 @@ func ParseInt(s string) int {
 	i, _ := strconv.ParseInt(s, 10, 64)
 	return int(i)
 }
+
+func ParseBool(s string) bool {
+	b, _ := strconv.ParseBool(s)
+	return b
+}
