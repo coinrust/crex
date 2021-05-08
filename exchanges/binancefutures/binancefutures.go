@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/adshao/go-binance/futures"
+	"github.com/adshao/go-binance/v2/futures"
 	. "github.com/coinrust/crex"
 	"github.com/coinrust/crex/utils"
 )
