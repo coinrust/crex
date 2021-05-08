@@ -1,10 +1,11 @@
 package binancefutures
 
 import (
-	. "github.com/coinrust/crex"
-	"github.com/coinrust/crex/configtest"
 	"testing"
 	"time"
+
+	. "github.com/coinrust/crex"
+	"github.com/coinrust/crex/configtest"
 )
 
 func testExchange() Exchange {
@@ -73,4 +74,14 @@ func TestBinanceFutures_GetOpenOrders(t *testing.T) {
 		return
 	}
 	t.Logf("%#v", orders)
+}
+
+func TestBinanceFutures_ChangeLeverage(t *testing.T) {
+	ex := testExchange()
+	binance := ex.(*BinanceFutures)
+	err := binance.ChangeLeverage("BTCUSDT", 50)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 }

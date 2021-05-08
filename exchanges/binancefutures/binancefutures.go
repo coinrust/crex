@@ -58,9 +58,9 @@ func (b *BinanceFutures) GetBalance(currency string) (result *Balance, err error
 	result = &Balance{}
 	for _, v := range res {
 		if v.Asset == currency { // USDT
-			value := utils.ParseFloat64(v.Balance)
-			result.Equity = value
-			result.Available = value
+			result.Equity = utils.ParseFloat64(v.Balance)
+			result.Available = utils.ParseFloat64(v.AvailableBalance)
+			result.UnrealisedPnl = utils.ParseFloat64(v.CrossUnPnl)
 			break
 		}
 	}
@@ -183,7 +183,10 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
 		Quantity(fmt.Sprint(size)).
-		ReduceOnly(params.ReduceOnly)
+		ReduceOnly(params.ReduceOnly).
+		ActivationPrice(fmt.Sprint(params.ActivationPrice)).
+		CallbackRate(fmt.Sprint(params.CallbackRate)).
+		ClosePosition(params.ClosePosition)
 	var side futures.SideType
 	if direction == Buy {
 		side = futures.SideTypeBuy
@@ -203,12 +206,12 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 		_orderType = futures.OrderTypeStop
 		service = service.StopPrice(fmt.Sprint(params.StopPx))
 	}
-	if price > 0 {
-		service = service.Price(fmt.Sprint(price))
-	}
 
 	if orderType != OrderTypeMarket {
 		service = service.TimeInForce(resolveTimeInForce(params.TimeInForce))
+		if price > 0 {
+			service = service.Price(fmt.Sprint(price))
+		}
 	}
 
 	if params.PostOnly {
@@ -326,7 +329,16 @@ func (b *BinanceFutures) GetPositions(symbol string) (result []*Position, err er
 			position.Size = size
 			position.OpenPrice = utils.ParseFloat64(v.EntryPrice)
 			position.AvgPrice = position.OpenPrice
+			position.Profit = utils.ParseFloat64(v.UnRealizedProfit)
 		}
+		position.MarginType = v.MarginType
+		position.IsAutoAddMargin = utils.ParseBool(v.IsAutoAddMargin)
+		position.IsolatedMargin = utils.ParseFloat64(v.IsolatedMargin)
+		position.Leverage = utils.ParseFloat64(v.Leverage)
+		position.LiquidationPrice = utils.ParseFloat64(v.LiquidationPrice)
+		position.MarkPrice = utils.ParseFloat64(v.MarkPrice)
+		position.MaxNotionalValue = utils.ParseFloat64(v.MaxNotionalValue)
+		position.PositionSide = v.PositionSide
 		result = append(result, position)
 	}
 	return
@@ -351,6 +363,8 @@ func (b *BinanceFutures) convertOrder(order *futures.Order) (result *Order) {
 	result.Status = b.orderStatus(order.Status)
 	result.Time = time.Unix(order.Time/int64(1e3), 0)
 	result.UpdateTime = time.Unix(order.UpdateTime/int64(1e3), 0)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
 	return
 }
 
@@ -372,6 +386,9 @@ func (b *BinanceFutures) convertOrder1(order *futures.CreateOrderResponse) (resu
 	}
 	result.ReduceOnly = order.ReduceOnly
 	result.Status = b.orderStatus(order.Status)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
+	result.ClosePosition = order.ClosePosition
 	return
 }
 
@@ -392,6 +409,8 @@ func (b *BinanceFutures) convertOrder2(order *futures.CancelOrderResponse) (resu
 	}
 	result.ReduceOnly = order.ReduceOnly
 	result.Status = b.orderStatus(order.Status)
+	result.ActivatePrice = order.ActivatePrice
+	result.PriceRate = order.PriceRate
 	return
 }
 
@@ -464,7 +483,16 @@ func (b *BinanceFutures) IO(name string, params string) (string, error) {
 	return "", nil
 }
 
+func (b *BinanceFutures) ChangeLeverage(symbol string, leverage int) (err error) {
+	_, err = b.client.NewChangeLeverageService().
+		Symbol(symbol).
+		Leverage(leverage).
+		Do(context.Background())
+	return err
+}
+
 func NewBinanceFutures(params *Parameters) *BinanceFutures {
+	futures.UseTestnet = params.Testnet
 	client := futures.NewClient(params.AccessKey, params.SecretKey)
 	b := &BinanceFutures{
 		client: client,
