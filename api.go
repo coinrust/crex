@@ -106,14 +106,14 @@ type PlaceOrderParameter struct {
 	BasePrice   float64
 	StopPx      float64
 	PostOnly    bool
-	ReduceOnly  *bool
+	ReduceOnly  bool
 	PriceType   string
 	ClientOId   string
 	TimeInForce string
 
 	ActivationPrice float64
 	CallbackRate    float64
-	ClosePosition   *bool
+	ClosePosition   bool
 }
 
 // 订单选项
@@ -143,7 +143,7 @@ func OrderPostOnlyOption(postOnly bool) PlaceOrderOption {
 // 只减仓选项
 func OrderReduceOnlyOption(reduceOnly bool) PlaceOrderOption {
 	return func(p *PlaceOrderParameter) {
-		p.ReduceOnly = &reduceOnly
+		p.ReduceOnly = reduceOnly
 	}
 }
 
@@ -180,7 +180,7 @@ func OrderCallbackRateOption(callbackRate float64) PlaceOrderOption {
 
 func OrderClosePositionOption(closePosition bool) PlaceOrderOption {
 	return func(p *PlaceOrderParameter) {
-		p.ClosePosition = &closePosition
+		p.ClosePosition = closePosition
 	}
 }
 
