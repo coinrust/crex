@@ -183,10 +183,14 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	service := b.client.NewCreateOrderService().
 		Symbol(symbol).
 		Quantity(fmt.Sprint(size)).
-		ReduceOnly(params.ReduceOnly).
 		ActivationPrice(fmt.Sprint(params.ActivationPrice)).
-		CallbackRate(fmt.Sprint(params.CallbackRate)).
-		ClosePosition(params.ClosePosition)
+		CallbackRate(fmt.Sprint(params.CallbackRate))
+	if params.ReduceOnly {
+		service = service.ReduceOnly(params.ReduceOnly)
+	}
+	if params.ClosePosition {
+		service = service.ClosePosition(params.ClosePosition)
+	}
 	var side futures.SideType
 	if direction == Buy {
 		side = futures.SideTypeBuy
