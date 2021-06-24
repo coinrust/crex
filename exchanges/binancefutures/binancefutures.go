@@ -209,6 +209,8 @@ func (b *BinanceFutures) PlaceOrder(symbol string, direction Direction, orderTyp
 	case OrderTypeStopLimit:
 		_orderType = futures.OrderTypeStop
 		service = service.StopPrice(fmt.Sprint(params.StopPx))
+	case OrderTypeTrailingStopMarket:
+		_orderType = futures.OrderTypeTrailingStopMarket
 	}
 
 	if orderType != OrderTypeMarket {
@@ -443,6 +445,8 @@ func (b *BinanceFutures) convertOrderType(orderType futures.OrderType) OrderType
 		return OrderTypeStopLimit
 	case futures.OrderTypeStopMarket:
 		return OrderTypeStopMarket
+	case futures.OrderTypeTrailingStopMarket:
+		return OrderTypeTrailingStopMarket
 	default:
 		return OrderTypeLimit
 	}

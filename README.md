@@ -85,6 +85,11 @@ func (s *BasicStrategy) OnTick() error {
 	s.Exchange.OpenLong(symbol, OrderTypeLimit, 5000, 10)
 	s.Exchange.CloseLong(symbol, OrderTypeLimit, 6000, 10)
 
+	//Trailing Stop Market Order - sell stop loss order for long position
+	callbackRate := 5.0 // from 0.1% until 5% allowed
+	s.Exchange.PlaceOrder(symbol, Sell, OrderTypeTrailingStopMarket, 0.0, 10,
+		OrderCallbackRateOption(callbackRate), OrderReduceOnlyOption(true))
+
 	s.Exchange.PlaceOrder(symbol,
 		Buy, OrderTypeLimit, 1000.0, 10, OrderPostOnlyOption(true))
 
