@@ -58,6 +58,7 @@ const (
 	OrderTypeLimit                       // 限价单
 	OrderTypeStopMarket                  // 市价止损单
 	OrderTypeStopLimit                   // 限价止损单
+	OrderTypeTrailingStopMarket
 )
 
 func (t OrderType) String() string {
@@ -70,6 +71,8 @@ func (t OrderType) String() string {
 		return "StopMarket"
 	case OrderTypeStopLimit:
 		return "StopLimit"
+	case OrderTypeTrailingStopMarket:
+		return "TrailingStopMarket"
 	default:
 		return "None"
 	}
