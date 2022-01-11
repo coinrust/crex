@@ -24,6 +24,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.7.4
 	go.mongodb.org/mongo-driver v1.5.1
-	go.uber.org/zap v1.16.0
+	go.uber.org/zap v1.20.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
