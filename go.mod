@@ -3,7 +3,7 @@ module github.com/coinrust/crex
 go 1.15
 
 require (
-	github.com/BurntSushi/toml v0.3.1
+	github.com/BurntSushi/toml v0.4.1
 	github.com/MauriceGit/skiplist v0.0.0-20191117202105-643e379adb62
 	github.com/adshao/go-binance/v2 v2.2.2
 	github.com/beaquant/utils v0.0.0-20210215234655-6b25ba8e2337
