@@ -14,7 +14,7 @@ require (
 	github.com/frankrap/huobi-api v1.0.2
 	github.com/frankrap/okex-api v1.0.4
 	github.com/go-echarts/go-echarts v1.0.0
-	github.com/json-iterator/go v1.1.10
+	github.com/json-iterator/go v1.1.12
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/rocketlaunchr/dataframe-go v0.0.0-20210217092801-7a54a6d5685b
