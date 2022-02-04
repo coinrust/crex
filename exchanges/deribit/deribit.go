@@ -382,15 +382,20 @@ func (b *Deribit) SubscribeLevel2Snapshots(market Market, callback func(ob *Orde
 	// "book.BTC-PERPETUAL.raw"
 	ch := fmt.Sprintf("book.%v.raw", market.Symbol)
 	b.client.On(ch, func(e *models.OrderBookRawNotification) {
+		//The most recent timestamp to return the results for (milliseconds since the UNIX epoch)
+		tm := time.Unix(0, e.Timestamp*1000000)
+
 		if v, ok := b.dobMap[e.InstrumentName]; ok {
 			v.Update(e)
 			ob := v.GetOrderBook(20)
+			ob.Time = tm
 			callback(&ob)
 		} else {
 			dob := NewDepthOrderBook(e.InstrumentName)
 			dob.Update(e)
 			b.dobMap[e.InstrumentName] = dob
 			ob := dob.GetOrderBook(20)
+			ob.Time = tm
 			callback(&ob)
 		}
 	})
