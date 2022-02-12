@@ -175,8 +175,8 @@ github.com/forestgiant/sliceutil v0.0.0-20160425183142-94783f95db6c/go.mod h1:pF
 github.com/frankban/quicktest v1.5.0/go.mod h1:jaStnuzAqU1AJdCO0l53JDCJrVDKcS03DbaAcR7Ks/o=
 github.com/frankrap/bitmex-api v1.0.1 h1:3maWLS+Oo8J2m2sgjaOn6C+IF3tp+UXaHKJCTUt096E=
 github.com/frankrap/bitmex-api v1.0.1/go.mod h1:qNv6d9t18lw5pEOqVauV4wwd5RyqjBmA0uVPRnXScN8=
-github.com/frankrap/bybit-api v1.0.3 h1:8p1eVOqZ1EMWzrmx/8UWe98+7RmNvf596mqgOv3uiVQ=
-github.com/frankrap/bybit-api v1.0.3/go.mod h1:7miMJxc0+7yEWbUk+iug6J0P4RCoE/pYpQNesCfkPKo=
+github.com/frankrap/bybit-api v1.0.8 h1:7KY8objaBq5LXAa0XgeXbBKkSgIcY7rWosrhY7c4tmY=
+github.com/frankrap/bybit-api v1.0.8/go.mod h1:dPTr7GptPe/YBtHyIijzOXD79rmYuHqJawtk6UKQwgQ=
 github.com/frankrap/deribit-api v1.0.3 h1:dr99UrQ4nT4T7B2voPKPRyQwcihBjIg8VDZrImUGF20=
 github.com/frankrap/deribit-api v1.0.3/go.mod h1:CxElDUkDJbDOPBJhnKFh28RM+0P7LwmFYnLnBuK1Xsw=
 github.com/frankrap/huobi-api v1.0.2 h1:WWf4DTxPpKjC1tR2YBJeTdw5tCYWsu79F0WWcnl3tvk=

@@ -9,7 +9,7 @@ require (
 	github.com/beaquant/utils v0.0.0-20210215234655-6b25ba8e2337
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v1.0.1
-	github.com/frankrap/bybit-api v1.0.3
+	github.com/frankrap/bybit-api v1.0.8
 	github.com/frankrap/deribit-api v1.0.3
 	github.com/frankrap/huobi-api v1.0.2
 	github.com/frankrap/okex-api v1.0.4
