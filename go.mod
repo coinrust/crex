@@ -16,6 +16,7 @@ require (
 	github.com/go-echarts/go-echarts v1.0.0
 	github.com/json-iterator/go v1.1.10
 	github.com/micro/go-micro v1.18.0 // indirect
+	github.com/pelletier/go-toml v1.7.0 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/rocketlaunchr/dataframe-go v0.0.0-20210217092801-7a54a6d5685b
 	github.com/sirupsen/logrus v1.8.1
@@ -23,7 +24,7 @@ require (
 	github.com/spf13/cast v1.3.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.14.0
-	go.mongodb.org/mongo-driver v1.5.1
+	go.mongodb.org/mongo-driver v1.8.3
 	go.uber.org/zap v1.16.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
