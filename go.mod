@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/BurntSushi/toml v1.0.0
 	github.com/MauriceGit/skiplist v0.0.0-20191117202105-643e379adb62
-	github.com/adshao/go-binance/v2 v2.3.4
+	github.com/adshao/go-binance/v2 v2.3.5
 	github.com/beaquant/utils v0.0.0-20210215234655-6b25ba8e2337
 	github.com/chuckpreslar/emission v0.0.0-20170206194824-a7ddd980baf9
 	github.com/frankrap/bitmex-api v1.0.1
@@ -15,6 +15,7 @@ require (
 	github.com/frankrap/okex-api v1.0.4
 	github.com/go-echarts/go-echarts v1.0.0
 	github.com/json-iterator/go v1.1.12
+	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/micro/go-micro v1.18.0 // indirect
 	github.com/rakyll/statik v0.1.7
 	github.com/rocketlaunchr/dataframe-go v0.0.0-20210217092801-7a54a6d5685b
@@ -26,4 +27,5 @@ require (
 	go.mongodb.org/mongo-driver v1.5.1
 	go.uber.org/zap v1.21.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
+	nhooyr.io/websocket v1.8.7 // indirect
 )
