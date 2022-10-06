@@ -108,7 +108,7 @@ func (d *DepthOrderBook) GetOrderBook(depth int) (result OrderBook) {
 		node := smallest
 		for count < depth {
 			node = d.asks.Next(node)
-			if node == nil {
+			if node == smallest {
 				break
 			}
 			item := node.GetValue().(DobItem)
@@ -131,7 +131,7 @@ func (d *DepthOrderBook) GetOrderBook(depth int) (result OrderBook) {
 		node := largest
 		for count < depth {
 			node = d.bids.Prev(node)
-			if node == nil {
+			if node == largest {
 				break
 			}
 			item := node.GetValue().(DobItem)
